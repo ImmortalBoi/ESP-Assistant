@@ -81,45 +81,35 @@ void wifiScan(){
       delay(3000);
     }
   }
-  //  Serial.println("\nWhat Network would you like to join?");
+  std::string wifiCred[2];
+  std::string s = pCharacteristicSend->getValue();
+  std::string delimiter = ";;;";
 
-  // while (Serial.available() == 0) {
-  // }
-
-  // int menuChoice = Serial.parseInt();
-
-  // String ssid = WiFi.SSID(menuChoice - 1);
-
-  // Serial.println(ssid);
-
-
-  // while(Serial.available() == 0){
-  // }
-
-  // String password;
-
-  // if(WiFi.encryptionType(menuChoice - 1) == 0){
-  //   password = "";
-  // }
-  // else {
-  //   Serial.println("Please enter your password: ");
-  //   password = Serial.readString();
-  // }
-
-  // WiFi.begin(ssid,password);
+  size_t pos = 0;
+  std::string token;
+  while ((pos = s.find(delimiter)) != std::string::npos) {
+    token = s.substr(0, pos);
+    wifiCred[0] = token;
+    Serial.println(token.c_str());
+    s.erase(0, pos + delimiter.length());
+    Serial.println(s.c_str());
+    wifiCred[1] = s;
+  }
+ 
+  WiFi.begin(wifiCred[0].c_str(),wifiCred[1].c_str());
   
-  // Serial.print("Connecting to WiFi");
+  Serial.print("Connecting to WiFi");
   
-  // while (WiFi.status() != WL_CONNECTED) {
-  //   delay(1000);
-  //   Serial.print(".");
-  // }
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.print(".");
+  }
   
-  // Serial.println("\nConnected to WiFi");
+  Serial.println("\nConnected to WiFi");
 
 
-  // // Wait a bit before scanning again
-  // delay(5000);
+  // Wait a bit before scanning again
+  delay(5000);
 }
 
 void setupMQTT(){
@@ -184,12 +174,9 @@ void setup() {
   setupBLE();
   Serial.println("Characteristics defined! Now you can read it in your phone!");
   wifiScan();
-  //setupMQTT();
+  setupMQTT();
 }
 
 void loop() {
-      wifiScan();
-      std::string rxValue = pCharacteristicGet->getValue();
-      Serial.print("value received = ");
-      Serial.println(rxValue.c_str());
+  client.loop();
 }
