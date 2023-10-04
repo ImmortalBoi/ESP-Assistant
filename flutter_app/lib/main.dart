@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/Widget/bluetooth_wifi_wrapper_widget.dart';
+import 'package:flutter_app/Widget/Mqtt/mqtt_widget.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,14 +32,11 @@ class BottomNavigationBarExample extends StatefulWidget {
 class _BottomNavigationBarExampleState
     extends State<BottomNavigationBarExample> {
   int _selectedIndex = 0;
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+  // static const TextStyle optionStyle =
+  //     TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
     BluetoothWifiWrapperWidget(key: Key('home')),
-    Text(
-      'Index 1: Widgets',
-      style: optionStyle,
-    ),
+    MqttWidget(),
   ];
 
   void _onItemTapped(int index) {
