@@ -9,7 +9,7 @@ Future<http.Response> sendCommand(
       jsonEncode(peripherals.map((p) => p.toJson()).toList());
   String jsonString = jsonEncode(transcript);
   return http.post(
-    Uri.parse('http://192.168.1.7:5000/command'),
+    Uri.parse('https://esp32-voice-assistant.onrender.com/command'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
