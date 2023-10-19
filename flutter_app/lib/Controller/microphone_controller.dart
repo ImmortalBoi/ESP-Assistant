@@ -1,6 +1,5 @@
 // flutter_sound
 import 'dart:convert';
-
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -28,7 +27,7 @@ class FlutterSoundController extends GetxController {
 
     final response = await http.post(
       Uri.parse(
-          "https://api.deepgram.com/v1/listen?model=whisper&detect_language=true&filler_words=false"),
+          "https://api.deepgram.com/v1/listen?model=whisper&detect_language=true&filler_words=false&version=latest"),
       headers: {
         'Authorization': 'Token 4eb2f30695ae2d6d0945dd2248189916912eb895',
         'Content-Type': 'audio/wav',
@@ -47,11 +46,11 @@ class FlutterSoundController extends GetxController {
   void startRecording(String path) async {
     _pathToAudio = path;
     await _recorder.openRecorder();
-    await _recorder.startRecorder(toFile: _pathToAudio);
+    await _recorder.startRecorder(toFile: _pathToAudio, bitRate: 64000);
     _isRecording.value = true;
   }
 
-  void stopRecording() async {
+  Future stopRecording() async {
     await _recorder.stopRecorder().then((value) {
       _pathToAudio = value!;
     });

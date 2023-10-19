@@ -3,17 +3,22 @@ import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 
 class MqttController extends GetxController {
-  var client = MqttServerClient('broker.emqx.io:1883', 'phone-test-123');
+  late MqttServerClient client;
   RxList<String> messages = RxList<String>();
 
   MqttController() {
+    client = MqttServerClient('broker.emqx.io', 'phone-test-123');
+    client.port = 1883;
+    client.logging(on: true);
+    client.keepAlivePeriod = 30;
     client.onConnected = onConnected;
     client.onSubscribed = onSubscribed;
     client.pongCallback = pong;
     final connMessage = MqttConnectMessage()
-        .withWillQos(MqttQos.atMostOnce)
-        .authenticateAs('emqx', 'public');
+        .withClientIdentifier('phone-test-123')
+        .authenticateAs('ESP32testing', '123456');
     client.connectionMessage = connMessage;
+
     connect();
   }
 
@@ -28,7 +33,7 @@ class MqttController extends GetxController {
   }
 
   void onConnected() {
-    client.subscribe('emqx/esp32/s', MqttQos.exactlyOnce);
+    client.subscribe('emqx/esp32/p', MqttQos.atLeastOnce);
   }
 
   void pong() {
@@ -44,6 +49,4 @@ class MqttController extends GetxController {
       messages.add(newMessage);
     });
   }
-
-
 }
