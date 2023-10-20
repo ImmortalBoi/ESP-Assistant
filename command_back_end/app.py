@@ -37,6 +37,7 @@ def command():
         voice:Info = Info(transcript,peripherals) 
         print(voice.prompt)
         mqtt.publish('emqx/esp32/s',voice.understand())
+        mqtt.publish('emqx/esp32/p',voice.transcript)
 
         return jsonify({
             "Valid": "Sent succefully"

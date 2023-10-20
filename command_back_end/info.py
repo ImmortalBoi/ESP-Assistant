@@ -15,6 +15,7 @@ My user's request is "{transcript}"
 His connected peripherals are{self.peripheralPrompt(peripherals)}
 Please reply with the pin number and pin value that would fulfill their request keeping in mind that this is an arduino application 
 """
+        self.transcript = ""
 
     def understand(self):
         palm.configure(api_key='AIzaSyDS6MJnQ9pai5Na_ifyNBXfRElsHt434js')
@@ -32,11 +33,12 @@ Please reply with the pin number and pin value that would fulfill their request 
         if completion.result:
             print('Generation was successful: ')
             print(completion.result)
+            self.transcript = completion.result
 
         else:
             print('Whoops: ')
             print( completion.safety_feedback)
-        
+
         commandArray = completion.result.split("-")
         commandArray = [i for i in commandArray if i]
         print(commandArray)
