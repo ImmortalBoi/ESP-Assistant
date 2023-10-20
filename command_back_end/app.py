@@ -4,20 +4,19 @@ from info import Info
 
 app = Flask(__name__)
 
-app.config['MQTT_BROKER_URL'] = 'broker.emqx.io'
-app.config['MQTT_BROKER_PORT'] = 1883
-app.config['MQTT_USERNAME'] = 'ESP32testing'  # Set your username here
-app.config['MQTT_PASSWORD'] = '123456'  # Set your password here
-
-mqtt = Mqtt(app)
-
 @app.route('/')
 def home():
     return "Hello, World!"
 
-
 @app.route('/command', methods=['POST'])
 def command():
+    app.config['MQTT_BROKER_URL'] = 'broker.emqx.io'
+    app.config['MQTT_BROKER_PORT'] = 1883
+    app.config['MQTT_USERNAME'] = 'ESP32testing'  # Set your username here
+    app.config['MQTT_PASSWORD'] = '123456'  # Set your password here
+
+    mqtt = Mqtt(app)
+    mqtt.init_app(app)
     if request.method == 'POST':
         try:
             # Get regime data from POST req
@@ -48,5 +47,4 @@ def command():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
-    mqtt.init_app(app)
 
