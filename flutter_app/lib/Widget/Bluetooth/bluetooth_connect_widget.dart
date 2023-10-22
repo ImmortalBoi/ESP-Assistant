@@ -1,7 +1,7 @@
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:flutter/material.dart';
-import 'package:location/location.dart' as location;
 import 'package:flutter_app/Widget/Bluetooth/ble_connect_status_modal.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'dart:async';
 
 class BluetoothConnectWidget extends StatefulWidget {
@@ -98,14 +98,31 @@ class _BluetoothConnectWidgetState extends State<BluetoothConnectWidget> {
 
   Stream<List<DiscoveredDevice>> scanForDevices() async* {
     try {
-      final locationPermissionStatus =
-          await location.Location().hasPermission();
-      if (locationPermissionStatus == location.PermissionStatus.denied) {
-        final permissionStatus = await location.Location().requestPermission();
-        if (permissionStatus != location.PermissionStatus.granted) {
-          throw Exception('Location permission not granted');
-        }
-      }
+bool permGranted = true;
+var status = await Permission.location.status;
+if (status.isDenied) {
+  permGranted = false;
+  if (await Permission.location.request().isGranted) {
+    permGranted = true;
+  }
+}
+
+if (status.isDenied) {
+  permGranted = false;
+  Map<Permission, PermissionStatus> statuses = await [
+    Permission.location,
+    Permission.bluetoothScan,
+    Permission.bluetoothAdvertise,
+    Permission.bluetoothConnect
+  ].request();
+  if (statuses[Permission.location]!.isGranted &&
+      statuses[Permission.bluetoothScan]!.isGranted &&
+      statuses[Permission.bluetoothAdvertise]!.isGranted &&
+      statuses[Permission.bluetoothConnect]!.isGranted) {
+    permGranted = true;
+  } //check each permission status after.
+}
+
 
       final controller = StreamController<DiscoveredDevice>();
       final scanSubscription = flutterReactiveBle.scanForDevices(

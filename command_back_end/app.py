@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_mqtt import Mqtt
 from info import Info
+import json
 
 app = Flask(__name__)
 
@@ -36,7 +37,28 @@ def command():
         print(f"Transcript: {transcript}, Peripherals: {peripherals}")       
         voice:Info = Info(transcript,peripherals) 
         print(voice.prompt)
-        mqtt.publish('emqx/esp32/s',voice.understand())
+        results = voice.understand()
+        for result in results:
+            if "servo" in result.lower():
+                for i in range(len(results[result])):
+                    dataJson = {}
+                    dataJson[results[result][i][0]] = results[result][i][1]
+                    print(dataJson)
+                    mqtt.publish('emqx/esp32/SERVO',json.dumps(dataJson))
+
+            if "led" in result.lower():
+                for i in range(len(results[result])):
+                    dataJson = {}
+                    dataJson[results[result][i][0]] = results[result][i][1]
+                    print(dataJson)
+                    mqtt.publish('emqx/esp32/LED',json.dumps(dataJson))
+
+            if "temperature" in result.lower():
+                for i in range(len(results[result])):
+                    dataJson = {}
+                    dataJson[results[result][i][0]] = results[result][i][1]
+                    mqtt.publish('emqx/esp32/TEMPERATURE',json.dumps(dataJson))
+
         mqtt.publish('emqx/esp32/p',voice.transcript)
 
         return jsonify({

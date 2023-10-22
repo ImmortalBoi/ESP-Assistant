@@ -5,8 +5,10 @@ import 'package:mqtt_client/mqtt_server_client.dart';
 class MqttController extends GetxController {
   late MqttServerClient client;
   RxList<String> messages = RxList<String>();
+  RxString topic = ''.obs;
 
-  MqttController() {
+  MqttController(topic) {
+    this.topic.value = topic;
     client = MqttServerClient('broker.emqx.io', 'phone-test-123');
     client.port = 1883;
     client.logging(on: true);
@@ -33,7 +35,7 @@ class MqttController extends GetxController {
   }
 
   void onConnected() {
-    client.subscribe('emqx/esp32/p', MqttQos.atLeastOnce);
+    client.subscribe(topic.value, MqttQos.atLeastOnce);
   }
 
   void pong() {
@@ -47,6 +49,7 @@ class MqttController extends GetxController {
           MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
 
       messages.add(newMessage);
+      print(newMessage);
     });
   }
 }

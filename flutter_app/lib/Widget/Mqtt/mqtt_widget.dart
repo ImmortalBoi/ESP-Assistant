@@ -30,35 +30,42 @@ class MqttWidget extends StatelessWidget {
                     final _pinController = TextEditingController();
                     return AlertDialog(
                       title: const Text('Add Peripheral'),
-                      content: Column(
-                        children: <Widget>[
-                          DropdownButton<Component>(
-                            value: _component,
-                            items: Component.values.map((Component component) {
-                              return DropdownMenuItem<Component>(
-                                value: component,
-                                child:
-                                    Text(component.toString().split('.').last),
-                              );
-                            }).toList(),
-                            onChanged: (Component? newValue) {
-                              _component = newValue;
-                            },
-                          ),
-                          TextField(
-                            controller: _nameController,
-                            decoration: const InputDecoration(hintText: 'Name'),
-                          ),
-                          TextField(
-                            controller: _valueController,
-                            decoration: const InputDecoration(hintText: 'Value'),
-                            keyboardType: TextInputType.number,
-                          ),
-                          TextField(
-                            controller: _pinController,
-                            decoration: const InputDecoration(hintText: 'Pin'),
-                          ),
-                        ],
+                      content: SingleChildScrollView(
+                        child: Column(
+                          children: <Widget>[
+                            DropdownButton<Component>(
+                              value: _component,
+                              hint: Text("Select a component"),
+                              items:
+                                  Component.values.map((Component component) {
+                                return DropdownMenuItem<Component>(
+                                  value: component,
+                                  child: Text(
+                                      component.toString().split('.').last),
+                                );
+                              }).toList(),
+                              onChanged: (Component? newValue) {
+                                _component = newValue;
+                              },
+                            ),
+                            TextField(
+                              controller: _nameController,
+                              decoration:
+                                  const InputDecoration(hintText: 'Name'),
+                            ),
+                            TextField(
+                              controller: _valueController,
+                              decoration:
+                                  const InputDecoration(hintText: 'Value'),
+                              keyboardType: TextInputType.number,
+                            ),
+                            TextField(
+                              controller: _pinController,
+                              decoration:
+                                  const InputDecoration(hintText: 'Pin'),
+                            ),
+                          ],
+                        ),
                       ),
                       actions: <Widget>[
                         TextButton(
@@ -94,13 +101,14 @@ class MqttWidget extends StatelessWidget {
           () => ListView.builder(
             itemCount: peripheralsController.peripherals.length,
             itemBuilder: (context, index) {
-              final peripheral = peripheralsController.peripherals[index];
+              final peripheral =
+                  peripheralsController.peripherals.toList()[index];
               return ListTile(
                 // Customize the ListTile to display the peripheral's information
                 title: Text(peripheral.name),
                 subtitle: Text(
                     'Value: ${peripheral.value}\nPin: ${peripheral.pin.join(', ')}'),
-                leading: const Icon(Icons.device_unknown),
+                leading: peripheral.icon,
               );
             },
           ),
@@ -110,7 +118,9 @@ class MqttWidget extends StatelessWidget {
             micController.startRecording('audioFile');
           },
           onLongPressEnd: (details) {
-            micController.stopRecording().then((value) => sendCommand(peripheralsController.peripherals.toList(), micController.transcript.value));
+            micController.stopRecording().then((value) => sendCommand(
+                peripheralsController.peripherals.toList(),
+                micController.transcript.value));
             showDialog(
               context: context,
               builder: (BuildContext context) {

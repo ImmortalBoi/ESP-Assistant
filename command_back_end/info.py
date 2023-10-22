@@ -1,5 +1,5 @@
 from threading import Lock
-import json
+import re
 import google.generativeai as palm
 
 class Info:
@@ -8,8 +8,8 @@ class Info:
         self.url = "" 
         self.lock = Lock()
         self.prompt = f"""
-I have an application that requires a formatted answer, you are to answer all prompts in this format: -[Pin number]-[Pin value] 
-DO NOT add any other lines that are not in the format: -[Pin number]-[Pin value] 
+I have an application that requires a formatted answer, you are to answer all prompts in this format: [Peripheral type]-[Pin number]-[Pin value] 
+DO NOT add any other lines that are not in the format: [Peripheral type]-[Pin number]-[Pin value] 
 DO NOT add explanations 
 My user's request is "{transcript}" 
 His connected peripherals are{self.peripheralPrompt(peripherals)}
@@ -39,23 +39,32 @@ Please reply with the pin number and pin value that would fulfill their request 
             print('Whoops: ')
             print( completion.safety_feedback)
 
-        commandArray = completion.result.split("-")
-        commandArray = [i for i in commandArray if i]
-        print(commandArray)
+        pattern = r"([a-zA-Z0-9-]+)-([a-zA-Z0-9-]+)-+([a-zA-Z0-9-]+)"
+        matches = re.findall(pattern, completion.result)
+        print(matches)
         data = {}
 
-        for i in range(0,len(commandArray)-1,2):
-            data[commandArray[i]] = commandArray[i+1]
+        for match in matches:
+            print(f"Name: {match[0]}, Pin: {match[1]}, Value: {match[2]}")
+            peripheral = match[0]
+            pin = match[1]
+            value = match[2]
+
+            if peripheral in data:
+                data[peripheral].append([pin,value])
+
+            data[peripheral] = [[pin,value]]
         
+        print(data)
         # Convert the dictionary to a JSON object
-        json_data = json.dumps(data)
-        
-        return json_data
+
+        return data
 
     def peripheralPrompt(self,peripherals):
         prompt = ""
         for peripheral in peripherals:
-            prompt += f" {peripheral['component']} of name {peripheral['name']} at pin(s) {','.join([str(x) for x in peripheral['pin']])} with value: {peripheral['value']}, "
+            print(peripheral)
+            prompt += f" type {peripheral['component']} of name {peripheral['name']} at pin(s) {','.join([str(x) for x in peripheral['pin']])} with value: {peripheral['value']},"
         return prompt
     # def create_exercise_instance(self, exercise_name, exercise_day, exercise_data):
     #     hyperlink = "https://gym-gpt-zeta.vercel.app/exercise/"
