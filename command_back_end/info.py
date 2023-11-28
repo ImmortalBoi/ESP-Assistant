@@ -19,15 +19,14 @@ Please reply with the pin number and pin value that would fulfill their request 
 
     def understand(self):
         palm.configure(api_key='AIzaSyDS6MJnQ9pai5Na_ifyNBXfRElsHt434js')
-        models = [m for m in palm.list_models() if 'generateText' in m.supported_generation_methods]
-        model = models[0].name
+        model = "models/text-bison-001"
 
         completion:palm.types.Completion = palm.generate_text(
             model=model,
             prompt=self.prompt,
             temperature=0,
             # The maximum length of the response
-            max_output_tokens=800,
+            max_output_tokens=100,
         )
 
         if completion.result:
