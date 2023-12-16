@@ -14,9 +14,9 @@ Preferences preferences;
 WebServer server(80);
 // MQTT BROKER
 const char *mqtt_broker = "demo.thingsboard.io";
-// const char *mqtt_username = "ESP32testing";
-// const char *mqtt_password = "123456";
-const char *mqtt_token = "487VTobBu4nObp2gK3Un";
+const char *mqtt_username = "5ib4axhk1dd4k6od695v";
+const char *mqtt_password = "t26rl0qolkdhl3cr01kp";
+const char *client_ID = "vk9wzyduu0vnk62l8kmu";
 const char *telemetry = "v1/devices/me/telemetry";
 const int mqtt_port = 1883;
 // App protocol
@@ -223,14 +223,13 @@ void wifiSetup() {
 
 void setupMQTT() {
   Serial.println("Configuring MQTT Broker");
-  // client.setServer(mqtt_broker, mqtt_port);
+  client.setServer(mqtt_broker, mqtt_port);
 
   while (!client.connected()) {
-    String client_ID = "ESP32-client-";
-    client_ID += String(WiFi.macAddress());
+    //client_ID += String(WiFi.macAddress());
     Serial.println("Connecting to MQTT Broker with client ID = ");
-    Serial.println(client_ID.c_str());
-    if (client.connect(client_ID.c_str(), mqtt_username, mqtt_password)) {
+    Serial.println(client_ID);
+    if (client.connect(client_ID, mqtt_username, mqtt_password)) {
       Serial.println("Connected to public MQTT!");
     } else {
       Serial.println("Failed to connect with state: ");
