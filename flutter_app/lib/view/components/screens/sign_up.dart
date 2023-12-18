@@ -185,8 +185,15 @@ class SignUp extends StatelessWidget {
                             val?.user_email =
                                 userController.emailController.text;
                           });
-                          userController.signUp(userController.user.value).then((value) => {
-                            print(value.statusCode)
+                          userController.signUp(userController.user.value).then((value){
+                            print(value.statusCode);
+                            if(value.statusCode == 201){
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const SignIn()),
+                                );
+                            }
                           });
                         }
                       },
