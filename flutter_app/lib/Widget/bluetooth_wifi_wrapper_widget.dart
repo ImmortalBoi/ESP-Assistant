@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/Widget/Bluetooth/bluetooth_connect_widget.dart';
 import 'package:flutter_app/Widget/Wifi/wifi_connect_widget.dart';
 
 class BluetoothWifiWrapperWidget extends StatelessWidget {
@@ -26,7 +25,6 @@ class WrapperWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        const Expanded(child: BluetoothConnectWidget()),
         Expanded(child: WifiConnectWidget()),
       ],
     );
