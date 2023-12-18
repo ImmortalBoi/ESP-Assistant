@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_app/Controller/mqtt_controller.dart';
+import 'package:flutter_app/Model/peripheral_model.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class PeripheralsController extends GetxController {
   final peripherals = <Peripheral>[].obs;
-
-  @override
-  void onInit() {
-    super.onInit();
-  }
 
   void createPeripheral(
       Component component, String name, int value, List<String> pin) {
@@ -52,24 +50,22 @@ class PeripheralsController extends GetxController {
     peripherals
         .add(Peripheral(component, name, value, pin, icon, mqttController));
   }
-}
 
-enum Component { led, servo, potentiometer, temperature }
-
-class Peripheral {
-  late Component component;
-  late String name;
-  late int value;
-  late List<String> pin;
-  late Icon icon;
-  late MqttController mqttController;
-  Peripheral(this.component, this.name, this.value, this.pin, this.icon,
-      this.mqttController);
-  Map<String, dynamic> toJson() => {
-        'component': component
-            .name, // Assuming Component class also has a toJson() method
-        'name': name,
-        'value': value,
-        'pin': pin,
-      };
+  Future<http.Response> sendCommand(
+      List<Peripheral> peripherals, String transcript) {
+    print("Sending");
+    String jsonPeripherals =
+        jsonEncode(peripherals.map((p) => p.toJson()).toList());
+    String jsonString = jsonEncode(transcript);
+    return http.post(
+      Uri.parse('https://esp32-voice-assistant.onrender.com/command'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode({
+        'Peripherals': jsonDecode(jsonPeripherals),
+        'Transcript': jsonString,
+      }),
+    );
+  }
 }

@@ -19,8 +19,8 @@ mqtt = Mqtt(app)
 mqtt.init_app(app)
 
 @app.route('/')
-def home():
-    return "Hello, World!"
+def list_routes():
+    return ['%s' % rule for rule in app.url_map.iter_rules()]
 
 @app.route('/command', methods=['POST'])
 def command():

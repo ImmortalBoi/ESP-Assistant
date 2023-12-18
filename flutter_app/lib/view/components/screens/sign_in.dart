@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/Controller/user_controller.dart';
 import 'package:flutter_app/app_colors.dart';
 import 'package:flutter_app/view/components/screens/sign_up.dart';
+import 'package:get/get.dart';
 
-class SignIn extends StatefulWidget {
+class SignIn extends StatelessWidget {
   const SignIn({super.key});
 
   @override
-  State<SignIn> createState() => _SignInState();
-}
-
-class _SignInState extends State<SignIn> {
-  @override
   Widget build(BuildContext context) {
+    final UserController userController = Get.put(UserController());
+
     return Scaffold(
         backgroundColor: AppColors.backgroundColor,
         body: Center(
@@ -188,5 +187,6 @@ class _SignInState extends State<SignIn> {
             ),
           ),
         ));
+
   }
 }
