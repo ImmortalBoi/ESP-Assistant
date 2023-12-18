@@ -20,7 +20,7 @@ class SignUp extends StatelessWidget {
                 child: Stack(children: [
                   const Positioned(
                     left: 19,
-                    child: Text("sign up",
+                    child: Text("Sign Up",
                         style: TextStyle(
                           color: Color(0xFF2F414F),
                           fontSize: 30,

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/Controller/user_controller.dart';
 import 'package:flutter_app/app_colors.dart';
 import 'package:flutter_app/view/components/screens/sign_up.dart';
+import 'package:flutter_app/old_main.dart';
 import 'package:get/get.dart';
+import 'dart:convert';
 
 class SignIn extends StatelessWidget {
   const SignIn({super.key});
@@ -21,7 +23,7 @@ class SignIn extends StatelessWidget {
               children: [
                 const Positioned(
                   left: 19,
-                  child: Text("sign in",
+                  child: Text("Sign In",
                       style: TextStyle(
                         color: Color(0xFF2F414F),
                         fontSize: 30,
@@ -123,7 +125,18 @@ class SignIn extends StatelessWidget {
                       });
                       userController
                           .checkAuth(userController.user.value)
-                          .then((value) => {print(value.body)});
+                          .then((value) {
+                        print(value.body);
+                        Map<String, dynamic> body = jsonDecode(value.body);
+                        userController.user.update((val) {
+                          val?.user_id = body['user_id'];
+                        });
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const OldMain()),
+                        );
+                      });
                     },
                     child: Container(
                       alignment: Alignment.center,

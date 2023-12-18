@@ -3,11 +3,11 @@ import 'package:flutter_app/Widget/bluetooth_wifi_wrapper_widget.dart';
 import 'package:flutter_app/Widget/Mqtt/mqtt_widget.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const OldMain());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class OldMain extends StatelessWidget {
+  const OldMain({super.key});
 
   @override
   Widget build(BuildContext context) {
