@@ -46,8 +46,9 @@ class SignIn extends StatelessWidget {
                       ),
                     ),
                     child: TextFormField(
+                      controller: userController.usernameController,
                       decoration: InputDecoration(
-                        hintText: 'email or username',
+                        hintText: 'Username',
                         hintStyle: TextStyle(
                           color: Colors.black.withOpacity(0.30000001192092896),
                           fontSize: 15,
@@ -79,6 +80,7 @@ class SignIn extends StatelessWidget {
                       ),
                     ),
                     child: TextFormField(
+                      controller: userController.passwordController,
                       decoration: InputDecoration(
                         hintText: 'password',
                         hintStyle: TextStyle(
@@ -112,24 +114,36 @@ class SignIn extends StatelessWidget {
                   top: 300,
                   right: 40,
                   left: 40,
-                  child: Container(
-                    alignment: Alignment.center,
-                    width: 390,
-                    height: 50,
-                    decoration: ShapeDecoration(
-                      color: const Color(0xFF3894A3),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
+                  child: GestureDetector(
+                    onTap: () {
+                      userController.user.update((val) {
+                        val?.user_name = userController.usernameController.text;
+                        val?.user_password =
+                            userController.passwordController.text;
+                      });
+                      userController
+                          .checkAuth(userController.user.value)
+                          .then((value) => {print(value.body)});
+                    },
+                    child: Container(
+                      alignment: Alignment.center,
+                      width: 390,
+                      height: 50,
+                      decoration: ShapeDecoration(
+                        color: const Color(0xFF3894A3),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
                       ),
-                    ),
-                    child: const Text(
-                      'Sign in',
-                      style: TextStyle(
-                        color: Color(0xFFF1F1EF),
-                        fontSize: 15,
-                        fontFamily: 'IBM Plex Mono',
-                        fontWeight: FontWeight.w700,
-                        height: 0,
+                      child: const Text(
+                        'Sign in',
+                        style: TextStyle(
+                          color: Color(0xFFF1F1EF),
+                          fontSize: 15,
+                          fontFamily: 'IBM Plex Mono',
+                          fontWeight: FontWeight.w700,
+                          height: 0,
+                        ),
                       ),
                     ),
                   ),
@@ -187,6 +201,5 @@ class SignIn extends StatelessWidget {
             ),
           ),
         ));
-
   }
 }

@@ -85,8 +85,7 @@ def session():
     for user in users['data']:
         if user['user_name'] == user_name and user['user_password'] == user_password:
             return jsonify({"message": "Login successful."}), 200
-
-    return jsonify({"message": "Invalid username or password."}), 401
+    return jsonify({"message": "Invalid username or password.","user_name":user['user_name'],"user_password":user['user_password']}), 401
 
 # Users Routes
 @app.route('/users', methods=['POST'])
