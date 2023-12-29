@@ -1,6 +1,7 @@
 // ignore_for_file: unused_import
 
 import 'package:flutter/material.dart';
+import 'package:flutter_app/view/components/screens/wifi.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_app/view/components/screens/devices.dart';
 import 'package:flutter_app/view/components/screens/sign_in.dart';
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Welcome(),
+      home: MyHomeScreen(),
     );
   }
 }
