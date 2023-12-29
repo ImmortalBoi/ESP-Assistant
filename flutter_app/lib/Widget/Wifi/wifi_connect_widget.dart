@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/Widget/Wifi/wifi_modal_widget.dart';
 import 'package:get/get.dart';
-import 'package:flutter_app/Controller/wifi_connect_controller.dart';
+import 'package:flutter_app/Controller/wifi_controller.dart';
 
 class WifiConnectWidget extends StatelessWidget {
-  final WifiConnectController controller = Get.put(WifiConnectController());
+  final WifiController controller = Get.put(WifiController());
 
   WifiConnectWidget({Key? key}) : super(key: key);
 

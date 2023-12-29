@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:flutter_app/Controller/wifi_connect_controller.dart';
+import 'package:flutter_app/Controller/wifi_controller.dart';
 
 class WifiConnectModalWidget extends StatelessWidget {
   const WifiConnectModalWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final WifiConnectController controller = Get.put(WifiConnectController());
+    final WifiController controller = Get.put(WifiController());
 
     return 
       Padding(
@@ -22,7 +22,7 @@ class WifiConnectModalWidget extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                controller.writeCharacteristic(controller.textController.text);
+                // controller.writeCharacteristic(controller.textController.text);
               },
               child: const Text('Write to Characteristic'),
             ),

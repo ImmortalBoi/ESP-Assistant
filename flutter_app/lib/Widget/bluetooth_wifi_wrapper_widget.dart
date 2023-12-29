@@ -9,7 +9,7 @@ class BluetoothWifiWrapperWidget extends StatelessWidget {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('ESP Connect'),
+          title: const Text('ESP Pair'),
           backgroundColor: Colors.blue,
         ),
         body: const WrapperWidget(),
