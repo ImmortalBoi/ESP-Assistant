@@ -10,11 +10,12 @@ class WifiConnectWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    controller.connectToESPWifi();
     return Scaffold(
       body: Obx(() => Column(
             children: <Widget>[
               Text(
-                'Device ID: ${controller.deviceID.value}',
+                'uri: ${controller.uri}, response: ${controller.response}, retry: ${controller.retryCount}',
                 style: const TextStyle(fontSize: 16),
               ),
               Expanded(

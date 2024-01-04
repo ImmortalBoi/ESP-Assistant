@@ -43,7 +43,7 @@ dependencies:
   http: ^1.1.0
   svg_clip: ^0.0.2
   flutter_svg: ^2.0.9
-  wifi_scan: ^0.4.1
+  wifi_iot: ^0.3.19
 
 dev_dependencies:
   flutter_test:

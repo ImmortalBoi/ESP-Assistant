@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/Controller/user_controller.dart';
 import 'package:flutter_app/app_colors.dart';
-import 'package:flutter_app/view/components/screens/sign_up.dart';
 import 'package:flutter_app/old_main.dart';
 import 'package:get/get.dart';
 import 'dart:convert';
@@ -50,7 +49,7 @@ class wifi extends StatelessWidget {
                                 height: 50,
                                 decoration: ShapeDecoration(
                                   shape: RoundedRectangleBorder(
-                                    side: BorderSide(
+                                    side: const BorderSide(
                                         width: 2, color: Color(0xFFC7DAD4)),
                                     borderRadius: BorderRadius.circular(15),
                                   ),
@@ -70,7 +69,7 @@ class wifi extends StatelessWidget {
                                         .wifi, // Replace 'YOUR_ICON' with the actual icon you want
                                     color: Colors.black.withOpacity(0.3),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                       width:
                                           10), // Adjust the spacing between the icon and text
                                   Text(
@@ -106,7 +105,7 @@ class wifi extends StatelessWidget {
                                 height: 50,
                                 decoration: ShapeDecoration(
                                   shape: RoundedRectangleBorder(
-                                    side: BorderSide(
+                                    side: const BorderSide(
                                         width: 2, color: Color(0xFFC7DAD4)),
                                     borderRadius: BorderRadius.circular(15),
                                   ),
@@ -126,7 +125,7 @@ class wifi extends StatelessWidget {
                                         .wifi, // Replace 'YOUR_ICON' with the actual icon you want
                                     color: Colors.black.withOpacity(0.3),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                       width:
                                           10), // Adjust the spacing between the icon and text
                                   Text(
@@ -162,7 +161,7 @@ class wifi extends StatelessWidget {
                                 height: 50,
                                 decoration: ShapeDecoration(
                                   shape: RoundedRectangleBorder(
-                                    side: BorderSide(
+                                    side: const BorderSide(
                                         width: 2, color: Color(0xFFC7DAD4)),
                                     borderRadius: BorderRadius.circular(15),
                                   ),
@@ -182,7 +181,7 @@ class wifi extends StatelessWidget {
                                         .wifi, // Replace 'YOUR_ICON' with the actual icon you want
                                     color: Colors.black.withOpacity(0.3),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                       width:
                                           10), // Adjust the spacing between the icon and text
                                   Text(

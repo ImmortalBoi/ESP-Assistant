@@ -50,9 +50,9 @@ class MyHomeScreen extends StatelessWidget {
                   height: 60,
                   padding: const EdgeInsets.all(10),
                   decoration: ShapeDecoration(
-                    color: Color(0xFFC7DAD4),
+                    color: const Color(0xFFC7DAD4),
                     shape: RoundedRectangleBorder(
-                      side: BorderSide(
+                      side: const BorderSide(
                         width: 1,
                         strokeAlign: BorderSide.strokeAlignOutside,
                         color: Color(0xFF3894A3),
@@ -60,7 +60,7 @@ class MyHomeScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  child: Row(
+                  child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -101,7 +101,7 @@ class MyHomeScreen extends StatelessWidget {
                 height: 130,
                 clipBehavior: Clip.antiAlias,
                 decoration: ShapeDecoration(
-                  color: Color(0xFF3894A3),
+                  color: const Color(0xFF3894A3),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -118,9 +118,9 @@ class MyHomeScreen extends StatelessWidget {
                 height: 63,
                 clipBehavior: Clip.antiAlias,
                 decoration: ShapeDecoration(
-                  color: Color(0xFFF1F1EF),
+                  color: const Color(0xFFF1F1EF),
                   shape: RoundedRectangleBorder(
-                    side: BorderSide(width: 2, color: Color(0xFFC7DAD4)),
+                    side: const BorderSide(width: 2, color: Color(0xFFC7DAD4)),
                     borderRadius: BorderRadius.circular(140),
                   ),
                 ),
