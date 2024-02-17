@@ -2,7 +2,7 @@
 #include <WiFiClient.h>
 #include <WebServer.h>
 #include <uri/UriBraces.h>
-// #include <PubSubClient.h>
+#include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include <ESP32Servo.h>
 #include <Preferences.h>
@@ -58,26 +58,26 @@ void callback(char *topic, byte *payload, unsigned int length) {
       std::string tempC = std::to_string(milliVolt / 10);
       client.publish("emqx/esp32/TEMPERATURE", tempC.c_str());
     }
-    if (strcmp(topic,"emqx/esp32/UPDATE") == 0) {
+    if (strcmp(topic, "emqx/esp32/UPDATE") == 0) {
       Serial.println("Update ongoing");
-      payload[length] = '\0'; // Null-terminate the payload
-  String updateUrl = String((char *)payload);
+      payload[length] = '\0';  // Null-terminate the payload
+      String updateUrl = String((char *)payload);
 
-  // Perform OTA update
-  t_httpUpdate_return result = ESPhttpUpdate.update(updateUrl);
-  switch (result) {
-    case HTTP_UPDATE_FAILED:
-      Serial.printf("HTTP_UPDATE_FAILED Error (%d): %s\n", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
-      break;
+      // // Perform OTA update
+      // t_httpUpdate_return result = ESPhttpUpdate.update(updateUrl);
+      // switch (result) {
+      //   case HTTP_UPDATE_FAILED:
+      //     Serial.printf("HTTP_UPDATE_FAILED Error (%d): %s\n", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
+      //     break;
 
-    case HTTP_UPDATE_NO_UPDATES:
-      Serial.println("HTTP_UPDATE_NO_UPDATES");
-      break;
+      //   case HTTP_UPDATE_NO_UPDATES:
+      //     Serial.println("HTTP_UPDATE_NO_UPDATES");
+      //     break;
 
-    case HTTP_UPDATE_OK:
-      Serial.println("Update complete");
-      break;
-  }
+      //   case HTTP_UPDATE_OK:
+      //     Serial.println("Update complete");
+      //     break;
+      // }
     }
   }
 
@@ -129,14 +129,15 @@ void wifiSetup() {
     Serial.println("Connected!");
     return;
   }
-  String password_AP = "12345678";
+  String password_AP = "TestingPassword";
   String ssid_AP = "ESP32";
   WiFi.softAP(ssid_AP, password_AP);
   Serial.println("Created AP");
   Serial.print("ESP AP IP: ");
   Serial.println(WiFi.softAPIP());
+  Serial.println(Wifi)
 
-
+  server.on(UriBraces("/reply"),sendWiFiScanHtml);
   server.on(UriBraces("/wifi/{}/pass/{}"), []() {
     String wifiIndex = server.pathArg(0);
     String pass = server.pathArg(1);
