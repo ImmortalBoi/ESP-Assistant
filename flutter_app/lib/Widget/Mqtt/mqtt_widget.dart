@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 // import 'package:flutter_app/Controller/mqtt_controller.dart';
 import 'package:flutter_app/Controller/microphone_controller.dart';
 import 'package:flutter_app/Controller/peripherals_controller.dart';
-import 'package:flutter_app/Controller/http_controller.dart';
+import 'package:flutter_app/Model/peripheral_model.dart';
 
 class MqttWidget extends StatelessWidget {
   const MqttWidget({super.key});
@@ -118,7 +118,7 @@ class MqttWidget extends StatelessWidget {
             micController.startRecording('audioFile');
           },
           onLongPressEnd: (details) {
-            micController.stopRecording().then((value) => sendCommand(
+            micController.stopRecording().then((value) => peripheralsController.sendCommand(
                 peripheralsController.peripherals.toList(),
                 micController.transcript.value));
             showDialog(

@@ -19,8 +19,8 @@ mqtt = Mqtt(app)
 mqtt.init_app(app)
 
 @app.route('/')
-def home():
-    return "Hello, World!"
+def list_routes():
+    return ['%s' % rule for rule in app.url_map.iter_rules()]
 
 @app.route('/command', methods=['POST'])
 def command():
@@ -84,9 +84,8 @@ def session():
     users = supabase.table('User').select().execute()
     for user in users['data']:
         if user['user_name'] == user_name and user['user_password'] == user_password:
-            return jsonify({"message": "Login successful."}), 200
-
-    return jsonify({"message": "Invalid username or password."}), 401
+            return jsonify({"message": "Login successful.","user_id":user['user_id']}), 200
+    return jsonify({"message": "Invalid username or password.","user_name":user_name,"user_password":user_password}), 401
 
 # Users Routes
 @app.route('/users', methods=['POST'])
