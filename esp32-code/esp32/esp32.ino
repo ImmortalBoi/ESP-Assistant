@@ -4,7 +4,6 @@
 #include <WiFiClient.h>
 #include <WebServer.h>
 #include <uri/UriBraces.h>
-#include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include <Preferences.h>
 #include <ThingsBoard.h>
@@ -85,7 +84,6 @@ void wifiSetup() {
   Serial.println("Created AP");
   Serial.print("ESP AP IP: ");
   Serial.println(WiFi.softAPIP());
-  Serial.println(Wifi)
 
   server.on(UriBraces("/reply"),sendWiFiScanHtml);
   server.on(UriBraces("/wifi/{}/pass/{}"), []() {

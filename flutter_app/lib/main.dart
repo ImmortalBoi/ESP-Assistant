@@ -1,13 +1,13 @@
 // ignore_for_file: unused_import
 
 import 'package:flutter/material.dart';
-import 'package:flutter_app/view/components/screens/wifi.dart';
+import 'package:flutter_app/view/screens/wifi.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter_app/view/components/screens/devices.dart';
-import 'package:flutter_app/view/components/screens/sign_in.dart';
+import 'package:flutter_app/view/screens/devices.dart';
+import 'package:flutter_app/view/screens/sign_in.dart';
 import 'package:get/get.dart';
-import 'package:flutter_app/view/components/screens/home_screen.dart';
-import 'package:flutter_app/view/components/screens/welcome.dart';
+import 'package:flutter_app/view/screens/home_screen.dart';
+import 'package:flutter_app/view/screens/welcome.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,9 +20,9 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Welcome(),
+      home: wifi(),
     );
   }
 }

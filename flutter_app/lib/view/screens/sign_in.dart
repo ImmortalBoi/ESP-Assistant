@@ -1,13 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/Controller/user_controller.dart';
 import 'package:flutter_app/app_colors.dart';
-import 'package:flutter_app/view/components/screens/sign_up.dart';
-import 'package:flutter_app/old_main.dart';
+import 'package:flutter_app/view/screens/sign_up.dart';
+// import 'package:flutter_app/old_main.dart';
+import 'package:flutter_app/view/screens/wifi.dart';
 import 'package:get/get.dart';
 import 'dart:convert';
 
-class SignIn extends StatelessWidget {
+class SignIn extends StatefulWidget {
   const SignIn({super.key});
+
+  @override
+  State<SignIn> createState() => _SignInState();
+}
+
+class _SignInState extends State<SignIn> {
+  double opacity = 1;
+  bool errorVisibility = false;
+  String errorText = "";
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +26,7 @@ class SignIn extends StatelessWidget {
     return Scaffold(
         backgroundColor: AppColors.backgroundColor,
         body: Center(
-          child: Container(
+          child: SizedBox(
             width: 400,
             height: 500,
             child: Stack(
@@ -118,6 +128,9 @@ class SignIn extends StatelessWidget {
                   left: 40,
                   child: GestureDetector(
                     onTap: () {
+                      setState(() {
+                        opacity = 0.5;
+                      });
                       userController.user.update((val) {
                         val?.user_name = userController.usernameController.text;
                         val?.user_password =
@@ -126,7 +139,14 @@ class SignIn extends StatelessWidget {
                       userController
                           .checkAuth(userController.user.value)
                           .then((value) {
-                        print(value.body);
+                        print(value.statusCode);
+                        if(value.statusCode == 401){
+                          setState(() {
+                            errorText = "Invalid info";
+                            errorVisibility = true;
+                          });
+                          return;
+                        }
                         Map<String, dynamic> body = jsonDecode(value.body);
                         userController.user.update((val) {
                           val?.user_id = body['user_id'];
@@ -134,8 +154,9 @@ class SignIn extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const OldMain()),
+                              builder: (context) => wifi()),
                         );
+                        return;
                       });
                     },
                     child: Container(
@@ -143,7 +164,7 @@ class SignIn extends StatelessWidget {
                       width: 390,
                       height: 50,
                       decoration: ShapeDecoration(
-                        color: const Color(0xFF3894A3),
+                        color: const Color(0xFF3894A3).withOpacity(opacity),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15),
                         ),
@@ -161,9 +182,36 @@ class SignIn extends StatelessWidget {
                     ),
                   ),
                 ),
+                Visibility(
+                  visible: errorVisibility,
+                    child: Positioned(
+                  top: 350,
+                  child: SizedBox(
+                    width: 300,
+                    height: 20,
+                    child: Stack(
+                      children: [
+                        Positioned(
+                          left: 70,
+                          top: 0,
+                          child: Text(
+                            errorText,
+                            style: const TextStyle(
+                              color: Color.fromARGB(255, 168, 16, 16),
+                              fontSize: 15,
+                              fontFamily: 'IBM Plex Mono',
+                              fontWeight: FontWeight.w400,
+                              height: 0,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )),
                 Positioned(
                   top: 400,
-                  child: Container(
+                  child: SizedBox(
                     width: 300,
                     height: 20,
                     child: Stack(

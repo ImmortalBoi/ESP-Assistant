@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/Controller/user_controller.dart';
 import 'package:flutter_app/app_colors.dart';
-import 'package:flutter_app/view/components/screens/sign_in.dart';
+import 'package:flutter_app/view/screens/sign_in.dart';
 import 'package:get/get.dart';
 
 class SignUp extends StatelessWidget {

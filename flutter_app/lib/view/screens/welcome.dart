@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_app/app_colors.dart';
-import 'package:flutter_app/view/components/screens/sign_in.dart';
-import 'package:flutter_app/view/components/screens/sign_up.dart';
+import 'package:flutter_app/view/screens/sign_in.dart';
+import 'package:flutter_app/view/screens/sign_up.dart';
 
 class Welcome extends StatelessWidget {
   const Welcome({super.key});
@@ -65,7 +65,7 @@ class Welcome extends StatelessWidget {
                     ),
                   ),
                   child: const Text(
-                    'sign in',
+                    'Sign In',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14,
@@ -89,7 +89,7 @@ class Welcome extends StatelessWidget {
                     ),
                   ),
                   child: const Text(
-                    'sign up',
+                    'Sign Up',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14,
