@@ -43,15 +43,16 @@ class wifi extends StatelessWidget {
                     ),
                   ),
                   Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          for (int i = 0;
-                              i < wifiController.receivedDataList.length;
-                              i++)
-                            UnselectedWifi(wifiController.receivedDataList[i]),
-                        ],
-                      ),
+                    child: ListView.builder(
+                      itemCount: wifiController.receivedDataList.length,
+                      itemBuilder: (context, index) {
+                        dynamic wifi = wifiController.receivedDataList[index];
+                        return ListTile(
+                          title: Text(wifi),
+                          // subtitle: Text('BSSID: ${wifi.bssid}'),
+                          // trailing: Text('Signal Level: ${wifi.level}'),
+                        );
+                      },
                     ),
                   ),
                   GestureDetector(

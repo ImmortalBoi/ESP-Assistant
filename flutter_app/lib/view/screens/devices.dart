@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_app/app_colors.dart';
 
 class Devices extends StatefulWidget {
   const Devices({super.key});
@@ -10,6 +12,8 @@ class Devices extends StatefulWidget {
 class _DevicesState extends State<Devices> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+        backgroundColor: AppColors.backgroundColor,
+        body: Center(child: Container()));
   }
 }

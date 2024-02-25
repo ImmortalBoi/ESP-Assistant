@@ -25,8 +25,8 @@ class WifiController extends GetxController {
   }
 
   void requestESPWifiList() async {
-    print("Trying to connect");
-    await WiFiForIoTPlugin.findAndConnect("ESP32", password: "TestingPassword")
+    print("Trying to request 12345678");
+    await WiFiForIoTPlugin.findAndConnect("ESP32", password: "12345678")
         .then((value) async {
       WiFiForIoTPlugin.forceWifiUsage(true);
       ip.value = (await WiFiForIoTPlugin.getIP())!;
@@ -60,9 +60,10 @@ class WifiController extends GetxController {
       receivedDataList.value = json.decode(res!.body)['wifi'];
     });
   }
+
   Future<bool> connectESPWifi(String name, String password) async {
     print("Trying to connect");
-    await WiFiForIoTPlugin.findAndConnect("ESP32", password: "TestingPassword")
+    await WiFiForIoTPlugin.findAndConnect("ESP32", password: "12345678")
         .then((value) async {
       WiFiForIoTPlugin.forceWifiUsage(true);
       ip.value = (await WiFiForIoTPlugin.getIP())!;
