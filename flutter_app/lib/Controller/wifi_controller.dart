@@ -62,7 +62,7 @@ class WifiController extends GetxController {
   }
 
   Future<bool> connectESPWifi(String name, String password) async {
-    print("Trying to connect");
+    print("Trying to send wifi information");
     await WiFiForIoTPlugin.findAndConnect("ESP32", password: "12345678")
         .then((value) async {
       WiFiForIoTPlugin.forceWifiUsage(true);

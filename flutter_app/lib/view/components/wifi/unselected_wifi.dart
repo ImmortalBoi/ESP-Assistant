@@ -7,7 +7,7 @@ class UnselectedWifi extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding:
-          EdgeInsets.only(top: 10.0, bottom: 10.0), // Adds padding to the left
+          EdgeInsets.only(top: 1.0, bottom: 1.0), // Adds padding to the left
       child: SizedBox(
         width: 390,
         height: 50,

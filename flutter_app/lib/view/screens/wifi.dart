@@ -3,6 +3,7 @@ import 'package:flutter_app/Controller/user_controller.dart';
 import 'package:flutter_app/app_colors.dart';
 import 'package:flutter_app/view/components/wifi/unselected_wifi.dart';
 import 'package:flutter_app/view/screens/devices.dart';
+import 'package:flutter_app/view/screens/wifi_list_item.dart';
 import 'package:get/get.dart';
 import 'package:flutter_app/Controller/wifi_controller.dart';
 import 'dart:convert';
@@ -15,7 +16,6 @@ class wifi extends StatelessWidget {
     final WifiController wifiController = Get.put(WifiController());
     final UserController userController = Get.put(UserController());
     wifiController.requestESPWifiList();
-    print("Trying to connect");
 
     return Scaffold(
         backgroundColor: AppColors.backgroundColor,
@@ -47,11 +47,7 @@ class wifi extends StatelessWidget {
                       itemCount: wifiController.receivedDataList.length,
                       itemBuilder: (context, index) {
                         dynamic wifi = wifiController.receivedDataList[index];
-                        return ListTile(
-                          title: Text(wifi),
-                          // subtitle: Text('BSSID: ${wifi.bssid}'),
-                          // trailing: Text('Signal Level: ${wifi.level}'),
-                        );
+                        return WiFiListItem(wifi: wifi);
                       },
                     ),
                   ),
@@ -79,12 +75,12 @@ class wifi extends StatelessWidget {
                     },
                     child: Container(
                       alignment: Alignment.center,
-                      width: 390,
+                      width: 250,
                       height: 50,
                       decoration: ShapeDecoration(
                         color: const Color(0xFF3894A3),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(20),
                         ),
                       ),
                       child: const Text(
