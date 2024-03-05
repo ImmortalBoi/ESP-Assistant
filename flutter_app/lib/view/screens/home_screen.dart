@@ -1,136 +1,204 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_svg/flutter_svg.dart'; // Import the package for SVG support
+import 'package:flutter_app/colors/app_colors.dart';
+import 'package:flutter_app/view/screens/config.dart';
+import 'package:flutter_app/view/screens/select_device.dart';
+import './wifi.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: MyHomeScreen(),
-    );
-  }
-}
-
-class MyHomeScreen extends StatelessWidget {
-  const MyHomeScreen({super.key});
+class HomeScreen extends StatelessWidget {
+  HomeScreen({super.key});
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
+      backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
-        title: const Text('Home Screen'),
-      ),
-      drawer: Drawer(
-        child: ListTile(
-          title: const Text('Drawer Item'),
-          onTap: () {
-            // Handle drawer item tap
-          },
+        backgroundColor: AppColors.backgroundColor,
+        title: const Text("Home Page",
+            style: TextStyle(
+              color: Color(0xFF2F414F),
+              fontSize: 20,
+              fontFamily: 'IBM Plex Mono',
+              fontWeight: FontWeight.w700,
+            )),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.menu), // Burger menu icon
+          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
         ),
       ),
-      body: Stack(
-        children: [
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SvgPicture.asset(
-                  'assets/icons/add.svg', // Replace with the path to your SVG icon
-                  width: 160,
-                  height: 160,
+      drawer: Drawer(
+        child: Container(
+          color: AppColors.backgroundColor, // Match the body's color
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              const DrawerHeader(
+                decoration: BoxDecoration(
+                  color: AppColors.backgroundColor,
                 ),
-                const SizedBox(height: 30),
-                Container(
-                  width: 279,
-                  height: 60,
-                  padding: const EdgeInsets.all(10),
-                  decoration: ShapeDecoration(
-                    color: const Color(0xFFC7DAD4),
-                    shape: RoundedRectangleBorder(
-                      side: const BorderSide(
-                        width: 1,
-                        strokeAlign: BorderSide.strokeAlignOutside,
-                        color: Color(0xFF3894A3),
-                      ),
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 259,
-                        child: Opacity(
-                          opacity: 0.80,
-                          child: Text(
-                            'connect device',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Color(0xFF2F414F),
-                              fontSize: 20,
-                              fontFamily: 'IBM Plex Mono',
-                              fontWeight: FontWeight.w600,
-                              height: 0,
+                child: Text('Drawer Header'),
+              ),
+              ListTile(
+                title: const Text('Item 1'),
+                onTap: () {
+                  // Update the state of the app
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: const Text('Item 2'),
+                onTap: () {
+                  // Update the state of the app
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(45, 50, 45, 60),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: <Widget>[
+                    // Add the custom SVG icon and rich text at the top center of the page
+                    Center(
+                      child: Row(
+                        children: [
+                          SvgPicture.asset(
+                            'assets/icons/chip.svg', // Replace with the path to your SVG file
+                            width: 50.0, // Set the width of the SVG logo
+                            height: 50.0, // Set the height of the SVG logo
+                          ),
+                          SizedBox(width: 8),
+                          RichText(
+                            text: const TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'ESP ',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 18,
+                                    fontFamily: 'Inter',
+                                    fontWeight: FontWeight.w700,
+                                    height: 0,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: 'SMARTASSISTANT',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 18,
+                                    fontFamily: 'Inter',
+                                    fontWeight: FontWeight.w300,
+                                    height: 0,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                )
-              ],
-            ),
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: BottomAppBar(
-              color: Colors.transparent,
-              elevation: 0,
-              shape: const CircularNotchedRectangle(),
-              child: Container(
-                width: 460,
-                height: 130,
-                clipBehavior: Clip.antiAlias,
-                decoration: ShapeDecoration(
-                  color: const Color(0xFF3894A3),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
+                    ),
+                    const SizedBox(height: 60),
+                    _buildContainer(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => wifi()),
+                        );
+                      },
+                      color: Colors.blue,
+                      text: 'Select ESP32 WiFi',
+                    ),
+                    const SizedBox(height: 20),
+                    _buildContainer(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const ConfigurationScreen()),
+                        );
+                      },
+                      color: Colors.green,
+                      text: 'Apply Settings',
+                    ),
+                    const SizedBox(height: 20),
+                    _buildContainer(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const SelectDeviceScreen()),
+                        );
+                      },
+                      color: Colors.red,
+                      text: 'Select Device ',
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
-          Positioned(
-              top: 680,
-              right: 175,
-              left: 175,
-              child: Container(
-                width: 80,
-                height: 63,
-                clipBehavior: Clip.antiAlias,
-                decoration: ShapeDecoration(
-                  color: const Color(0xFFF1F1EF),
-                  shape: RoundedRectangleBorder(
-                    side: const BorderSide(width: 2, color: Color(0xFFC7DAD4)),
-                    borderRadius: BorderRadius.circular(140),
+          // Add a footer section at the end of the page
+          const Padding(
+            padding: EdgeInsets.only(top: 20.0),
+            child: Text(
+              '© 2024 Our IoT App. All rights reserved.',
+              style: TextStyle(fontSize: 14),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContainer(
+      {required VoidCallback onTap,
+      required Color color,
+      required String text}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        width: 230,
+        height: 100,
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(1.0),
+          border: Border.all(color: AppColors.accentColor, width: 2),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Text(
+                  text,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Color(0xFF2F414F),
+                    fontSize: 20,
+                    fontFamily: 'IBM Plex Mono',
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-                child: SvgPicture.asset(
-                  'assets/icons/mic.svg', // Replace with the path to your SVG icon
-                  width: 30,
-                  height: 30,
-                ),
-              )),
-        ],
+              ),
+              const Icon(
+                Icons.arrow_forward,
+                color: AppColors.primaryColor,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/Controller/user_controller.dart';
-import 'package:flutter_app/app_colors.dart';
+import '../../colors/app_colors.dart';
+
 import 'package:flutter_app/view/screens/sign_in.dart';
 import 'package:get/get.dart';
 
@@ -185,14 +186,16 @@ class SignUp extends StatelessWidget {
                             val?.user_email =
                                 userController.emailController.text;
                           });
-                          userController.signUp(userController.user.value).then((value){
+                          userController
+                              .signUp(userController.user.value)
+                              .then((value) {
                             print(value.statusCode);
-                            if(value.statusCode == 201){
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => const SignIn()),
-                                );
+                            if (value.statusCode == 201) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const SignIn()),
+                              );
                             }
                           });
                         }

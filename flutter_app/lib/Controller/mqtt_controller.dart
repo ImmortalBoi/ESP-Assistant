@@ -52,4 +52,6 @@ class MqttController extends GetxController {
       print(newMessage);
     });
   }
+
+  void sendData(Map<String, dynamic> json) {}
 }
