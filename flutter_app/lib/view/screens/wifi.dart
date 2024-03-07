@@ -1,19 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/Controller/user_controller.dart';
-import 'package:flutter_app/view/screens/select_device.dart';
 import '../../colors/app_colors.dart';
 import 'package:flutter_app/Controller/wifi_controller.dart';
-import 'dart:convert';
 import 'package:get/get.dart';
 
-class wifi extends StatelessWidget {
-  wifi({super.key});
+class WifiScreen extends StatelessWidget {
+  const WifiScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final WifiController wifiController = Get.put(WifiController());
-    final UserController userController = Get.put(UserController());
-    wifiController.requestESPWifiList();
 
     return Scaffold(
         appBar: AppBar(
@@ -29,6 +24,14 @@ class wifi extends StatelessWidget {
             icon: const Icon(Icons.arrow_back),
             onPressed: () => Navigator.pop(context),
           ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () {
+                wifiController.requestESPWifiList();
+              },
+            ),
+          ],
         ),
         backgroundColor: AppColors.backgroundColor,
         body: Obx(() => SingleChildScrollView(
@@ -36,34 +39,11 @@ class wifi extends StatelessWidget {
                 child: Column(children: [
                   ListView.builder(
                     shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
+                    physics: const NeverScrollableScrollPhysics(),
                     itemCount: wifiController.receivedDataList.length,
                     itemBuilder: (context, index) {
                       dynamic wifi = wifiController.receivedDataList[index];
                       return WiFiListItem(wifi: wifi);
-                    },
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      userController.user.update((val) {
-                        val?.user_name = userController.usernameController.text;
-                        val?.user_password =
-                            userController.passwordController.text;
-                      });
-                      userController
-                          .checkAuth(userController.user.value)
-                          .then((value) {
-                        print(value.body);
-                        Map<String, dynamic> body = jsonDecode(value.body);
-                        userController.user.update((val) {
-                          val?.user_id = body['user_id'];
-                        });
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const SelectDeviceScreen()),
-                        );
-                      });
                     },
                   ),
                 ]),
@@ -142,130 +122,22 @@ class _WiFiListItemState extends State<WiFiListItem> {
       onTap: () {
         _showPasswordDialog(context);
       },
-      child: Material(
-        borderRadius: BorderRadius.circular(10),
-        color: _isPressed ? Colors.grey.withOpacity(0.5) : Colors.transparent,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4.0),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.withOpacity(0.5), width: 1.0),
+          borderRadius: BorderRadius.circular(10),
+        ),
         child: ListTile(
-          title: Text(widget.wifi.ssid), // Assuming wifi has an ssid property
-          // Add other properties as needed
-        ),
-      ),
-    );
-  }
-}
-
-class SelectedWifi extends StatelessWidget {
-  const SelectedWifi(this.name, {super.key});
-  final String name;
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
-      child: SizedBox(
-        width: 390,
-        height: 50,
-        child: Stack(
-          children: [
-            Positioned(
-              left: 0,
-              top: 0,
-              child: Container(
-                width: 360,
-                height: 50,
-                decoration: ShapeDecoration(
-                  shape: RoundedRectangleBorder(
-                    side: const BorderSide(width: 2, color: Color(0xFFC7DAD4)),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-              ),
+          leading: const Icon(Icons.wifi, color: AppColors.primaryColor),
+          title: Text(
+            widget.wifi,
+            style: const TextStyle(
+              fontFamily: 'IBM Plex Mono',
+              fontWeight: FontWeight.w400,
+              fontSize: 16,
             ),
-            Positioned(
-              left: 20,
-              top: 0,
-              right: 0,
-              bottom: 0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Icon(
-                    Icons.wifi,
-                    color: Colors.black.withOpacity(0.3),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    name,
-                    style: TextStyle(
-                      color: Colors.black.withOpacity(0.3),
-                      fontSize: 15,
-                      fontFamily: 'IBM Plex Mono',
-                      fontWeight: FontWeight.w400,
-                      height: 0,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class UnselectedWifi extends StatelessWidget {
-  const UnselectedWifi(this.name, {super.key});
-  final String name;
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(top: 1.0, bottom: 1.0),
-      child: SizedBox(
-        width: 390,
-        height: 50,
-        child: Stack(
-          children: [
-            Positioned(
-              left: 0,
-              top: 0,
-              child: Container(
-                width: 360,
-                height: 50,
-                decoration: ShapeDecoration(
-                  shape: RoundedRectangleBorder(
-                    side: const BorderSide(width: 2, color: Color(0xFFC7DAD4)),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              left: 20,
-              top: 0,
-              right: 0,
-              bottom: 0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Icon(
-                    Icons.wifi,
-                    color: Colors.black.withOpacity(0.3),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    name,
-                    style: TextStyle(
-                      color: Colors.black.withOpacity(0.3),
-                      fontSize: 15,
-                      fontFamily: 'IBM Plex Mono',
-                      fontWeight: FontWeight.w400,
-                      height: 0,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

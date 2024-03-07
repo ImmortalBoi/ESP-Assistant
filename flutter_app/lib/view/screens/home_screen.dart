@@ -111,7 +111,7 @@ class HomeScreen extends StatelessWidget {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => wifi()),
+                          MaterialPageRoute(builder: (context) => WifiScreen()),
                         );
                       },
                       color: Colors.blue,

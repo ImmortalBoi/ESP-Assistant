@@ -132,7 +132,7 @@ class _SignInState extends State<SignIn> {
                       });
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => wifi()),
+                        MaterialPageRoute(builder: (context) => WifiScreen()),
                       );
                       return;
                     });
