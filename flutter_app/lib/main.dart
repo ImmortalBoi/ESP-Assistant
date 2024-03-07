@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_app/view/screens/config.dart';
+import 'package:flutter_app/view/screens/splash_screen.dart';
 import 'package:flutter_app/view/screens/wifi.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_app/view/screens/sign_in.dart';
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomeScreen(),
+      home: SplashScreen(),
     );
   }
 }

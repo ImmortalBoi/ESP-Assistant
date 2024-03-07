@@ -21,6 +21,9 @@ class Welcome extends StatelessWidget {
               width: 80.0, // Set the width of the SVG logo
               height: 80.0, // Set the height of the SVG logo
             ),
+            SizedBox(
+              height: 10,
+            ),
             RichText(
               text: const TextSpan(
                 children: [
@@ -50,7 +53,7 @@ class Welcome extends StatelessWidget {
             const SizedBox(
                 height: 100.0), // Add some space between text and buttons
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
                   onPressed: () {
@@ -75,6 +78,9 @@ class Welcome extends StatelessWidget {
                       height: 0,
                     ),
                   ),
+                ),
+                const SizedBox(
+                  width: 30,
                 ),
                 ElevatedButton(
                   onPressed: () {

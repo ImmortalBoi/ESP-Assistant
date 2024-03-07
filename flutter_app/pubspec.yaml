@@ -43,6 +43,7 @@ dependencies:
   svg_clip: ^0.0.2
   flutter_svg: ^2.0.9
   wifi_iot: ^0.3.19
+  lottie: ^3.1.0
 
 dev_dependencies:
   flutter_test:
@@ -69,6 +70,7 @@ flutter:
   assets:
     - assets/icons/chip.svg
     - assets/icons/add.svg
+    - assets/animations/robot.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
