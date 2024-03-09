@@ -18,7 +18,7 @@ class _SplashScreenState extends State<SplashScreen> {
         context,
         MaterialPageRoute(
             builder: (context) =>
-                const Welcome()), // Replace WelcomeScreen with your actual welcome screen widget
+                SplashScreen()), // Replace WelcomeScreen with your actual welcome screen widget
       );
     });
   }
@@ -32,7 +32,7 @@ class _SplashScreenState extends State<SplashScreen> {
           width: 200, // Specify the width of the animation
           height: 200, // Specify the height of the animation
           child: Lottie.asset(
-              'assets/animations/robot.json'), // Replace 'your_animation.json' with your actual Lottie JSON file name
+              'assets/animations/Z.json'), // Replace 'your_animation.json' with your actual Lottie JSON file name
         ),
       ),
     );

@@ -1,28 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/Controller/mqtt_controller.dart';
+import 'package:flutter_app/Controller/config_controller.dart';
 import 'package:flutter_app/Model/peripheral_model.dart';
+import 'package:get/get.dart';
 import '../../colors/app_colors.dart';
 
-class ConfigurationScreen extends StatefulWidget {
+class ConfigurationScreen extends StatelessWidget {
   const ConfigurationScreen({super.key});
 
   @override
-  _ConfigurationScreenState createState() => _ConfigurationScreenState();
-}
-
-class _ConfigurationScreenState extends State<ConfigurationScreen> {
-  final _formKey = GlobalKey<FormState>();
-  Component _selectedComponent =
-      Component.led; // Initialize with a default value
-  String _name = '';
-  int _value = 0;
-  List<String> _pin = [];
-  Icon _icon = const Icon(Icons.lightbulb); // Placeholder icon
-  MqttController _mqttController =
-      MqttController('led'); // Initialize MqttController
-
-  @override
   Widget build(BuildContext context) {
+    final ConfigController configController = Get.put(ConfigController());
+
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
@@ -30,17 +18,15 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
         title: const Text('Configuration'),
       ),
       body: Form(
-        key: _formKey,
+        key: configController.formKey,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: <Widget>[
               DropdownButtonFormField<Component>(
-                value: _selectedComponent,
+                value: configController.selectedComponent,
                 onChanged: (Component? newValue) {
-                  setState(() {
-                    _selectedComponent = newValue!;
-                  });
+                  configController.updateComponent(newValue!);
                 },
                 items: Component.values.map((Component component) {
                   return DropdownMenuItem<Component>(
@@ -53,20 +39,21 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Name'),
                 onChanged: (value) {
-                  _name = value;
+                  configController.updateName(value);
                 },
               ),
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Value'),
                 keyboardType: TextInputType.number,
                 onChanged: (value) {
-                  _value = int.parse(value);
+                  configController.updateValue(int.parse(value));
                 },
               ),
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Pin'),
                 onChanged: (value) {
-                  _pin = value.split(',').map((pin) => pin.trim()).toList();
+                  configController.updatePin(
+                      value.split(',').map((pin) => pin.trim()).toList());
                 },
               ),
               const SizedBox(
@@ -76,9 +63,7 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
               // For simplicity, I'm skipping this part
               ElevatedButton(
                 onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    _submitForm();
-                  }
+                  configController.submitForm();
                 },
                 child: const Text(
                   'Submit',
@@ -90,19 +75,5 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
         ),
       ),
     );
-  }
-
-  void _submitForm() {
-    final peripheral = Peripheral(
-      _selectedComponent,
-      _name,
-      _value,
-      _pin,
-      _icon, // You need to handle icon selection
-      _mqttController,
-    );
-
-    // Send data to backend
-    _mqttController.sendData(peripheral.toJson());
   }
 }
