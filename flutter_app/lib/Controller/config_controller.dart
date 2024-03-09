@@ -57,7 +57,7 @@ class ConfigController extends GetxController {
       try {
         final response = await http.post(
           Uri.parse(
-              'http://192.168.196.196:8080/config'), // Replace with your actual endpoint
+              'http://ec2-3-69-233-64.eu-central-1.compute.amazonaws.com:8080/config'), // Replace with your actual endpoint
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
