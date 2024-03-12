@@ -15,6 +15,7 @@ class WifiController extends GetxController {
   final RxString response = ''.obs;
   final RxInt retryCount = 0.obs;
   final RxList<dynamic> receivedDataList = <dynamic>[].obs;
+  final RxBool isLoading = true.obs;
   final TextEditingController textController = TextEditingController();
 
   @override
@@ -58,6 +59,7 @@ class WifiController extends GetxController {
       }
       print('received request');
       receivedDataList.value = json.decode(res!.body)['wifi'];
+      isLoading.value = false;
     });
   }
 

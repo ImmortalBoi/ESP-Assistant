@@ -34,7 +34,16 @@ class WifiScreen extends StatelessWidget {
           ],
         ),
         backgroundColor: AppColors.backgroundColor,
-        body: Obx(() => SingleChildScrollView(
+        body: Obx(() {
+          if (wifiController.isLoading.value) {
+            // Show loading indicator when isLoading is true
+            return const Center(
+                child: CircularProgressIndicator(
+              color: AppColors.primaryColor,
+            ));
+          } else {
+            // Show the list of WiFi networks when isLoading is false
+            return SingleChildScrollView(
               child: Center(
                 child: Column(children: [
                   ListView.builder(
@@ -48,7 +57,9 @@ class WifiScreen extends StatelessWidget {
                   ),
                 ]),
               ),
-            )));
+            );
+          }
+        }));
   }
 }
 
@@ -92,6 +103,7 @@ class _WiFiListItemState extends State<WiFiListItem> {
               child: const Text('Connect'),
               onPressed: () {
                 wifiController.connectESPWifi(widget.wifi, password!);
+
                 print('Connecting with password: $password');
               },
             ),

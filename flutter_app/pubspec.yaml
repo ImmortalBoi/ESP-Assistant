@@ -38,7 +38,7 @@ dependencies:
   get: ^4.6.5
   mqtt_client: ^10.0.0
   flutter_sound: ^9.2.13
-  permission_handler: ^11.0.1
+  permission_handler: ^11.3.0
   http: ^1.1.0
   svg_clip: ^0.0.2
   flutter_svg: ^2.0.9

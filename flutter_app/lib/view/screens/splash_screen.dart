@@ -16,9 +16,7 @@ class _SplashScreenState extends State<SplashScreen> {
     Timer(const Duration(seconds: 6), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-            builder: (context) =>
-                SplashScreen()), // Replace WelcomeScreen with your actual welcome screen widget
+        MaterialPageRoute(builder: (context) => const Welcome()),
       );
     });
   }
@@ -29,10 +27,10 @@ class _SplashScreenState extends State<SplashScreen> {
       backgroundColor: AppColors.backgroundColor,
       body: Center(
         child: SizedBox(
-          width: 200, // Specify the width of the animation
-          height: 200, // Specify the height of the animation
+          width: 250, // Specify the width of the animation
+          height: 250, // Specify the height of the animation
           child: Lottie.asset(
-              'assets/animations/Z.json'), // Replace 'your_animation.json' with your actual Lottie JSON file name
+              'assets/animations/robot.json'), // Replace 'your_animation.json' with your actual Lottie JSON file name
         ),
       ),
     );
