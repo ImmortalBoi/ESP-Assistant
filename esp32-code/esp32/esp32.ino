@@ -1,109 +1,51 @@
+/**
+  AWS Plug-n-Play Init connection
+  Date: 23th March 2024
+  Author(s): Mohamed Ahmed Abdel Aal <https://github.com/Devikaze> , Khaled Eldesuokey <https://github.com/ImmortalBoi>
+  Purpose: Establishes an AWS IoT core connection to communicate via MQTT and receive OTA updates From S3 buckets 
+
+  MIT License
+
+  Copyright (c) [2024] [ESP-Assistant Team]
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+*/
+
 #define CONFIG_ESP32_COREDUMP_DATA_FORMAT_ELF
 #define CONFIG_ESP32_COREDUMP_ENABLE
+
+//Static-Libraries:
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <WebServer.h>
 #include <Preferences.h>
-#include <pgmspace.h>
-#include <MQTTClient.h>
+#include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include <uri/UriBraces.h>
-#include <ESPping.h>
-//Waiting on libs (MQTT CLIENT/BROKER LIB)
+#include "Keys.h"
 
-//PROGRAM INSTANCES & GLOBAL VALS
+//Generated-Libraries:
 
-//DATA MANAGEMENT INSTANCE
+//Program Instances & Global Values:
+
+//Data MANAGEMENT INSTANCE
 Preferences preferences;
-
-// MQTT BROKER CONFIG
-#define THINGNAME "arn:aws:iot:eu-central-1:473891061633:thing/ESP32-test-1"  //change this
-#define AWS_IOT_PUBLISH_TOPIC   "esp32/pub"
-#define AWS_IOT_SUBSCRIBE_TOPIC "esp32/sub"
-
-const char AWS_IOT_ENDPOINT[] = "a2a8tevfyn336a-ats.iot.eu-central-1.amazonaws.com";  //change this
-
-// Amazon Root CA 1
-static const char AWS_CERT_CA[] PROGMEM = R"EOF(
------BEGIN CERTIFICATE-----
-MIIDQTCCAimgAwIBAgITBmyfz5m/jAo54vB4ikPmljZbyjANBgkqhkiG9w0BAQsF
-ADA5MQswCQYDVQQGEwJVUzEPMA0GA1UEChMGQW1hem9uMRkwFwYDVQQDExBBbWF6
-b24gUm9vdCBDQSAxMB4XDTE1MDUyNjAwMDAwMFoXDTM4MDExNzAwMDAwMFowOTEL
-MAkGA1UEBhMCVVMxDzANBgNVBAoTBkFtYXpvbjEZMBcGA1UEAxMQQW1hem9uIFJv
-b3QgQ0EgMTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALJ4gHHKeNXj
-ca9HgFB0fW7Y14h29Jlo91ghYPl0hAEvrAIthtOgQ3pOsqTQNroBvo3bSMgHFzZM
-9O6II8c+6zf1tRn4SWiw3te5djgdYZ6k/oI2peVKVuRF4fn9tBb6dNqcmzU5L/qw
-IFAGbHrQgLKm+a/sRxmPUDgH3KKHOVj4utWp+UhnMJbulHheb4mjUcAwhmahRWa6
-VOujw5H5SNz/0egwLX0tdHA114gk957EWW67c4cX8jJGKLhD+rcdqsq08p8kDi1L
-93FcXmn/6pUCyziKrlA4b9v7LWIbxcceVOF34GfID5yHI9Y/QCB/IIDEgEw+OyQm
-jgSubJrIqg0CAwEAAaNCMEAwDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMC
-AYYwHQYDVR0OBBYEFIQYzIU07LwMlJQuCFmcx7IQTgoIMA0GCSqGSIb3DQEBCwUA
-A4IBAQCY8jdaQZChGsV2USggNiMOruYou6r4lK5IpDB/G/wkjUu0yKGX9rbxenDI
-U5PMCCjjmCXPI6T53iHTfIUJrU6adTrCC2qJeHZERxhlbI1Bjjt/msv0tadQ1wUs
-N+gDS63pYaACbvXy8MWy7Vu33PqUXHeeE6V/Uq2V8viTO96LXFvKWlJbYK8U90vv
-o/ufQJVtMVT8QtPHRh8jrdkPSHCa2XV4cdFyQzR1bldZwgJcJmApzyMZFo6IQ6XU
-5MsI+yMRQ+hDKXJioaldXgjUkK642M4UwtBV8ob2xJNDd2ZhwLnoQdeXeGADbkpy
-rqXRfboQnoZsG4q5WTP468SQvvG5
------END CERTIFICATE-----
-)EOF";
-
-// Device Certificate                                               //change this
-static const char AWS_CERT_CRT[] PROGMEM = R"KEY(
------BEGIN CERTIFICATE-----
-MIIDWjCCAkKgAwIBAgIVAJXGkdperf9pYsvdgFECm7oDw5daMA0GCSqGSIb3DQEB
-CwUAME0xSzBJBgNVBAsMQkFtYXpvbiBXZWIgU2VydmljZXMgTz1BbWF6b24uY29t
-IEluYy4gTD1TZWF0dGxlIFNUPVdhc2hpbmd0b24gQz1VUzAeFw0yNDAzMDUxMTQ5
-NTVaFw00OTEyMzEyMzU5NTlaMB4xHDAaBgNVBAMME0FXUyBJb1QgQ2VydGlmaWNh
-dGUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCo2mv9YUJlfRo2Qsga
-SJ6qqTaFkl8VkiNRW6eznCEYlnq044SJHz4L8gtdiwHYlt7sjlsuOBj+1pFfa6eG
-3JK4OOSRdBZ1AL3GEvx0mDna4oOrkYYCI2hc9fcCnyA+RO4dOa/hhFyqlo8YS2v3
-huWJYNyMHGopc5V6pOGgGJ700mcy/Hxa7PEj5QNYsbgO2maIIXD1FpgKYJ4u2Htt
-8C8Wm1hOavMksYq7iHg7vOHap7Wg0vrMA/L/HEnP6zWmJNJmMR72yHX3G7VKS3A3
-Ebn4q4Q7BYzegQbVhwuBAQ5ttjT2zcHFo63WD9otl3jtOWIt0bA+L5Sh5nMS5WSL
-Z147AgMBAAGjYDBeMB8GA1UdIwQYMBaAFHs1fpkrBI0nXb8fLc9FiiXtP9D7MB0G
-A1UdDgQWBBSAQ3XayfYeaYmQFF6PxincYBia+jAMBgNVHRMBAf8EAjAAMA4GA1Ud
-DwEB/wQEAwIHgDANBgkqhkiG9w0BAQsFAAOCAQEAD9JBVZbaMNE42BGhsXRp8Iko
-G8yJtmPBTs+w1Qkopypycp/138vwSxwzy9KuN2+GsyNZSNR6GuSkJ7gNHgt9thrH
-446Xz3faX+kYY+aqZqA+WjvHZ2dJNCFqY2/DI2wv97x9MT13UAGECiYoxwxo6Alm
-0eZ8e13B4iCyDfdfQ+Fm3khatUnkm+0sxxSvJ0UDnZJPFj9Rd8lQofiZDDi5anKm
-TyYF1Mm9OsGATy6LlJp8CiNJye/73u5Aqcj/MztS43u1fAs2kJO47IJm3zps6z9Z
-LWFlb1Ykv55si8SJ95ysuOUaV/2f5RQNrMy3aLrvQZUACd9/YOHqwAV4Pv1NqA==
------END CERTIFICATE-----
-
-
-)KEY";
-
-// Device Private Key                                               //change this
-static const char AWS_CERT_PRIVATE[] PROGMEM = R"KEY(
------BEGIN RSA PRIVATE KEY-----
-MIIEpAIBAAKCAQEAqNpr/WFCZX0aNkLIGkieqqk2hZJfFZIjUVuns5whGJZ6tOOE
-iR8+C/ILXYsB2Jbe7I5bLjgY/taRX2unhtySuDjkkXQWdQC9xhL8dJg52uKDq5GG
-AiNoXPX3Ap8gPkTuHTmv4YRcqpaPGEtr94bliWDcjBxqKXOVeqThoBie9NJnMvx8
-WuzxI+UDWLG4DtpmiCFw9RaYCmCeLth7bfAvFptYTmrzJLGKu4h4O7zh2qe1oNL6
-zAPy/xxJz+s1piTSZjEe9sh19xu1SktwNxG5+KuEOwWM3oEG1YcLgQEObbY09s3B
-xaOt1g/aLZd47TliLdGwPi+UoeZzEuVki2deOwIDAQABAoIBAHVZj9HCBW4ZOt1Z
-Hk6+B5+eCGleZ7zLGsaRR4TZTlsTQeZzdQoDb5DHwERbtoW7nOSUryP5Es4Re2jw
-nbZpl4J278ty/aSFRl7hlRjHLvZDlLTpZ1QXHZH105y70KHWMBKZo/W8ktZv2rVM
-vZWC6AXJDp5FpTZ3wPxCmRg15EtKyY6DWI8vJXmRsirvsu6hwEx63t74ZH9ELu92
-pSg4Z+xOhn6aCbDHZW8PNdc+9XJHTx2NQ/ZWBRcSoZg/Co5cc0y1Nu5Ld3ZHQ7Uf
-5vBERQIW+r3wLWWQYPXU9K61FiS/NXGN/b98EH3AiJerDKOQH7u0PPWGrV9CgqDo
-PbzK7RECgYEA3mY/AWI4beSqqHy3jcFTKUXnijindzAHUBkZm528L4ceFRZFG+H7
-ADW1ApfwXBHSKdtlW2jUnHqfKksFFi+KdWEOmscZRo0uCshY5cQ8C+mDfaOvlBs/
-COdJvm6KfoN2cG6JdTi9Uq5a3PQ/weKYnRBtEnbWdBmqvJ+vP9+WG7MCgYEAwl0q
-tFZw5L+ibUTKUW5u0Ay9aj3LrImFcTRI1U8oR1Hlh+V17TuAWh2peuXrn3gbeZEk
-v8IvENa94SpNk4DWhx9yi0VcUSIMaR8RJPrBdhCpqNLdHFv22PxGRMLdrv35rZt5
-txdYwdrrLNQ966WGzSF2ZWT9gbwPqMi6qr/mz1kCgYEAwoBhcfBYsaNerWQFk/AT
-rvD4AqZxr4dNnfuVrcdRoa9l28NSRYRpZFGUMOR4zcy4JOs/xaX067VCJlbd5/1D
-9kwf3bVqoY0vSzbUqH3qlfBvkx3onHsHsd21XNqIPQT0PHgvt1kcGodp5/ulFwf5
-uMN44MEV5QvdioGNXytHuIkCgYBrVENmvm0tBF3PdTM78H2kycQ3TNSR/IcB0lt9
-325go+raNm3+iOMB4GtcgGay8wJJCUt/0N1osQy9sDySfYz5pPX9zlmCPAkaa5tu
-DkKSzfTCU17icC5J+FVdVzZPkdQ0eCyoXG4Y7qj7YmCnJgrgb+APcctDvvPuwpnB
-/KKaUQKBgQCGjCdxhrH91ztNNZBhhaB0Sm/8LNgkJm4GaTmNYtB1kJYA2b7LoDli
-dImKeR5Gy5Y57mE4jXmPqRlE+4Moo5xPxGT38OxbrjW3+tNeNSMtYdsZcP6egDgu
-gx/xf6RVP8PfDqqI31dK8vaAQaFl97iW/L4z8Sgh37CTuCFzrfVMEA==
------END RSA PRIVATE KEY-----
-
-)KEY";
 
 //WEB CLIENT INSTANCE
 WebServer server(80);
@@ -112,24 +54,7 @@ WebServer server(80);
 WiFiClientSecure espClient = WiFiClientSecure();
 
 //MQTT CLIENT INSTANCE
-MQTTClient client = MQTTClient(256);
-
-void messageHandler(String &topic, String &payload) {
-  Serial.println("incoming: " + topic + " - " + payload);
-
-//  StaticJsonDocument<200> doc;
-//  deserializeJson(doc, payload);
-//  const char* message = doc["message"];
-}
-
-void publishMessage()
-{
-  StaticJsonDocument<200> doc;
-  char jsonBuffer[512];
-  serializeJson(doc, jsonBuffer); // print to client
- 
-  client.publish(AWS_IOT_PUBLISH_TOPIC, "hello");
-}
+PubSubClient client(espClient);
 
 void wifiSetup() {
   String wifiIndex = "";
@@ -166,7 +91,7 @@ void wifiSetup() {
   Serial.print("ESP AP IP: ");
   Serial.println(WiFi.softAPIP());
 
-  server.on("/reply", HTTP_GET, []() {
+  server.on(UriBraces("/reply"), HTTP_GET, []() {
     Serial.println("Request sent");
     int n = WiFi.scanNetworks();
     String json;
@@ -186,7 +111,7 @@ void wifiSetup() {
     }
   });
 
-  server.on(UriBraces("/wifi/{}/pass/{}"), HTTP_GET, []() { 
+  server.on(UriBraces("/wifi/{}/pass/{}"), HTTP_GET, []() {
     Serial.println("input Recieved");
     String wifiIndex = server.pathArg(0);
     String pass = server.pathArg(1);
@@ -217,37 +142,69 @@ void wifiSetup() {
   }
 }
 
-void connectAWS()
-{
+void connectAWS() {
   // Configure WiFiClientSecure to use the AWS IoT device credentials
   espClient.setCACert(AWS_CERT_CA);
   espClient.setCertificate(AWS_CERT_CRT);
   espClient.setPrivateKey(AWS_CERT_PRIVATE);
 
   // Connect to the MQTT broker on the AWS endpoint we defined earlier
-  client.begin(AWS_IOT_ENDPOINT, 8883 , espClient);
+  client.setServer(AWS_IOT_ENDPOINT, 8883);
 
   // Create a message handler
-  client.onMessage(messageHandler);
+  client.setCallback(messageHandler);
 
-  Serial.println("Connecting to AWS IOT");
-  while ()
-  {
-    !client.connect(THINGNAME)
+  Serial.println("Connecting to AWS IoT");
+
+  while (!client.connect(THINGNAME)) {
     Serial.print(".");
     delay(100);
   }
 
-  if (!client.connected())
-  {
+  if (!client.connected()) {
     Serial.println("AWS IoT Timeout!");
     return;
   }
 
   // Subscribe to a topic
   client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
-
+  client.subscribe("esp32/led");
   Serial.println("AWS IoT Connected!");
+}
+
+void messageHandler(char* topic, byte* payload, unsigned int length) {  //semi-generated
+  Serial.print("incoming: ");
+  Serial.println(topic);
+  // String tpc(topic);
+  StaticJsonDocument<200> doc;
+  deserializeJson(doc, payload);
+  // Serial.println(tpc);
+  const char* type = doc["type"];
+  String typ(type);
+  const uint8_t value = doc["value"];
+  const uint8_t pin = doc["pin"];
+  if (typ.equals("led")) {  //fully-generated
+    Serial.println("led called");
+    Serial.println(value);
+    Serial.println(pin);
+    digitalWrite(pin, value);
+  }
+  if (typ.equals("led")) {
+    Serial.println("led called");
+    Serial.println(value);
+    Serial.println(pin);
+    digitalWrite(pin, value);
+  }
+}
+
+void publishMessage() {  //semi-generated
+  StaticJsonDocument<200> doc;
+  doc["hello"] = "hello";
+  char jsonBuffer[512];
+  serializeJson(doc, jsonBuffer);  // print to client
+
+  Serial.println("Message published!");
+  client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
 }
 
 void setup() {
@@ -261,15 +218,9 @@ void setup() {
 }
 
 void loop() {
-  bool ret = Ping.ping("a2a8tevfyn336a-ats.iot.eu-central-1.amazonaws.com");
-  if(ret){
-    Serial.println("success");
-  }
-  else{
-    Serial.println("fail");
-  }
+  //publishMessage();
+  client.loop();
   delay(1000);
-  publishMessage();
   // if (WiFi.status() != WL_CONNECTED) {
   //   Serial.println("Connecting to wifi...");
   //   delay(5000);
@@ -277,5 +228,4 @@ void loop() {
   //     Serial.println("Connected...");
   //     //connectAWS();
   //   }
-  }
-
+}
