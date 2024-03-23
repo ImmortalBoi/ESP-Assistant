@@ -32,12 +32,13 @@
 
 //Static-Libraries:
 #include <WiFi.h>
-#include <WiFiClientSecure.h>
+#include <HTTPClient.h>
 #include <WebServer.h>
 #include <Preferences.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include <uri/UriBraces.h>
+#include <Update.h>
 #include "Keys.h"
 
 //Generated-Libraries:
@@ -53,8 +54,70 @@ WebServer server(80);
 //WIFI CLIENT INSTANCE
 WiFiClientSecure espClient = WiFiClientSecure();
 
+//HTTP CLIENT INSTANCE
+HTTPClient http;
+
 //MQTT CLIENT INSTANCE
 PubSubClient client(espClient);
+
+// S3 Bucket Config
+String fileURL = "http://esp32-assistant-bucket.s3.eu-central-1.amazonaws.com/Container/dist/sketch.ino.bin"; 
+
+// Variables to validate response from S3
+long contentLength = 0;
+bool isValidContentType = false;
+
+// OTA Logic
+void execOTA() {
+ Serial.println("Connecting to: " + String(fileURL));
+
+ http.begin(fileURL); // Specify the URL
+ int httpCode = http.GET(); // Make the request
+
+ if (httpCode > 0) { // Check for the returning code
+    // Get the payload
+    Stream& payload = http.getStream();
+
+    // Check if the HTTP Response is 200
+    if (httpCode == HTTP_CODE_OK) {
+      // Check if there is enough to OTA Update
+      bool canBegin = Update.begin(http.getSize());
+
+      // If yes, begin
+      if (canBegin) {
+        Serial.println("Begin OTA. This may take 2 - 5 mins to complete. Things might be quite for a while.. Patience!");
+        size_t written = Update.writeStream(payload);
+
+        if (written == http.getSize()) {
+          Serial.println("Written : " + String(written) + " successfully");
+        } else {
+          Serial.println("Written only : " + String(written) + "/" + String(http.getSize()) + ". Retry?");
+        }
+
+        if (Update.end()) {
+          Serial.println("OTA done!");
+          if (Update.isFinished()) {
+            Serial.println("Update successfully completed. Rebooting.");
+            ESP.restart();
+          } else {
+            Serial.println("Update not finished? Something went wrong!");
+          }
+        } else {
+          Serial.println("Error Occurred. Error #: " + String(Update.getError()));
+        }
+      } else {
+        // not enough space to begin OTA
+        Serial.println("Not enough space to begin OTA");
+      }
+    } else {
+      Serial.println("Got a non 200 status code from server. Exiting OTA Update.");
+    }
+ } else {
+    Serial.println("Failed to connect to server. Exiting OTA Update.");
+ }
+
+ http.end(); // End the connection
+}
 
 void wifiSetup() {
   String wifiIndex = "";
@@ -215,6 +278,7 @@ void setup() {
   preferences.begin("my-app", false);
   wifiSetup();
   connectAWS();
+  //execOTA();
 }
 
 void loop() {
