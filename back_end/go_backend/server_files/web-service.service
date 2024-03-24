@@ -1,0 +1,8 @@
+[Unit] 
+Description=App that runs on Go. 
+[Service] 
+WorkingDirectory=/home/ec2-user/backend
+ExecStart=/home/ec2-user/backend/main
+Restart=always 
+[Install] 
+WantedBy=multi-user.target
