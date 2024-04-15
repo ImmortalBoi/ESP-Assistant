@@ -4,4 +4,3 @@ boto3
 flask
 gunicorn
 uuid
-shutil

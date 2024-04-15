@@ -1,25 +1,45 @@
 import os
 import boto3
 import yaml
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import compile
 import uuid
-import shutil
+from time import sleep
 
 app = Flask(__name__)
 
 
-@app.route("/compile", methods=["GET"])
+@app.route("/compile", methods=["POST"])
 def compile_upload():
-    dir_name = uuid.uuid4().hex
-    folder_path = os.mkdir(os.path(f"/usr/src/sketch/dist/{dir_name}"))
-    sketch_file = open("sketch.ino").read()
-    with open(os.join(folder_path,"sketch.ino"),"x") as f:
-        f.write(sketch_file)
+    if "code" not in request.form or "libraries" not in request.form:
+        form_data = request.form
+        keys = ""
+        for key in form_data.keys():
+            values = form_data.getlist(key)
+            keys += key + ", "
+            print(f"Key: {key}", flush=True)
+        # print(request.form, flush=True)
+        return jsonify({"msg":"Please send in proper format","keys": keys}), 400
+    
+    code = request.form.get('code')
+    libraries = request.form.getlist('libraries')
 
+    print(libraries, flush=True)
+    dir_name = "testing"
+
+    os.mkdir(os.path.join(f"/usr/src/sketch/dist", dir_name),exist_ok=True)
+    folder_path = os.path.join(f"/usr/src/sketch/dist", dir_name)
+    sketch_path = os.path.join(folder_path,f"{dir_name}.ino")
+
+    sketch_file = code
+    with open(sketch_path,"x") as f:
+        f.write(sketch_file)
     try:
         f = open("project.yaml", "r")
         spec = yaml.safe_load(f)
+        spec["sketch"] = sketch_path
+        spec["libraries"] = libraries
+        spec["output_path"] = folder_path
         result,success = compile.compile_sketch(spec)
 
     except IOError as e:
@@ -37,7 +57,12 @@ def compile_upload():
         status, message = upload_directory_to_s3(bucket_name, folder_path, folder_name)
         return jsonify({"msg": message}), status
     else:
-        return jsonify({"msg": result}), 500
+        return jsonify({"msg": result}), 400
+
+@app.route("/sleep", methods=["GET"])
+def sleep_res():
+    sleep(60)
+    return jsonify({"msg": "slept successfully for 1 minute"}), 201
 
 def upload_directory_to_s3(bucket_name, folder_name, bucket_folder):
     s3 = boto3.client('s3')

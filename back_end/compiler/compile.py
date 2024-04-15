@@ -26,6 +26,7 @@ def compile_sketch(spec):
             board = spec["target"]["board"]
             print(f"Compiling {sketch} for board type {board}", flush=True)
         if "url" in spec["target"]:
+            print(f"""Adding board manager {spec["target"]["url"]}""", flush=True)
             _add_arduino_core_package_index(spec["target"]["url"])
         if "core" in spec["target"]:
             (core_name, core_version) = _parse_version(spec["target"]["core"])
@@ -48,12 +49,13 @@ def compile_sketch(spec):
             if not success:
                 return "Library installation failed", False
 
-    output_path = sketch.split(".")[0]
-    if "version" in spec:
-        output_path += "_v" + spec["version"].replace(".", "_")
-    build_date = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_path += "_" + build_date + "Z"
-    output_path += ".bin"
+    output_path = spec["output_path"]
+    # output_path = sketch.split(".")[0]
+    # if "version" in spec:
+    #     output_path += "_v" + spec["version"].replace(".", "_")
+    # build_date = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    # output_path += "_" + build_date + "Z"
+    # output_path += ".bin"
     print(f"Sketch will be compiled to {output_path}...", flush=True)
 
     success = _compile_arduino_sketch(sketch, board, output_path)
@@ -90,8 +92,7 @@ def _compile_arduino_sketch(sketch_path, board, output_path):
     
     return _run_shell_command(["arduino-cli", "compile",
                                 "-b", board,
-                                "--output-dir", f"dist/",
-                                sketch_path], stdout=True)
+                                "--output-dir", output_path], stdout=True)
 
 
 def _run_shell_command(arguments, stdout=False, stderr=True):

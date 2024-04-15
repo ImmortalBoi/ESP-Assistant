@@ -9,9 +9,9 @@ target:
   core: esp32:esp32           # Installs the latest version; or
   # core: arduino:samd==1.6.21  # Installs v1.6.21
   # Arduino board FQBN string (obtained from `arduino-cli board list`)
-  board: esp32:esp32:esp32doit-devkit-v1
+  board: esp32:esp32:esp32
   # Additional board manager URL for core installation (optional)
-  url: https://dl.espressif.com/dl/package_esp32_index.json
+  url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
 
 # Libraries to be included for compilation
 libraries:
