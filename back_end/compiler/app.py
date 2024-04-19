@@ -27,12 +27,15 @@ def compile_upload():
     print(libraries, flush=True)
     dir_name = "testing"
 
-    os.mkdir(os.path.join(f"/usr/src/sketch/dist", dir_name),exist_ok=True)
+    os.makedirs(os.path.join(f"/usr/src/sketch/dist", dir_name), exist_ok=True)
     folder_path = os.path.join(f"/usr/src/sketch/dist", dir_name)
     sketch_path = os.path.join(folder_path,f"{dir_name}.ino")
 
     sketch_file = code
-    with open(sketch_path,"x") as f:
+    mode = "x"
+    if os.path.isfile(sketch_path):
+        mode = "w"
+    with open(sketch_path,mode) as f:
         f.write(sketch_file)
     try:
         f = open("project.yaml", "r")
@@ -71,14 +74,21 @@ def upload_directory_to_s3(bucket_name, folder_name, bucket_folder):
             local_file_path = os.path.join(root, file)
             s3_key = os.path.join(folder_name, file)
             try:
-                s3.upload_file(local_file_path, bucket_name, f"{bucket_folder}/{file.split('/')[-1]}")
+                s3.upload_file(
+                    local_file_path, 
+                    bucket_name, 
+                    f"{bucket_folder}/{file.split('/')[-1]}",
+                    ExtraArgs={'ACL': 'public-read'}
+                )
                 print(f"File {local_file_path} uploaded to {bucket_name}/{s3_key} successfully.")
 
             except Exception as e:
-                print(f"Error uploading file {local_file_path} to S3: {e}")
+                print(f"Error uploading file {local_file_path} to S3: {e}", flush=True)
                 return 500, f"Some bin files may have been uploaded successfully"
 
     return 200, f"Bin files uploaded successfully."
+
+
 
 if __name__ == "__main__":
     # Please do not set debug=True in production

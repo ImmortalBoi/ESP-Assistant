@@ -11,7 +11,7 @@ class Info:
 I have an application that requires a formatted answer, you are to answer all prompts in this format: [Peripheral type]-[Pin number]-[Pin value] 
 DO NOT add any other lines that are not in the format: [Peripheral type]-[Pin number]-[Pin value] 
 DO NOT add explanations 
-My user's request is "{transcript}" 
+My user's request is "{transcript}"~ 
 His connected peripherals are{self.peripheralPrompt(peripherals)}
 Please reply with the pin number and pin value that would fulfill their request keeping in mind that this is an arduino application 
 """

@@ -56,7 +56,7 @@ def compile_sketch(spec):
     # build_date = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     # output_path += "_" + build_date + "Z"
     # output_path += ".bin"
-    print(f"Sketch will be compiled to {output_path}...", flush=True)
+    print(f"Sketch {sketch} will be compiled to {output_path}...", flush=True)
 
     success = _compile_arduino_sketch(sketch, board, output_path)
     print("Compilation completed!" if success else "Compilation failed!")
@@ -92,7 +92,7 @@ def _compile_arduino_sketch(sketch_path, board, output_path):
     
     return _run_shell_command(["arduino-cli", "compile",
                                 "-b", board,
-                                "--output-dir", output_path], stdout=True)
+                                "--output-dir", output_path, sketch_path], stdout=True)
 
 
 def _run_shell_command(arguments, stdout=False, stderr=True):

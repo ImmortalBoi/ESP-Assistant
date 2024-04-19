@@ -95,7 +95,7 @@ func postConfig(c *gin.Context) {
 		"WiFiClientSecure espClient = WiFiClientSecure();",
 		"HTTPClient http;",
 		"PubSubClient client(espClient);",
-		`String fileURL = "http://esp32-assistant-bucket.s3.eu-central-1.amazonaws.com/Container/dist/sketch.ino.bin";`,
+		`String fileURL = "https://esp32-assistant-bucket.s3.eu-central-1.amazonaws.com/Container/dist/testing.ino.bin";`,
 		"long contentLength = 0;",
 		"bool isValidContentType = false;",
 		"StaticJsonDocument<200> receivedJson;",
@@ -165,7 +165,7 @@ func createPrompt(data Payload) string {
 #define CONFIG_ESP32_COREDUMP_ENABLE
 
 // MQTT BROKER CONFIG
-#define THINGNAME "ESP32_AWStest1"  //change this
+#define THINGNAME "ESP32_AWStest2"  //change this
 #define AWS_IOT_PUBLISH_TOPIC "esp32/pub"
 #define AWS_IOT_SUBSCRIBE_TOPIC "esp32/sub"
 
@@ -194,7 +194,7 @@ HTTPClient http;
 PubSubClient client(espClient);
 
 // S3 Bucket Config
-String fileURL = "http://esp32-assistant-bucket.s3.eu-central-1.amazonaws.com/Container/dist/sketch.ino.bin";
+String fileURL = "https://esp32-assistant-bucket.s3.eu-central-1.amazonaws.com/Container/dist/testing.ino.bin";
 
 // Variables to validate response from S3
 long contentLength = 0;
@@ -254,6 +254,17 @@ void execOTA() {
 
   http.end();  // End the connection
 }
+
+void printSuccess() {
+  StaticJsonDocument<200> sentJson;
+  sentJson["type"] = "done";
+  char jsonBuffer[512];
+  serializeJson(sentJson, jsonBuffer);
+  Serial.println("Message published!");
+  Serial.println("ESP Working!!");
+  client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
+}
+
 
 void wifiSetup() {
   String wifiIndex = "";
@@ -367,7 +378,6 @@ void connectAWS() {
 
   // Subscribe to a topic
   client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
-  client.subscribe("esp32/led");
   Serial.println("AWS IoT Connected!");
 }
 
@@ -421,7 +431,7 @@ void setup() {
   preferences.begin("my-app", false);
   wifiSetup();
   connectAWS();
-  //execOTA();
+  printSuccess();
 }
 
 void loop() {
@@ -489,7 +499,7 @@ func extractSections(code string) ([]string, string, string, string, string, str
 		tmp := strings.Join(lines[2:], "\n")
 		sections[i] = tmp
 		// fmt.Println("-------------------------")
-		fmt.Println(sections[i])
+		// fmt.Println(sections[i])
 		// fmt.Println("--------------------------------------------------")
 		// lines = lines[2 : len(lines)-1]
 		// sections[i] = strings.Join(lines, "\n")
@@ -540,7 +550,7 @@ func createCode(libraries []string, globalDeclarations string, customFunction st
 
 #define CONFIG_ESP32_COREDUMP_DATA_FORMAT_ELF
 #define CONFIG_ESP32_COREDUMP_ENABLE
-#define THINGNAME "ESP32_AWStest1"  //change this
+#define THINGNAME "ESP32_AWStest2"  //change this
 #define AWS_IOT_PUBLISH_TOPIC "esp32/pub"
 #define AWS_IOT_SUBSCRIBE_TOPIC "esp32/sub"
 
@@ -727,8 +737,17 @@ void connectAWS() {
 
   // Subscribe to a topic
   client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
-  client.subscribe("esp32/led");
   Serial.println("AWS IoT Connected!");
+}
+
+void printSuccess() {
+  StaticJsonDocument<200> sentJson;
+  sentJson["type"] = "done";
+  char jsonBuffer[512];
+  serializeJson(sentJson, jsonBuffer);
+  Serial.println("Message published!");
+  Serial.println("ESP Working!!");
+  client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
 }
 
 ` + messageHandler + `
@@ -775,6 +794,9 @@ func formatResponse(resp *genai.GenerateContentResponse) string {
 
 func insertConvert(base []string, arr []string) []string {
 	for _, val := range arr {
+		if val == "WebServer" || val == "uri/UriBraces" || val == "Update" || val == "" {
+			continue
+		}
 		if !slices.Contains(base, val) {
 			base = append(base, val)
 		}

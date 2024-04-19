@@ -1,4 +1,4 @@
-curl http://ec2-18-191-97-70.us-east-2.compute.amazonaws.com:8080/config \
+curl http://ec2-3-147-6-28.us-east-2.compute.amazonaws.com:8080/config \
     --include \
     --header "Content-Type: application/json" \
     --request "POST" \
