@@ -102,6 +102,7 @@ def _run_shell_command(arguments, stdout=False, stderr=True):
     if stderr and len(process.stderr) > 0:
         print("ERROR > %s" % process.stderr.decode("utf-8"), flush=True)
     return (process.returncode == 0)
+# TODO THIS IS WHERE THE ERROR GETS RETURNED
 
 
 if __name__ == "__main__":
