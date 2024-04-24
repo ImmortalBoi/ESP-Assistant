@@ -30,51 +30,65 @@
 #define CONFIG_ESP32_COREDUMP_DATA_FORMAT_ELF
 #define CONFIG_ESP32_COREDUMP_ENABLE
 
-//Static-Libraries:
+// MQTT BROKER CONFIG
+#define THINGNAME "ESP32_AWStest2"  //change this based on the user deviceID
+#define AWS_IOT_PUBLISH_TOPIC "esp32/pub" //changed this based on the user publish topic
+#define AWS_IOT_SUBSCRIBE_TOPIC "esp32/sub" //changed this based on the user subscribe topic
+
+//Libraries:
+//start of semi-generated part , this part is used for addon libraries based on the prompt  
 #include <WiFi.h>
 #include <HTTPClient.h>
-#include <WebServer.h>
 #include <Preferences.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
-#include <uri/UriBraces.h>
-#include <Update.h>
-#include "Keys.h"
 
-//Generated-Libraries:
 
-//Program Instances & Global Values:
 
-//Data MANAGEMENT INSTANCE
+//end of semi-generated part
+
+// Program Instances & Global Values:
+
+// Data MANAGEMENT INSTANCE
 Preferences preferences;
 
-//WEB CLIENT INSTANCE
+// WEB CLIENT INSTANCE
 WebServer server(80);
 
-//WIFI CLIENT INSTANCE
+// WIFI CLIENT INSTANCE
 WiFiClientSecure espClient = WiFiClientSecure();
 
-//HTTP CLIENT INSTANCE
+// HTTP CLIENT INSTANCE
 HTTPClient http;
 
-//MQTT CLIENT INSTANCE
+// MQTT CLIENT INSTANCE
 PubSubClient client(espClient);
 
 // S3 Bucket Config
-String fileURL = "http://esp32-assistant-bucket.s3.eu-central-1.amazonaws.com/Container/dist/sketch.ino.bin"; 
+String fileURL = ""; //Put Bin file location 
 
 // Variables to validate response from S3
 long contentLength = 0;
 bool isValidContentType = false;
 
+// Global Environment Values
+StaticJsonDocument<200> receivedJson;
+//start of fully-generated part, this part is used for global pin delarations based on the prompt
+#define PIN_14 14   
+#define PIN_12 12
+
+
+
+//end of the fully-generated part
+
 // OTA Logic
-void execOTA() {
- Serial.println("Connecting to: " + String(fileURL));
+void execOTA() { //start of non-generated function
+  Serial.println("Connecting to: " + String(fileURL));
 
- http.begin(fileURL); // Specify the URL
- int httpCode = http.GET(); // Make the request
+  http.begin(fileURL);        // Specify the URL
+  int httpCode = http.GET();  // Make the request
 
- if (httpCode > 0) { // Check for the returning code
+  if (httpCode > 0) {  // Check for the returning code
     // Get the payload
     Stream& payload = http.getStream();
 
@@ -112,14 +126,25 @@ void execOTA() {
     } else {
       Serial.println("Got a non 200 status code from server. Exiting OTA Update.");
     }
- } else {
+  } else {
     Serial.println("Failed to connect to server. Exiting OTA Update.");
- }
+  }
 
- http.end(); // End the connection
-}
+  http.end();  // End the connection
+} //end of non-generated function
 
-void wifiSetup() {
+void printSuccess() { //start of non-generated function
+  StaticJsonDocument<200> sentJson;
+  sentJson["type"] = "done";
+  char jsonBuffer[512];
+  serializeJson(sentJson, jsonBuffer);
+  Serial.println("Message published!");
+  Serial.println("ESP Working!!");
+  client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
+} //end of non-generated function
+
+
+void wifiSetup() { //start of non-generated function
   String wifiIndex = "";
   String pass = "";
   unsigned long previousMillis = 0;
@@ -172,7 +197,7 @@ void wifiSetup() {
       server.send(200, "application/json", json);
       WiFi.scanDelete();  // Delete the old scan results
     }
-  });
+  }); 
 
   server.on(UriBraces("/wifi/{}/pass/{}"), HTTP_GET, []() {
     Serial.println("input Recieved");
@@ -203,9 +228,9 @@ void wifiSetup() {
     server.handleClient();
     delay(3000);
   }
-}
+} //end of non-generated function
 
-void connectAWS() {
+void connectAWS() { //start of non-generated function
   // Configure WiFiClientSecure to use the AWS IoT device credentials
   espClient.setCACert(AWS_CERT_CA);
   espClient.setCertificate(AWS_CERT_CRT);
@@ -222,7 +247,7 @@ void connectAWS() {
   while (!client.connect(THINGNAME)) {
     Serial.print(".");
     delay(100);
-  }
+  } 
 
   if (!client.connected()) {
     Serial.println("AWS IoT Timeout!");
@@ -231,65 +256,89 @@ void connectAWS() {
 
   // Subscribe to a topic
   client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
-  client.subscribe("esp32/led");
   Serial.println("AWS IoT Connected!");
-}
+} //end of non-generated function
 
-void messageHandler(char* topic, byte* payload, unsigned int length) {  //semi-generated
+void messageHandler(char* topic, byte* payload, unsigned int length) { //start of semi-generated function , this function is used to hand incoming messages from AWS IoT core
   Serial.print("incoming: ");
   Serial.println(topic);
-  // String tpc(topic);
-  StaticJsonDocument<200> doc;
-  deserializeJson(doc, payload);
-  // Serial.println(tpc);
-  const char* type = doc["type"];
+  String tpc(topic);
+  deserializeJson(receivedJson, payload);
+  Serial.println(tpc);
+  const char* type = receivedJson["type"];
   String typ(type);
-  const uint8_t value = doc["value"];
-  const uint8_t pin = doc["pin"];
-  if (typ.equals("led")) {  //fully-generated
-    Serial.println("led called");
-    Serial.println(value);
-    Serial.println(pin);
-    digitalWrite(pin, value);
-  }
-  if (typ.equals("led")) {
-    Serial.println("led called");
-    Serial.println(value);
-    Serial.println(pin);
-    digitalWrite(pin, value);
-  }
-}
+  const uint8_t value = receivedJson["value"];
+  const uint8_t pin = receivedJson["pin"];
+    if (1 == receivedJson["active"]) {
+    //start of fully-generated custom function here
 
-void publishMessage() {  //semi-generated
-  StaticJsonDocument<200> doc;
-  doc["hello"] = "hello";
+
+
+
+
+   //end of fully-generated custom here
+  }
+  //start of fully-generated part, this part is generated based on the types of peripherals sent in the prompt
+  if (typ.equals("peripheral1")) {   
+    Serial.println("led called");
+    Serial.println(value);
+    Serial.println(pin);
+    digitalWrite(pin, value);
+  }
+  else if (typ.equals("peripheral2")) {   
+    Serial.println("led called");
+    Serial.println(value);
+    Serial.println(pin);
+    digitalWrite(pin, value);
+  }
+
+
+
+
+  //end of fully-generated part
+  else if(typ.equals("update")){
+    Serial.println("update called");
+    execOTA();
+  }
+} //end of semi-generated function
+
+void publishMessage() {  //start of fully-generated function,this function sends data to AWS IoT core based on the need to returned values in the prompt
+  StaticJsonDocument<200> sentJson;
+  sentJson["hello"] = "hello";
   char jsonBuffer[512];
-  serializeJson(doc, jsonBuffer);  // print to client
+  serializeJson(sentJson, jsonBuffer);  // print to client
 
   Serial.println("Message published!");
   client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
-}
+} //end of fully-generated function
 
-void setup() {
+void setup() {  //start of semi-generated function
   Serial.begin(115200);
   WiFi.mode(WIFI_AP_STA);
-  pinMode(2, OUTPUT);
   WiFi.disconnect();
   preferences.begin("my-app", false);
   wifiSetup();
   connectAWS();
-  //execOTA();
-}
+  printSuccess();
+//start of fully-generated part, this part is used to initialize pins and 
+pinMode(2, OUTPUT);
+pinMode(PIN_14, OUTPUT);
 
-void loop() {
-  //publishMessage();
+//end of fully-generated part
+}//end of semi-generated function
+
+void loop() { //start of non-generated function
   client.loop();
-  delay(1000);
-  // if (WiFi.status() != WL_CONNECTED) {
-  //   Serial.println("Connecting to wifi...");
-  //   delay(5000);
-  //   if (WiFi.status() == WL_CONNECTED) {
-  //     Serial.println("Connected...");
-  //     //connectAWS();
-  //   }
-}
+  if (1 == receivedJson["send_data"]) {
+    publishMessage() ;
+  }
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("Connecting to wifi...");
+    delay(5000);
+    if (WiFi.status() == WL_CONNECTED) {
+      Serial.println("Connected...");
+      connectAWS();
+    }
+    delay(1000);
+  }
+} //end of non-generated function
