@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 @app.route("/compile", methods=["POST"])
 def compile_upload():
-    if "code" not in request.form or "libraries" not in request.form:
+    if "code" not in request.form or "libraries" not in request.form or "bucket_link" not in request.form:
         form_data = request.form
         keys = ""
         for key in form_data.keys():
@@ -23,6 +23,7 @@ def compile_upload():
     
     code = request.form.get('code')
     libraries = request.form.getlist('libraries')
+    folder_name = request.form.get('bucket_link')
 
     print(libraries, flush=True)
     dir_name = "testing"
@@ -55,7 +56,6 @@ def compile_upload():
 
     if success == True:
         bucket_name = 'esp32-assistant-bucket'
-        folder_name = 'Container/dist'
 
         status, message = upload_directory_to_s3(bucket_name, folder_path, folder_name)
         return jsonify({"msg": message}), status
