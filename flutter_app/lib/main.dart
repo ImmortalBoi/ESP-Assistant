@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:graduation_project/navigation_menu.dart';
-import 'package:graduation_project/pages/home_page.dart';
-import 'package:graduation_project/pages/periherals_custom_pages/custom_peripherals.dart';
-import 'package:graduation_project/pages/peripherals_prompt_side_pages/all_peripherals_attached.dart';
-import 'package:graduation_project/pages/settings_page.dart';
-import 'package:graduation_project/pages/splash_page.dart';
-import 'package:graduation_project/providers/api_user_credentials.dart';
-import 'package:graduation_project/providers/backend_prompt.dart';
-import 'package:graduation_project/providers/peripheral_controller.dart';
+import 'package:flutter_app/navigation_menu.dart';
+import 'package:flutter_app/pages/home_page.dart';
+import 'package:flutter_app/pages/periherals_custom_pages/custom_peripherals.dart';
+import 'package:flutter_app/pages/peripherals_prompt_side_pages/all_peripherals_attached.dart';
+import 'package:flutter_app/pages/settings_page.dart';
+import 'package:flutter_app/pages/splash_page.dart';
+import 'package:flutter_app/providers/api_user_credentials.dart';
+import 'package:flutter_app/providers/backend_prompt.dart';
+import 'package:flutter_app/providers/peripheral_controller.dart';
 import 'package:provider/provider.dart';
 
 Future<void> main() async {

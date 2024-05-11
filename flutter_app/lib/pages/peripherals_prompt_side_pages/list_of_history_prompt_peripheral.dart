@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:graduation_project/models/peripheral_model.dart';
-import 'package:graduation_project/pages/peripherals_prompt_side_pages/basic_and_advanced_commands.dart';
-import 'package:graduation_project/providers/peripheral_controller.dart';
-import 'package:graduation_project/services/mqtt_service_with_aws.dart';
+import 'package:flutter_app/models/peripheral_model.dart';
+import 'package:flutter_app/pages/peripherals_prompt_side_pages/basic_commands.dart';
+import 'package:flutter_app/providers/peripheral_controller.dart';
+import 'package:flutter_app/services/mqtt_service_with_aws.dart';
 import 'package:provider/provider.dart';
 
 class HistoryPromptPage extends StatefulWidget {
@@ -92,9 +92,10 @@ class _HistoryPromptPageState extends State<HistoryPromptPage> {
                               decoration:
                                   InputDecoration(labelText: 'command Name'),
                             ),
-                            Container(
+                            SizedBox(
                               height: 150,
                               child: ListView.builder(
+                                shrinkWrap: true,
                                 itemCount:
                                     peripheralProvider.peripherals.length,
                                 itemBuilder: (context, index) {

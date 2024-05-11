@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:graduation_project/pages/login_page.dart';
-import 'package:graduation_project/pages/signup_page.dart';
-import 'package:graduation_project/widgets/custom_button.dart';
+import 'package:flutter_app/pages/login_page.dart';
+import 'package:flutter_app/pages/signup_page.dart';
+import 'package:flutter_app/widgets/custom_button.dart';
 
 class SplashPage extends StatelessWidget {
   const SplashPage({super.key});

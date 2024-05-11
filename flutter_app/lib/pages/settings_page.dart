@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:graduation_project/providers/api_user_credentials.dart';
-import 'package:graduation_project/widgets/custom_button.dart';
+import 'package:flutter_app/providers/api_user_credentials.dart';
+import 'package:flutter_app/widgets/custom_button.dart';
 import 'package:provider/provider.dart';
 
 class Settings extends StatelessWidget {

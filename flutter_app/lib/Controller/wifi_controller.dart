@@ -26,77 +26,97 @@ class WifiController extends GetxController {
   }
 
   void requestESPWifiList() async {
-    print("Trying to request 12345678");
-    await WiFiForIoTPlugin.findAndConnect("ESP32", password: "12345678")
-        .then((value) async {
-      WiFiForIoTPlugin.forceWifiUsage(true);
-      ip.value = (await WiFiForIoTPlugin.getIP())!;
-      ip.value = changeLastOctetToOne(ip.value);
-      uri.value = "http://${ip.value}/reply";
-      bool foundBool = true;
-      // uri.value = "https://www.google.com/";
+    try {
+      await WiFiForIoTPlugin.findAndConnect("ESP32", password: "12345678")
+          .then((value) async {
+        print("Trying to request 12345678");
+        WiFiForIoTPlugin.forceWifiUsage(true);
+        ip.value = (await WiFiForIoTPlugin.getIP())!;
+        ip.value = changeLastOctetToOne(ip.value);
+        uri.value = "http://${ip.value}/reply";
+        bool foundBool = true;
+        // uri.value = "https://www.google.com/";
 
-      http.Response? res;
-      // const maxRetryCount = 100; // Maximum number of retry attempts
-      while (foundBool) {
-        try {
-          res = await http.get(Uri.parse(uri.value));
-          response.value = res.body;
-          if (res.statusCode != 200) {
-            response.value = "status code isn't 200";
-            await Future.delayed(const Duration(seconds: 2)); // Add delay here
+        http.Response? res;
+        // const maxRetryCount = 100; // Maximum number of retry attempts
+        while (foundBool) {
+          try {
+            res = await http.get(Uri.parse(uri.value));
+            response.value = res.body;
+            if (res.statusCode != 200) {
+              response.value = "status code isn't 200";
+              print('An error occurred fetching the wifi: ${response.value}');
+              // await Future.delayed(const Duration(seconds: 2)); // Add delay here
+              retryCount.value++;
+            }
+            if (res.statusCode == 200) {
+              foundBool = false;
+            }
+          } catch (e) {
+            // Handle exception
+            response.value = "$e";
+            print('An error occurred fetching the wifi: ${response.value}');
+
+            // await Future.delayed(const Duration(seconds: 2)); // Add delay here
             retryCount.value++;
           }
-          if (res.statusCode == 200) {
-            foundBool = false;
-          }
-        } catch (e) {
-          // Handle exception
-          response.value = "$e";
-          await Future.delayed(const Duration(seconds: 2)); // Add delay here
-          retryCount.value++;
         }
-      }
-      print('received request');
-      receivedDataList.value = json.decode(res!.body)['wifi'];
-      isLoading.value = false;
-    });
+        print('received request');
+        receivedDataList.value = json.decode(res!.body)['wifi'];
+        isLoading.value = false;
+      });
+
+      // Process the result
+    } catch (e) {
+      // Handle the error
+      print('An error occurred fetching the wifi: $e');
+    }
   }
 
   Future<bool> connectESPWifi(String name, String password) async {
-    print("Trying to send wifi information");
-    await WiFiForIoTPlugin.findAndConnect("ESP32", password: "12345678")
-        .then((value) async {
-      WiFiForIoTPlugin.forceWifiUsage(true);
-      ip.value = (await WiFiForIoTPlugin.getIP())!;
-      ip.value = changeLastOctetToOne(ip.value);
-      uri.value = "http://${ip.value}/wifi/${name}/pass/${password}";
-      bool foundBool = true;
-      // uri.value = "https://www.google.com/";
+    try {
+      await WiFiForIoTPlugin.findAndConnect("ESP32", password: "12345678")
+          .then((value) async {
+        print("Trying to send wifi information");
 
-      http.Response? res;
-      // const maxRetryCount = 100; // Maximum number of retry attempts
-      while (foundBool) {
-        try {
-          res = await http.get(Uri.parse(uri.value));
-          response.value = res.body;
-          if (res.statusCode != 200) {
-            response.value = "status code isn't 200";
+        WiFiForIoTPlugin.forceWifiUsage(true);
+        ip.value = (await WiFiForIoTPlugin.getIP())!;
+        ip.value = changeLastOctetToOne(ip.value);
+        uri.value = "http://${ip.value}/wifi/${name}/pass/${password}";
+        bool foundBool = true;
+        // uri.value = "https://www.google.com/";
+
+        http.Response? res;
+        // const maxRetryCount = 100; // Maximum number of retry attempts
+        while (foundBool) {
+          try {
+            res = await http.get(Uri.parse(uri.value));
+            response.value = res.body;
+            if (res.statusCode != 200) {
+              response.value = "status code isn't 200";
+              print('An error occurred fetching the wifi: ${response.value}');
+              await Future.delayed(
+                  const Duration(seconds: 2)); // Add delay here
+              retryCount.value++;
+            }
+            if (res.statusCode == 200) {
+              foundBool = false;
+            }
+          } catch (e) {
+            // Handle exception
+            response.value = "$e";
+            print('An error occurred fetching the wifi: $e');
             await Future.delayed(const Duration(seconds: 2)); // Add delay here
             retryCount.value++;
           }
-          if (res.statusCode == 200) {
-            foundBool = false;
-          }
-        } catch (e) {
-          // Handle exception
-          response.value = "$e";
-          await Future.delayed(const Duration(seconds: 2)); // Add delay here
-          retryCount.value++;
         }
-      }
-      print('ESP successfully connected');
-    });
+        print('ESP successfully connected');
+      });
+      // Process the result
+    } catch (e) {
+      // Handle the error
+      print('An error occurred fetching the wifi: $e');
+    }
     return true;
   }
 

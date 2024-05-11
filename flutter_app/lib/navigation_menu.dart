@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:graduation_project/pages/home_page.dart';
-import 'package:graduation_project/pages/periherals_custom_pages/custom_peripherals.dart';
-import 'package:graduation_project/pages/peripherals_prompt_side_pages/all_peripherals_attached.dart';
-import 'package:graduation_project/pages/settings_page.dart';
+import 'package:flutter_app/pages/home_page.dart';
+import 'package:flutter_app/pages/periherals_custom_pages/custom_peripherals.dart';
+import 'package:flutter_app/pages/peripherals_prompt_side_pages/all_peripherals_attached.dart';
+import 'package:flutter_app/pages/settings_page.dart';
 import 'package:provider/provider.dart';
 
 class NavigationMenu extends StatelessWidget {

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:graduation_project/models/user_data_model.dart';
+import 'package:flutter_app/models/user_data_model.dart';
 import 'package:http/http.dart' as http;
 
 class UserProvider extends ChangeNotifier {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:graduation_project/pages/peripherals_prompt_side_pages/add_peripheral_with_prompt.dart';
-import 'package:graduation_project/pages/peripherals_prompt_side_pages/list_of_history_prompt_peripheral.dart';
-import 'package:graduation_project/widgets/custom_button.dart';
+import 'package:flutter_app/pages/peripherals_prompt_side_pages/add_peripheral_with_prompt.dart';
+import 'package:flutter_app/pages/peripherals_prompt_side_pages/list_of_history_prompt_peripheral.dart';
+import 'package:flutter_app/widgets/custom_button.dart';
 
 class NewPeripheral extends StatelessWidget {
   NewPeripheral({super.key});

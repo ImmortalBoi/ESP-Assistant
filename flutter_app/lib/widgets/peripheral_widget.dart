@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:graduation_project/models/peripheral_model.dart';
-import 'package:graduation_project/providers/peripheral_controller.dart';
-import 'package:graduation_project/widgets/custom_text_field.dart';
+import 'package:flutter_app/models/peripheral_model.dart';
+import 'package:flutter_app/providers/peripheral_controller.dart';
+import 'package:flutter_app/widgets/custom_text_field.dart';
 import 'package:provider/provider.dart';
 
 class PeripheralWidget extends StatelessWidget {

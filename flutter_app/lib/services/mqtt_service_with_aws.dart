@@ -60,11 +60,21 @@ class MqttService {
   Future<void> _initializeClient() async {
     client = MqttServerClient(
         'a2a8tevfyn336a-ats.iot.eu-central-1.amazonaws.com', 'PhoneAWS_test1');
+    client.onSubscribed = (topic) {
+      client.updates?.listen((List<MqttReceivedMessage<MqttMessage>> c) {
+        final MqttPublishMessage recMess = c[0].payload as MqttPublishMessage;
+        final String newMessage =
+            MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+
+        messages.add(newMessage);
+        print(newMessage);
+      });
+    };
     client.port = 8883;
     client.logging(on: false);
     client.secure = true;
     client.useWebSocket = false;
-    subscribeMessage("esp32/pub");
+
     final rootCa = await rootBundle.loadString('assets/AmazonRootCA1.pem');
     final privateKey = await rootBundle.loadString('assets/private.pem.key');
     final deviceCertificate =
@@ -81,25 +91,8 @@ class MqttService {
     client.securityContext.useCertificateChainBytes(deviceCertificateBytes);
 
     await _connectClient();
-  }
+    client.subscribe("esp32/pub", MqttQos.atLeastOnce);
 
-  Future<dynamic> subscribeMessage(
-    String topic,
-  ) async {
-    if (client.connectionStatus!.state != MqttConnectionState.connected) {
-      await _connectClient();
-    }
-    client.subscribe(topic, MqttQos.atLeastOnce);
-    client.onSubscribed = (topic) {
-      client.updates?.listen((List<MqttReceivedMessage<MqttMessage>> c) {
-        final MqttPublishMessage recMess = c[0].payload as MqttPublishMessage;
-        final String newMessage =
-            MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-
-        messages.add(newMessage);
-        print(newMessage);
-      });
-    };
   }
 
   Future<void> publishMessage(String topic, String payload) async {

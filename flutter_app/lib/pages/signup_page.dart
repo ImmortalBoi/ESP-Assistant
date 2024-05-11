@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:graduation_project/providers/api_user_credentials.dart';
-import 'package:graduation_project/widgets/custom_button.dart';
-import 'package:graduation_project/widgets/custom_text_field.dart';
+import 'package:flutter_app/providers/api_user_credentials.dart';
+import 'package:flutter_app/widgets/custom_button.dart';
+import 'package:flutter_app/widgets/custom_text_field.dart';
 import 'package:provider/provider.dart';
 
 class SignUp extends StatefulWidget {

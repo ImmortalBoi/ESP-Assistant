@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:graduation_project/models/peripheral_model.dart';
-import 'package:graduation_project/services/mqtt_service_with_aws.dart';
+import 'package:flutter_app/models/peripheral_model.dart';
+import 'package:flutter_app/services/mqtt_service_with_aws.dart';
 import 'package:http/http.dart' as http;
 
 class BackendService extends ChangeNotifier {

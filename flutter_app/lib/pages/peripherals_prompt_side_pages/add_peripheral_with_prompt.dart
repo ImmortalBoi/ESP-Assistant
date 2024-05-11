@@ -1,10 +1,10 @@
-import 'package:graduation_project/models/peripheral_model.dart';
-import 'package:graduation_project/pages/peripherals_prompt_side_pages/list_of_history_prompt_peripheral.dart';
-import 'package:graduation_project/providers/backend_prompt.dart';
-import 'package:graduation_project/providers/peripheral_controller.dart';
-import 'package:graduation_project/widgets/custom_button.dart';
-import 'package:graduation_project/widgets/custom_text_field.dart';
-import 'package:graduation_project/widgets/peripheral_widget.dart';
+import 'package:flutter_app/models/peripheral_model.dart';
+import 'package:flutter_app/pages/peripherals_prompt_side_pages/list_of_history_prompt_peripheral.dart';
+import 'package:flutter_app/providers/backend_prompt.dart';
+import 'package:flutter_app/providers/peripheral_controller.dart';
+import 'package:flutter_app/widgets/custom_button.dart';
+import 'package:flutter_app/widgets/custom_text_field.dart';
+import 'package:flutter_app/widgets/peripheral_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

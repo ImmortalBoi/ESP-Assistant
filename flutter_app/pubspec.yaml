@@ -1,4 +1,4 @@
-name: graduation_project
+name: flutter_app
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -42,6 +42,9 @@ dependencies:
   wifi_iot: ^0.3.19
   get: ^4.6.6
   permission_handler: ^11.3.1
+  flutter_sound: ^9.4.6
+  flutter_svg: ^2.0.10+1
+  lottie: ^3.1.0
 
 dev_dependencies:
   flutter_test:

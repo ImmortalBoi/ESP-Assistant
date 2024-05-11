@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:graduation_project/pages/periherals_custom_pages/custom_car_peripheral.dart';
-import 'package:graduation_project/pages/periherals_custom_pages/weather_custom_periheral.dart';
-import 'package:graduation_project/widgets/custom_card_peripheral.dart';
+import 'package:flutter_app/pages/periherals_custom_pages/custom_car_peripheral.dart';
+import 'package:flutter_app/pages/periherals_custom_pages/weather_custom_periheral.dart';
+import 'package:flutter_app/widgets/custom_card_peripheral.dart';
 
 class CustomPeripheral extends StatelessWidget {
   const CustomPeripheral({super.key});

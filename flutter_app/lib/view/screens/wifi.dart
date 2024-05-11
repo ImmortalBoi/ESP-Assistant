@@ -9,6 +9,7 @@ class WifiScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final WifiController wifiController = Get.put(WifiController());
+    wifiController.requestESPWifiList();
 
     return Scaffold(
         appBar: AppBar(

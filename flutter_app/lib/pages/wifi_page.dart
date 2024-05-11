@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:graduation_project/controllers/wifi_controller.dart';
+import 'package:flutter_app/controllers/wifi_controller.dart';
 
 class WifiScreen extends StatelessWidget {
   const WifiScreen({super.key});
@@ -8,6 +8,8 @@ class WifiScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final WifiController wifiController = Get.put(WifiController());
+    wifiController.requestESPWifiList();
+
 
     return Scaffold(
         appBar: AppBar(

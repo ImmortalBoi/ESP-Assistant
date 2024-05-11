@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:graduation_project/models/peripheral_model.dart';
+import 'package:flutter_app/models/peripheral_model.dart';
 
 class PeripheralProvider with ChangeNotifier {
   final List<Peripheral> _peripherals = [];

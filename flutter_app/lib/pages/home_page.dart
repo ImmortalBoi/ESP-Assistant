@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:graduation_project/pages/wifi_page.dart';
-import 'package:graduation_project/widgets/custom_button.dart';
+import 'package:flutter_app/pages/wifi_page.dart';
+import 'package:flutter_app/widgets/custom_button.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
