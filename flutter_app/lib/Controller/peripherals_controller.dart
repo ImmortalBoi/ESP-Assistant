@@ -33,7 +33,7 @@ class PeripheralsController extends GetxController {
         icon = const Icon(Icons.device_unknown);
         topic = "emqx/esp32/p";
     }
-    var mqttController = Get.put(MqttController(topic));
+    var mqttController = Get.put(UnusedMqttController(topic));
     var mqttMessages = mqttController.messages;
     ever(mqttMessages, (_) {
       var mqttCommand = mqttMessages.last.split('-');

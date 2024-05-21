@@ -9,7 +9,7 @@ class Peripheral {
   late int value;
   late List<String> pin;
   late Icon icon;
-  late MqttController mqttController;
+  late UnusedMqttController mqttController;
   Peripheral(this.component, this.name, this.value, this.pin, this.icon,
       this.mqttController);
   Map<String, dynamic> toJson() => {

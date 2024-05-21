@@ -6,7 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_app/models/peripheral_model.dart';
 import 'package:flutter_app/pages/peripherals_prompt_side_pages/basic_commands.dart';
 import 'package:flutter_app/providers/peripheral_controller.dart';
-import 'package:flutter_app/services/mqtt_service_with_aws.dart';
+import 'package:flutter_app/Controller/mqtt_controller.dart';
 import 'package:provider/provider.dart';
 
 class HistoryPromptPage extends StatefulWidget {
@@ -17,7 +17,7 @@ class HistoryPromptPage extends StatefulWidget {
 }
 
 class _HistoryPromptPageState extends State<HistoryPromptPage> {
-  MqttService mqttService = MqttService();
+  MqttController mqttService = MqttController();
   List<String> userChecked = [];
 
   void handleCheckboxChange(String peripheralName, bool isChecked) {

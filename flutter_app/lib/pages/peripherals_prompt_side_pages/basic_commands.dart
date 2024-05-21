@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/models/peripheral_model.dart';
 import 'package:flutter_app/providers/peripheral_controller.dart';
-import 'package:flutter_app/services/mqtt_service_with_aws.dart';
+import 'package:flutter_app/Controller/mqtt_controller.dart';
 import 'package:provider/provider.dart';
 
 class BasicCommands extends StatefulWidget {
@@ -16,7 +16,7 @@ class BasicCommands extends StatefulWidget {
 }
 
 class _BasicCommandsState extends State<BasicCommands> {
-  MqttService mqttService = MqttService();
+  MqttController mqttService = MqttController();
   bool _isActive = false;
 
   void _publishActiveState() async {
@@ -65,7 +65,7 @@ class _BasicCommandsState extends State<BasicCommands> {
               String peripheralDataJson =
                   serializePeripheralDataToJson(widget.peripheral!);
 
-              MqttService mqttService = MqttService();
+              MqttController mqttService = MqttController();
 
               await mqttService.publishMessage('esp32/sub', peripheralDataJson);
             },

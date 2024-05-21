@@ -17,11 +17,11 @@ class _SelectDeviceScreenState extends State<SelectDeviceScreen> {
     super.initState();
     peripherals = [
       Peripheral(Component.led, 'LED 1', 0, ['GPIO1'], Icon(Icons.lightbulb),
-          MqttController('led')),
+          UnusedMqttController('led')),
       Peripheral(Component.servo, 'Servo 1', 0, ['GPIO2'],
-          Icon(Icons.rotate_right), MqttController('servo')),
+          Icon(Icons.rotate_right), UnusedMqttController('servo')),
       Peripheral(Component.temperature, 'Temperature Sensor 1', 0, ['GPIO3'],
-          Icon(Icons.thermostat), MqttController('temperature')),
+          Icon(Icons.thermostat), UnusedMqttController('temperature')),
       // Add more peripherals as needed
     ];
   }

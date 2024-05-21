@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/pages/periherals_custom_pages/custom_car_peripheral.dart';
+import 'package:flutter_app/pages/periherals_custom_pages/tank_custom_periheral.dart';
 import 'package:flutter_app/pages/periherals_custom_pages/weather_custom_periheral.dart';
 import 'package:flutter_app/widgets/custom_card_peripheral.dart';
 
@@ -26,7 +27,7 @@ class CustomPeripheral extends StatelessWidget {
                       MaterialPageRoute(builder: (context) => const MyCar()),
                     );
                   },
-                  text: 'custom car\nperipheral',
+                  text: 'Custom car\nperipheral',
                   imagePath: 'assets/car.png')),
           SizedBox(
             height: 30,
@@ -42,8 +43,23 @@ class CustomPeripheral extends StatelessWidget {
                           builder: (context) => const MyWeatherPage()),
                     );
                   },
-                  text: 'custom weather\nperipheral',
-                  imagePath: 'assets/hot.png'))
+                  text: 'Custom weather\nperipheral',
+                  imagePath: 'assets/hot.png')),
+          const SizedBox(
+            height: 30,
+          ),
+          Padding(
+              padding: EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.width * 0.05),
+              child: CustomCard(
+                  method: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const MyTankPage()),
+                    );
+                  },
+                  text: 'Custom tank\nperipheral',
+                  imagePath: 'assets/tank.png')),
         ],
       ),
     );

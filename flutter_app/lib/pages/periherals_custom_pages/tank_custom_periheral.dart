@@ -4,16 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/Controller/mqtt_controller.dart';
 import 'package:get/get.dart';
 
-class MyWeatherPage extends StatefulWidget {
-  const MyWeatherPage({super.key});
+class MyTankPage extends StatefulWidget {
+  const MyTankPage({super.key});
 
   @override
-  State<MyWeatherPage> createState() => _MyWeatherPageState();
+  State<MyTankPage> createState() => _MyTankPageState();
 }
 
-class _MyWeatherPageState extends State<MyWeatherPage> {
+class _MyTankPageState extends State<MyTankPage> {
   bool _isActiveUpdate = false;
-  bool _isActiveFan = false;
+  bool _isActivePump = false;
   bool _isActiveLED = false;
 
   final MqttController mqttService = Get.put(MqttController());
@@ -37,13 +37,13 @@ class _MyWeatherPageState extends State<MyWeatherPage> {
             },
           ),
           SwitchListTile(
-            title: const Text('Switch Fan Value '),
-            value: _isActiveFan,
+            title: const Text('Switch Pump Value '),
+            value: _isActivePump,
             onChanged: (bool value) {
               setState(() {
-                _isActiveFan = value;
+                _isActivePump = value;
               });
-              publishFanValue(_isActiveFan);
+              publishPumpValue(_isActivePump);
             },
           ),
           SwitchListTile(
@@ -61,10 +61,11 @@ class _MyWeatherPageState extends State<MyWeatherPage> {
                   mqttService.publishMessage('esp32/sub', '{"active": 1}'),
               child: Text("active")),
           Obx(() => SizedBox(
-                height: 500,
+                height: 100,
                 child: ListView.builder(
                   itemCount:
                       mqttService.messages.length.clamp(0, 5), // Limit to 5
+                  reverse: true, // Show the newest message first
                   itemBuilder: (context, index) {
                     return Text(mqttService.messages[index]);
                   },
@@ -79,16 +80,16 @@ class _MyWeatherPageState extends State<MyWeatherPage> {
   }
 
   Future<void> publishUpdates() async {
-    String payload = jsonEncode({"update": 1});
+    String payload = jsonEncode({"update": 2});
     await mqttService.publishMessage('esp32/sub', payload);
     print('Published update: 1');
   }
 
-  Future<void> publishFanValue(bool val) async {
+  Future<void> publishPumpValue(bool val) async {
     int realVal = val ? 1 : 0;
-    String payload = jsonEncode({"pin": 5, "value": realVal, "type":"FAN_PIN"});
+    String payload = jsonEncode({"pin": 14, "value": realVal, "type":"PUMP_PIN"});
     await mqttService.publishMessage('esp32/sub', payload);
-    print('Published Fan Update');
+    print('Published Pump Update');
   }
 
   Future<void> publishLEDValue(bool val) async {

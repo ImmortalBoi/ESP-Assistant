@@ -1,7 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_app/services/mqtt_service_with_aws.dart';
+import 'package:flutter_app/Controller/mqtt_controller.dart';
+import 'package:get/get.dart';
 
 class MyCar extends StatefulWidget {
   const MyCar({super.key});
@@ -12,11 +13,10 @@ class MyCar extends StatefulWidget {
 
 class _MyCarState extends State<MyCar> {
   bool _isActive = false;
-  MqttService mqttService = MqttService();
+  final MqttController mqttService = Get.put(MqttController());
 
   @override
   Widget build(BuildContext context) {
-    MqttService mqttService = MqttService();
     return Scaffold(
       appBar: AppBar(),
       body: Column(
@@ -24,7 +24,7 @@ class _MyCarState extends State<MyCar> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SwitchListTile(
-            title: Text('Active '),
+            title: const Text('Switch Version '),
             value: _isActive,
             onChanged: (bool value) {
               setState(() {
@@ -33,34 +33,70 @@ class _MyCarState extends State<MyCar> {
               publishUpdates();
             },
           ),
-          arrowDirection(
-              Icons.arrow_upward,
-              () => mqttService.publishMessage(
-                  'esp32/sub', '{"active":1, "type":"motor_forward"}')),
+          arrowDirection(Icons.arrow_upward, () async {
+            await mqttService.publishMessage(
+                'esp32/sub', '{"pin":27, "type":"IN_PIN", "value":0}');
+            await mqttService.publishMessage(
+                'esp32/sub', '{"pin":26, "type":"IN_PIN", "value":1}');
+            await mqttService.publishMessage(
+                'esp32/sub', '{"pin":25, "type":"IN_PIN", "value":1}');
+            await mqttService.publishMessage(
+                'esp32/sub', '{"pin":33, "type":"IN_PIN", "value":0}');
+          }),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              arrowDirection(
-                  Icons.arrow_left,
-                  () => mqttService.publishMessage(
-                      'esp32/sub', '{"active":1, "type":"motor_left"}')),
+              arrowDirection(Icons.arrow_left, () {
+                mqttService.publishMessage(
+                    'esp32/sub', '{"pin":27, "type":"IN_PIN", "value":1}');
+                mqttService.publishMessage(
+                    'esp32/sub', '{"pin":26, "type":"IN_PIN", "value":0}');
+                mqttService.publishMessage(
+                    'esp32/sub', '{"pin":25, "type":"IN_PIN", "value":0}');
+                mqttService.publishMessage(
+                    'esp32/sub', '{"pin":33, "type":"IN_PIN", "value":1}');
+              }),
               const SizedBox(
                 width: 50,
               ),
-              arrowDirection(
-                  Icons.arrow_right,
-                  () => mqttService.publishMessage(
-                      'esp32/sub', '{"active":1, "type":"motor_right"}')),
+              arrowDirection(Icons.arrow_right, () {
+                mqttService.publishMessage(
+                    'esp32/sub', '{"pin":27, "type":"IN_PIN", "value":0}');
+                mqttService.publishMessage(
+                    'esp32/sub', '{"pin":26, "type":"IN_PIN", "value":1}');
+                mqttService.publishMessage(
+                    'esp32/sub', '{"pin":25, "type":"IN_PIN", "value":0}');
+                mqttService.publishMessage(
+                    'esp32/sub', '{"pin":33, "type":"IN_PIN", "value":0}');
+              }),
             ],
           ),
           arrowDirection(
             Icons.arrow_downward,
-            () => mqttService.publishMessage(
-                'esp32/sub', '{"active":1, "type":"motor_backward"}'),
+            () {
+              mqttService.publishMessage(
+                  'esp32/sub', '{"pin":27, "type":"IN_PIN", "value":0}');
+              mqttService.publishMessage(
+                  'esp32/sub', '{"pin":26, "type":"IN_PIN", "value":0}');
+              mqttService.publishMessage(
+                  'esp32/sub', '{"pin":25, "type":"IN_PIN", "value":1}');
+              mqttService.publishMessage(
+                  'esp32/sub', '{"pin":33, "type":"IN_PIN", "value":0}');
+            },
           ),
-          SizedBox(
+          const SizedBox(
             height: 130,
-          )
+          ),
+          arrowDirection(Icons.stop_circle_sharp, () {
+            mqttService.publishMessage(
+                'esp32/sub', '{"pin":27, "type":"IN_PIN", "value":0}');
+            mqttService.publishMessage(
+                'esp32/sub', '{"pin":26, "type":"IN_PIN", "value":0}');
+            mqttService.publishMessage(
+                'esp32/sub', '{"pin":25, "type":"IN_PIN", "value":0}');
+            mqttService.publishMessage(
+                'esp32/sub', '{"pin":33, "type":"IN_PIN", "value":0}');
+          })
         ],
       ),
     );
@@ -68,20 +104,16 @@ class _MyCarState extends State<MyCar> {
 
   Widget arrowDirection(icon, method) {
     return GestureDetector(
-      onLongPressStart: (details) async {
-        await method();
-      },
-      onLongPressEnd: (details) async {
-        // Assuming you have a method to stop the car, similar to the method used for moving the car
-        await mqttService.publishMessage(
-            'esp32/sub', '{"active":1, "type":"motor_stop"}');
+      onTap: () async {
+        method();
       },
       child: Container(
         height: 80,
         width: 80,
         decoration: BoxDecoration(
           color: Colors.grey,
-          border: Border.all(color: Color.fromARGB(255, 75, 79, 85), width: 2),
+          border: Border.all(
+              color: const Color.fromARGB(255, 75, 79, 85), width: 2),
           borderRadius: BorderRadius.circular(30),
         ),
         child: Center(child: Icon(icon)),
