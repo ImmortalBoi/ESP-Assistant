@@ -23,6 +23,6 @@ curl http://localhost:8080/v2/config \
     --include \
     --header "Content-Type: application/json" \
     --request "POST" \
-    --data '{"Config":{"Peripherals":[{"Pin":27,"Name":"motor1pin1","Type":"DC Motor","Value":0},{"Pin":26,"Name":"motor1pin2","Type":"DC Motor","Value":0},{"Pin":25,"Name":"motor2pin1","Type":"DC Motor","Value":0},{"Pin":33,"Name":"motor2pin2","Type":"DC Motor","Value":0},{"Pin":14,"Name":"motor1En","Type":"motorEnable","Value":0},{"Pin":32,"Name":"motor2En","Type":"motorEnable","Value":0}],"Request":"Without using ESP32Servo give me a code for motor drive for a car project with pin declarations","Result":"No results","Result_Datatype":"void"},"Username":"test"}'\
+    --data '{"Config":{"Peripherals":[{"Pin":27,"Name":"IN1_PIN","Type":"IN_PIN","Value":0},{"Pin":26,"Name":"IN2_PIN","Type":"IN_PIN","Value":0},{"Pin":25,"Name":"IN3_PIN","Type":"IN_PIN","Value":0},{"Pin":33,"Name":"IN4_PIN","Type":"IN_PIN","Value":0},{"Pin":14,"Name":"ENA_PIN","Type":"IN_PIN","Value":0},{"Pin":32,"Name":"ENB_PIN","Type":"IN_PIN","Value":0}],"Request":"My pins are connected to an H-bridge connected to two motors to make a car, create code to run the car","Result":"No results","Result_Datatype":"void"},"Username":"test"}'\
     -o data.json
 echo

@@ -13,6 +13,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/generative-ai-go/genai"
@@ -103,7 +104,6 @@ func PostConfigV1(c *gin.Context) {
 	status, body := sendCompileRequestV1(code, libraries)
 	c.JSON(status, gin.H{"compileRequestResp": body, "reply": formatResponse(resp), "setup": setup, "libraries": libraries, "messageHandler": messageHandler, "publishMessage": publishMessage, "code": code, "globalDeclarations": globalDeclarations})
 
-	return
 }
 
 func PostConfigV2(c *gin.Context) {
@@ -133,12 +133,15 @@ func PostConfigV2(c *gin.Context) {
 	}
 	defer client.Close()
 
-	model := client.GenerativeModel("gemini-1.5-pro-latest")
+	model := client.GenerativeModel("gemini-1.5-pro")
 	model.SetTemperature(0.3)
 	resp, err := model.GenerateContent(ctx, genai.Text(createPrompt(req.Config)))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+		fmt.Println("API Limit reached, Waiting...")
+		time.Sleep(20 * time.Second)
+		resp, _ = model.GenerateContent(ctx, genai.Text(createPrompt(req.Config)))
+		// c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		// return
 	}
 
 	libraries, globalDeclarations, publishMessage, messageHandler, setup := extractSections(formatResponse(resp))
@@ -168,14 +171,36 @@ func PostConfigV2(c *gin.Context) {
 	// c.JSON(http.StatusCreated, gin.H{"reply": formatResponse(resp), "setup": setup, "customFunction": customFunction, "libraries": libraries, "messageHandler": messageHandler, "publishMessage": publishMessage, "code": code, "globalDeclarations": globalDeclarations})
 
 	status, body := sendCompileRequestV2(code, libraries, upload_bucket_link)
+
+	for status == 400 {
+		retrialPrompt := createRetrialPrompt(req.Config, code, body)
+		resp, err = model.GenerateContent(ctx, genai.Text(retrialPrompt))
+		for err != nil {
+			fmt.Println(err.Error())
+			fmt.Println("API Limit reached, Waiting...")
+			time.Sleep(5 * time.Second)
+			resp, _ = model.GenerateContent(ctx, genai.Text(retrialPrompt))
+			// c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			// return
+		}
+		fmt.Println(formatResponse(resp))
+
+		libraries, globalDeclarations, publishMessage, messageHandler, setup := extractSections(formatResponse(resp))
+
+		code := createCodeV2(libraries, globalDeclarations, publishMessage, messageHandler, setup, user)
+
+		// fmt.Println(code)
+
+		status, body = sendCompileRequestV2(code, libraries, upload_bucket_link)
+	}
+
 	user.Config_gen = append(user.Config_gen, req.Config)
 	err = UpdateUser(user)
 	if err == nil {
-		err = errors.New("No error")
+		err = errors.New("no error")
 	}
-	c.JSON(status, gin.H{"updateDynamoDB": err.Error(), "compileRequestResp": body, "reply": formatResponse(resp), "setup": setup, "libraries": libraries, "messageHandler": messageHandler, "publishMessage": publishMessage, "code": code, "globalDeclarations": globalDeclarations})
+	c.JSON(status, gin.H{"updateDynamoDB": err.Error(), "compileRequestResp": body, "compilerRequestStatus": status, "reply": formatResponse(resp), "setup": setup, "libraries": libraries, "messageHandler": messageHandler, "publishMessage": publishMessage, "code": code, "globalDeclarations": globalDeclarations})
 
-	return
 }
 
 func sendCompileRequestV1(code string, libraries []string) (int, string) {
@@ -226,8 +251,8 @@ func sendCompileRequestV1(code string, libraries []string) (int, string) {
 
 func sendCompileRequestV2(code string, libraries []string, bucket_link string) (int, string) {
 	// Define the URL
-	link := "http://ec2-3-147-6-28.us-east-2.compute.amazonaws.com:5000/compile"
-	// link := "http://localhost:5000/compile"
+	// link := "http://ec2-3-147-6-28.us-east-2.compute.amazonaws.com:5000/compile"
+	link := "http://localhost:5000/compile"
 
 	// Create a compilePost object
 	data := compilePost{
@@ -266,13 +291,13 @@ func sendCompileRequestV2(code string, libraries []string, bucket_link string) (
 	}
 
 	// Print the response
-	s, _ := strconv.Atoi(resp.Status)
+	s, _ := strconv.Atoi(resp.Status[0:3])
 	return s, string(body)
 }
 
 func createPrompt(data Config) string {
 	basePrompt := `
-	First, understand this ESP32 code and make not of where it says semi-generated and fully generated:
+	First, understand this ESP32 code and make note of where it says semi-generated and fully generated:
 
 #define CONFIG_ESP32_COREDUMP_DATA_FORMAT_ELF
 #define CONFIG_ESP32_COREDUMP_ENABLE
@@ -284,8 +309,6 @@ func createPrompt(data Config) string {
 #include <Preferences.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
-
-
 
 //end of semi-generated part
 
@@ -314,8 +337,6 @@ bool isValidContentType = false;
 StaticJsonDocument<200> receivedJson;
 //start of fully-generated part, this part is used for global pin delarations based on the prompt
 
-
-
 //end of the fully-generated part
 
 void messageHandler(char* topic, byte* payload, unsigned int length) { //start of semi-generated function , this function is used to hand incoming messages from AWS IoT core
@@ -330,43 +351,33 @@ void messageHandler(char* topic, byte* payload, unsigned int length) { //start o
   const uint8_t pin = receivedJson["pin"];
   const int index = receivedJson["update"];
 
+  if (receivedJson["update"] > -1) {
+    updatefunction(receivedJson["update"]);
+  }
+
   if (1 == receivedJson["active"]) {
-    //start of fully-generated custom function here
-    // Example of code
-    // if (typ.equals("Depends on the user request")) {
-    //   Serial.println("User request");
-    //   digitalWrite(Request_PIN, Val);
-    // }
+    //start of fully-generated custom function here which the user decides in his request
+    
     client.loop();
     //end of fully-generated custom here
   }
 
   //start of fully-generated part, this part is generated based on the types of peripherals sent in the prompt
-  if (typ.equals("peripheral1")) {   
-    Serial.println("led called");
+  if (typ.equals("UniqueType1")) {   
+    Serial.println("Unique Type Called");
     Serial.println(value);
     Serial.println(pin);
+    // Write function related to this type
     digitalWrite(pin, value);
   }
-  else if (typ.equals("peripheral2")) {   
-    Serial.println("led called");
+  else if (typ.equals("UniqueType2")) {   
+    Serial.println("Unique Type Called");
     Serial.println(value);
     Serial.println(pin);
+    // Write function related to this type
     digitalWrite(pin, value);
   }
 
-
-
-  else if (receivedJson["update"] != -1) {
-    Serial.println("update called");
-    String strindex = String(index);
-    String index1 = "http://esp32-assistant-bucket.s3.eu-central-1.amazonaws.com/User-sketches/test/" + strindex;
-    Serial.println(index1);
-    String index2 = index1 + "/testing.ino.bin";
-    Serial.println(index2);
-    fileURL = index2;
-    execOTA();
-  }
 } //end of semi-generated function
 
 void publishMessage() {  //start of fully-generated function,this function sends data to AWS IoT core based on the need to returned values in the prompt
@@ -387,7 +398,8 @@ void setup() {  //start of semi-generated function
   wifiSetup();
   connectAWS();
   printSuccess();
-//start of fully-generated part, this part is used to initialize pins and 
+//start of fully-generated part, this part is used to initialize pins
+// Example of pin setup
 pinMode(2, OUTPUT);
 pinMode(14, OUTPUT);
 
@@ -413,9 +425,9 @@ void loop() { //start of non-generated function
 Second, I want you to rewrite those parts of the code where it says semi-generated and fully-generated according to this information:`
 	peripheralSection := `The user's ESP32 has these peripherals, `
 	for i := 0; i < len(data.Peripherals); i++ {
-		peripheralSection += data.Peripherals[i].Type + " called " + data.Peripherals[i].Name + " on Pin " + strconv.Itoa(data.Peripherals[i].Pin) + ", "
+		peripheralSection += "Type " + data.Peripherals[i].Type + " called " + data.Peripherals[i].Name + " on Pin " + strconv.Itoa(data.Peripherals[i].Pin) + ", "
 	}
-	basePrompt += peripheralSection + `Change the messageHandler function such that it would listen to and apply changes it would see in a json sent to it, follow by example in the given if condition where you replace the given if condition types with the given peripheral names, adding other if conditions when needed. Change the publishMessage function such that it would publish a message in a json format similar to the one you listen to in the messageHandler function. Also change the setup function initialise the modules and sensors properly on the correct pins.
+	basePrompt += peripheralSection + `Find the unique Types in the User's esp32 peripherals, for each Type that is an actuator discover the suitable write function for it. Then in the messageHandler function, change the if conditions that listen on the unique types to the name of the unique types that you found and change the write function in these if conditions to that of the suitable one for the type you found. However for each type that is a sensor, send that type in the publishMessage function.
 
 Third, I want you to adjust the custom function part of the publishMessage function such that it applies the following request tweaking as well the parts of the global declarations, publishMessage, setup functions such that they help with applying the request:
 `
@@ -426,6 +438,35 @@ Fourth, include the appropriate libraries needed to run all this code under gene
 107-Arduino-BMP388, 107-Arduino-NMEA-Parser, 107-Arduino-Sensor, AstroMech, ATC_MiThermometer, BH1750, BMI270_Sensor, Bonezegei ILI9341, Bonezegei_XPT2046, BresserWeatherSensorReceiver, CROZONE-VEML6040, CS5490, CurrentTransformerWithCallbacks, dhtESP32-rmt, DIYables_IRcontroller, ds1302, ESPectro32, ESPiLight, ESP Rotary Encoder, ESP32 BLE ANCS Notifications, ESP32 BLE Arduino, ESP32-Chimera-Core, ESP32 Encoder, ESP32 ESP32S2 AnalogWrite, ESP32 MX1508, ESP32 RMT Peripheral VAN bus reader library, ESP32Servo, ESP32Servo360, ESP32_BleSerial, ESP32_Button, ESP32_C3_ISR_Servo, ESP32_C3_TimerInterrupt, ESP32_ENC28J60, ESP32_Encoder, ESP32_IO_Expander, ESP32_ISR_Servo, ESP32_Knob, ESP32_PWM, ESP32_RTC_EEPROM, ESP32_S2_ISR_Servo, ESP32_S2_TimerInterrupt, ESP32_SC_ENC_Manager, ESP32_SC_Ethernet_Manager, ESP32_SC_W5500_Manager, ESP32_SC_W6100_Manager, ESP32httpUpdate, FaBo 202 9Axis MPU9250, FaBo 203 Color S11059, FaBo 206 UV Si1132, FaBo 207 Temperature ADT7410, FaBo 217 Ambient Light ISL29034, FaBo 222 Environment BME680, FaBo 223 Gas CCS811, FaBo 230 Color BH1749NUC, FaBo Motor DRV8830, FaBo PWM PCA9685, Freenove WS2812 Lib for ESP32, HS_CAN_485_ESP32, HS_JOY_ESP32, IRremote
 
 Finally, reply only with all the static libraries already in the code and the selected libraries underneath a label called "##Generated Libraries" in a list of their names,the global declarations needed to run the code under a label called "##Global Variables", the publishMessage code under a label "Publish Message Function", and the messageHandler code under a label called "##Message Handler Function" and the setup function under a label called "##Setup Function" and remove all comments and implement them fully.`
+
+	return basePrompt
+}
+
+func createRetrialPrompt(data Config, code string, log string) string {
+	basePrompt := `
+	First, understand that this ESP32 code has failed at compiling and make note of where it says semi-generated and fully generated:
+
+` + code + `
+
+Second, I want you to understand that those parts of the code where it says semi-generated and fully-generated were written according to this information:`
+	peripheralSection := `The user's ESP32 has these peripherals, `
+	for i := 0; i < len(data.Peripherals); i++ {
+		peripheralSection += "Type " + data.Peripherals[i].Type + " called " + data.Peripherals[i].Name + " on Pin " + strconv.Itoa(data.Peripherals[i].Pin) + ", "
+	}
+	basePrompt += peripheralSection + `Find the unique Types in the User's esp32 peripherals, for each Type that is an actuator discover the suitable write function for it. Then in the messageHandler function, change the if conditions that listen on the unique types to the name of the unique types that you found and change the write function in these if conditions to that of the suitable one for the type you found. However for each type that is a sensor, send that type in the publishMessage function.
+
+Third, I want you to know that the custom function part of the publishMessage function were adjusted such that it applies the following request and as well the parts of the global declarations, publishMessage, setup functions were tweaked such that they help with applying the request:
+`
+	basePrompt += data.Request + ", The result wanted is " + data.Result + ", therefore the return type is " + data.Result_Datatype + " \n"
+	basePrompt += `
+Fourth, seemingly the appropriate libraries needed to run all this code were added under generated libraries, select libraries that are needed to write and read to and from the peripherals the user gave, select it from this list of Arduino libraries that are made for the ESP32 architecture making sure that any library that gets chosen gets utilised, alongside that select libraries that are closely related to the peripherals:
+
+107-Arduino-BMP388, 107-Arduino-NMEA-Parser, 107-Arduino-Sensor, AstroMech, ATC_MiThermometer, BH1750, BMI270_Sensor, Bonezegei ILI9341, Bonezegei_XPT2046, BresserWeatherSensorReceiver, CROZONE-VEML6040, CS5490, CurrentTransformerWithCallbacks, dhtESP32-rmt, DIYables_IRcontroller, ds1302, ESPectro32, ESPiLight, ESP Rotary Encoder, ESP32 BLE ANCS Notifications, ESP32 BLE Arduino, ESP32-Chimera-Core, ESP32 Encoder, ESP32 ESP32S2 AnalogWrite, ESP32 MX1508, ESP32 RMT Peripheral VAN bus reader library, ESP32Servo, ESP32Servo360, ESP32_BleSerial, ESP32_Button, ESP32_C3_ISR_Servo, ESP32_C3_TimerInterrupt, ESP32_ENC28J60, ESP32_Encoder, ESP32_IO_Expander, ESP32_ISR_Servo, ESP32_Knob, ESP32_PWM, ESP32_RTC_EEPROM, ESP32_S2_ISR_Servo, ESP32_S2_TimerInterrupt, ESP32_SC_ENC_Manager, ESP32_SC_Ethernet_Manager, ESP32_SC_W5500_Manager, ESP32_SC_W6100_Manager, ESP32httpUpdate, FaBo 202 9Axis MPU9250, FaBo 203 Color S11059, FaBo 206 UV Si1132, FaBo 207 Temperature ADT7410, FaBo 217 Ambient Light ISL29034, FaBo 222 Environment BME680, FaBo 223 Gas CCS811, FaBo 230 Color BH1749NUC, FaBo Motor DRV8830, FaBo PWM PCA9685, Freenove WS2812 Lib for ESP32, HS_CAN_485_ESP32, HS_JOY_ESP32, IRremote
+
+Fifthly, this was the log that was sent of the compilation that failed:
+` + log + `
+
+Finally, reply only with all the static libraries already in the code and the selected libraries underneath a label called "##Generated Libraries" in a list of their names where for example,the global declarations needed to run the code under a label called "##Global Variables", the publishMessage code under a label "Publish Message Function", and the messageHandler code under a label called "##Message Handler Function" and the setup function under a label called "##Setup Function" and remove all comments and implement them fully.`
 
 	return basePrompt
 }
@@ -466,36 +507,30 @@ func extractSections(code string) ([]string, string, string, string, string) {
 func formatLibraries(libraries string) []string {
 	libraries = strings.Replace(libraries, "\n\n", "", -1)
 	libraries = strings.Replace(libraries, " ", "", -1)
-	librarySplit := strings.Split(libraries, "\n")[1:]
+	librarySplit := strings.Split(libraries, "\n")[1:] // Skip the first line
 	var libraryArr []string
-	// Define a regular expression to match the library name
-	re := regexp.MustCompile(`\*([^\.]+)`)
+
+	// Adjusted regular expression to match the new pattern
+	re := regexp.MustCompile(`(?:\*\s|-)\s?(\w+\.h)|#include<(.+)>`)
 
 	for _, library := range librarySplit {
-		// Extract the name using the regular expression
 		match := re.FindStringSubmatch(library)
-		matchLen := 0
-
-		if len(match)-1 < 0 {
-			matchLen = 0
-		} else {
-			matchLen = len(match) - 1
-		}
-		if strings.HasSuffix(match[matchLen], ".h") {
-			// Remove ".h" if it exists
-			match[1] = strings.TrimSuffix(match[matchLen], ".h")
-		}
-
-		if match != nil {
-			libraryArr = append(libraryArr, match[matchLen]) // Print the captured group (library name)
+		if len(match) > 0 {
+			// Extracting library name based on the match
+			if len(match) == 3 { // This means we're dealing with #include<...> syntax
+				libraryName := match[2] // Match group 2 contains the library name after #include<
+				libraryArr = append(libraryArr, libraryName)
+			} else { // This is for the other patterns like -* or *library.h
+				libraryName := match[1] // Match group 1 contains the library name
+				// Remove the.h suffix if present
+				libraryName = strings.TrimSuffix(libraryName, ".h")
+				libraryArr = append(libraryArr, libraryName)
+			}
 		} else {
 			fmt.Println("Library regexp not found:", library)
-			tmp := strings.Split(library, "-")
-			if len(tmp) == 0 {
-				// tmp = strings.Split(library, "*")
-				// tmp = strings.Split(tmp[len(tmp)-1], ".h")
-			}
-			libraryArr = append(libraryArr, tmp[len(tmp)-1])
+			libraryName := strings.TrimSuffix(library, ".h")
+			libraryArr = append(libraryArr, libraryName)
+			// Fallback logic if needed
 		}
 	}
 	return libraryArr
@@ -757,6 +792,7 @@ func createCodeV2(libraries []string, globalDeclarations string, publishMessage 
 #include <WebServer.h>
 #include <uri/UriBraces.h>
 #include <Update.h>
+#include <WiFiClientSecure.h>
 ` + libraryCode + `
 // Program Instances & Global Values:
 ` + globalDeclarations + `
@@ -922,7 +958,7 @@ void wifiSetup() { //start of non-generated function
   }
 } //end of non-generated function
 
-void connectAWS() { //start of non-generated function
+void connectAWS() {  //start of non-generated function
   // Configure WiFiClientSecure to use the AWS IoT device credentials
   espClient.setCACert(AWS_CERT_CA);
   espClient.setCertificate(AWS_CERT_CRT);
@@ -939,7 +975,7 @@ void connectAWS() { //start of non-generated function
   while (!client.connect(THINGNAME)) {
     Serial.print(".");
     delay(100);
-  } 
+  }
 
   if (!client.connected()) {
     Serial.println("AWS IoT Timeout!");
@@ -949,7 +985,18 @@ void connectAWS() { //start of non-generated function
   // Subscribe to a topic
   client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
   Serial.println("AWS IoT Connected!");
-} //end of non-generated function
+}  //end of non-generated function
+
+void updatefunction(int index) {
+  Serial.println("update called");
+  String strindex = String(index);
+  String index1 = "http://esp32-assistant-bucket.s3.eu-central-1.amazonaws.com/User-sketches/test/" + strindex;
+  Serial.println(index1);
+  String index2 = index1 + "/testing.ino.bin";
+  Serial.println(index2);
+  fileURL = index2;
+  execOTA();
+}
 
 ` + messageHandler + `
 
@@ -993,7 +1040,7 @@ func formatResponse(resp *genai.GenerateContentResponse) string {
 
 func insertConvert(base []string, arr []string) []string {
 	for _, val := range arr {
-		if val == "WebServer" || val == "uri/UriBraces" || val == "Update" || val == "" || val == "WiFiClientSecure" {
+		if val == "WebServer" || val == "uri/UriBraces" || val == "Update" || val == "" || val == "WiFiClientSecure" || val == "WebServer server = WebServer(80);" {
 			continue
 		}
 		if !slices.Contains(base, val) {
