@@ -5,7 +5,7 @@ import 'package:flutter_app/pages/periherals_custom_pages/custom_peripherals.dar
 import 'package:flutter_app/pages/peripherals_prompt_side_pages/all_peripherals_attached.dart';
 import 'package:flutter_app/pages/settings_page.dart';
 import 'package:flutter_app/pages/splash_page.dart';
-import 'package:flutter_app/providers/api_user_credentials.dart';
+import 'package:flutter_app/providers/user_provider.dart';
 import 'package:flutter_app/providers/backend_prompt.dart';
 import 'package:flutter_app/providers/peripheral_controller.dart';
 import 'package:provider/provider.dart';
@@ -18,8 +18,8 @@ Future<void> main() async {
         ChangeNotifierProvider<NavigationController>(
           create: (context) => NavigationController(),
         ),
-        ChangeNotifierProvider<ApiProvider>(
-          create: (context) => ApiProvider(),
+        ChangeNotifierProvider<UserProvider>(
+          create: (context) => UserProvider(),
         ),
         ChangeNotifierProvider<PeripheralProvider>(
           create: (context) => PeripheralProvider(),
@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final api = Provider.of<ApiProvider>(context);
+    final api = Provider.of<UserProvider>(context);
     return MaterialApp(
       routes: {
         '/splash': (context) => const SplashPage(),

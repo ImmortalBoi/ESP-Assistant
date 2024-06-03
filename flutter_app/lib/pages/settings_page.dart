@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/providers/api_user_credentials.dart';
+import 'package:flutter_app/providers/user_provider.dart';
 import 'package:flutter_app/widgets/custom_button.dart';
 import 'package:provider/provider.dart';
 
@@ -8,7 +8,7 @@ class Settings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final api = Provider.of<ApiProvider>(context);
+    final api = Provider.of<UserProvider>(context);
 
     return Scaffold(
       body: Center(

@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_app/models/peripheral_model.dart';
-import 'package:flutter_app/Controller/mqtt_controller.dart';
+import 'package:flutter_app/controllers/mqtt_controller.dart';
 import 'package:http/http.dart' as http;
 
 class BackendService extends ChangeNotifier {
@@ -33,8 +33,7 @@ class BackendService extends ChangeNotifier {
         await mqttService.waitForConnection();
 
         try {
-          await mqttService.publishMessageOnSuccess(
-              'esp32/sub', '{"type":"update"}');
+          await mqttService.publishMessageOnSuccess('{"type":"update"}');
           print("MQTT message sent successfully.");
           return true;
         } catch (e) {

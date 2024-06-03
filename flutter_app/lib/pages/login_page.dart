@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/pages/signup_page.dart';
-import 'package:flutter_app/providers/api_user_credentials.dart';
+import 'package:flutter_app/providers/user_provider.dart';
 import 'package:flutter_app/widgets/custom_button.dart';
 import 'package:flutter_app/widgets/custom_text_field.dart';
 import 'package:provider/provider.dart';
@@ -21,7 +21,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final api = Provider.of<ApiProvider>(context);
+    final api = Provider.of<UserProvider>(context);
     void validateForm() {
       if (emailController.text.isEmpty || passwordController.text.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_app/Controller/mqtt_controller.dart';
+import 'package:flutter_app/controllers/mqtt_controller.dart';
 import 'package:get/get.dart';
 
 class MyCar extends StatefulWidget {
@@ -34,68 +34,68 @@ class _MyCarState extends State<MyCar> {
             },
           ),
           arrowDirection(Icons.arrow_upward, () async {
-            await mqttService.publishMessage(
-                'esp32/sub', '{"pin":27, "type":"IN_PIN", "value":0}');
-            await mqttService.publishMessage(
-                'esp32/sub', '{"pin":26, "type":"IN_PIN", "value":1}');
-            await mqttService.publishMessage(
-                'esp32/sub', '{"pin":25, "type":"IN_PIN", "value":1}');
-            await mqttService.publishMessage(
-                'esp32/sub', '{"pin":33, "type":"IN_PIN", "value":0}');
+            await mqttService
+                .publishMessage('{"pin":27, "type":"IN_PIN", "value":0}');
+            await mqttService
+                .publishMessage('{"pin":26, "type":"IN_PIN", "value":1}');
+            await mqttService
+                .publishMessage('{"pin":25, "type":"IN_PIN", "value":1}');
+            await mqttService
+                .publishMessage('{"pin":33, "type":"IN_PIN", "value":0}');
           }),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               arrowDirection(Icons.arrow_left, () {
-                mqttService.publishMessage(
-                    'esp32/sub', '{"pin":27, "type":"IN_PIN", "value":1}');
-                mqttService.publishMessage(
-                    'esp32/sub', '{"pin":26, "type":"IN_PIN", "value":0}');
-                mqttService.publishMessage(
-                    'esp32/sub', '{"pin":25, "type":"IN_PIN", "value":0}');
-                mqttService.publishMessage(
-                    'esp32/sub', '{"pin":33, "type":"IN_PIN", "value":1}');
+                mqttService
+                    .publishMessage('{"pin":27, "type":"IN_PIN", "value":1}');
+                mqttService
+                    .publishMessage('{"pin":26, "type":"IN_PIN", "value":0}');
+                mqttService
+                    .publishMessage('{"pin":25, "type":"IN_PIN", "value":0}');
+                mqttService
+                    .publishMessage('{"pin":33, "type":"IN_PIN", "value":1}');
               }),
               const SizedBox(
                 width: 50,
               ),
               arrowDirection(Icons.arrow_right, () {
-                mqttService.publishMessage(
-                    'esp32/sub', '{"pin":27, "type":"IN_PIN", "value":0}');
-                mqttService.publishMessage(
-                    'esp32/sub', '{"pin":26, "type":"IN_PIN", "value":1}');
-                mqttService.publishMessage(
-                    'esp32/sub', '{"pin":25, "type":"IN_PIN", "value":0}');
-                mqttService.publishMessage(
-                    'esp32/sub', '{"pin":33, "type":"IN_PIN", "value":0}');
+                mqttService
+                    .publishMessage('{"pin":27, "type":"IN_PIN", "value":0}');
+                mqttService
+                    .publishMessage('{"pin":26, "type":"IN_PIN", "value":1}');
+                mqttService
+                    .publishMessage('{"pin":25, "type":"IN_PIN", "value":0}');
+                mqttService
+                    .publishMessage('{"pin":33, "type":"IN_PIN", "value":0}');
               }),
             ],
           ),
           arrowDirection(
             Icons.arrow_downward,
             () {
-              mqttService.publishMessage(
-                  'esp32/sub', '{"pin":27, "type":"IN_PIN", "value":0}');
-              mqttService.publishMessage(
-                  'esp32/sub', '{"pin":26, "type":"IN_PIN", "value":0}');
-              mqttService.publishMessage(
-                  'esp32/sub', '{"pin":25, "type":"IN_PIN", "value":1}');
-              mqttService.publishMessage(
-                  'esp32/sub', '{"pin":33, "type":"IN_PIN", "value":0}');
+              mqttService
+                  .publishMessage('{"pin":27, "type":"IN_PIN", "value":0}');
+              mqttService
+                  .publishMessage('{"pin":26, "type":"IN_PIN", "value":0}');
+              mqttService
+                  .publishMessage('{"pin":25, "type":"IN_PIN", "value":1}');
+              mqttService
+                  .publishMessage('{"pin":33, "type":"IN_PIN", "value":0}');
             },
           ),
           const SizedBox(
             height: 130,
           ),
           arrowDirection(Icons.stop_circle_sharp, () {
-            mqttService.publishMessage(
-                'esp32/sub', '{"pin":27, "type":"IN_PIN", "value":0}');
-            mqttService.publishMessage(
-                'esp32/sub', '{"pin":26, "type":"IN_PIN", "value":0}');
-            mqttService.publishMessage(
-                'esp32/sub', '{"pin":25, "type":"IN_PIN", "value":0}');
-            mqttService.publishMessage(
-                'esp32/sub', '{"pin":33, "type":"IN_PIN", "value":0}');
+            mqttService
+                .publishMessage('{"pin":27, "type":"IN_PIN", "value":0}');
+            mqttService
+                .publishMessage('{"pin":26, "type":"IN_PIN", "value":0}');
+            mqttService
+                .publishMessage('{"pin":25, "type":"IN_PIN", "value":0}');
+            mqttService
+                .publishMessage('{"pin":33, "type":"IN_PIN", "value":0}');
           })
         ],
       ),
@@ -123,14 +123,14 @@ class _MyCarState extends State<MyCar> {
 
   Future<void> publishUpdates() async {
     String payload = jsonEncode({"update": 0});
-    await mqttService.publishMessage('esp32/sub', payload);
+    await mqttService.publishMessage(payload);
     print('Published update: 0');
 
     // const duration = Duration(seconds: 2);
     // await Future.delayed(duration);
 
     // payload = jsonEncode({"update": 1});
-    // await mqttService.publishMessage('esp32/sub', payload);
+    // await mqttService.publishMessage( payload);
     // print('Published update: 1');
   }
 }

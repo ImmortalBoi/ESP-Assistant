@@ -10,7 +10,6 @@ class WifiScreen extends StatelessWidget {
     final WifiController wifiController = Get.put(WifiController());
     wifiController.requestESPWifiList();
 
-
     return Scaffold(
         appBar: AppBar(
           title: const Text("Wifi Pairing",

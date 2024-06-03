@@ -1,23 +1,3 @@
-class UserData {
-  String name;
-  String password;
-  Cert mobileCert;
-  Cert espCert;
-
-  UserData({
-    required this.name,
-    required this.password,
-    required this.mobileCert,
-    required this.espCert,
-  });
-
-  factory UserData.fromJson(Map<String, dynamic> json) => UserData(
-        name: json["Name"],
-        password: json["Password"],
-        mobileCert: Cert.fromJson(json["Mobile_cert"]),
-        espCert: Cert.fromJson(json["ESP_cert"]),
-      );
-}
 
 class Cert {
   String thingName;
@@ -55,14 +35,32 @@ class Cert {
       };
 }
 
-class EnumValues<T> {
-  Map<String, T> map;
-  late Map<T, String> reverseMap;
+class UserData {
+  String name;
+  String password;
+  Cert mobileCert;
+  Cert espCert;
+  bool isLoggedIn;
 
-  EnumValues(this.map);
+  UserData({
+    required this.name,
+    required this.password,
+    required this.mobileCert,
+    required this.espCert,
+    required this.isLoggedIn
+  });
 
-  Map<T, String> get reverse {
-    reverseMap = map.map((k, v) => MapEntry(v, k));
-    return reverseMap;
-  }
+  factory UserData.fromJson(Map<String, dynamic> json) => UserData(
+        name: json["Name"],
+        password: json["Password"],
+        mobileCert: Cert.fromJson(json["Mobile_cert"]),
+        espCert: Cert.fromJson(json["ESP_cert"]), isLoggedIn: false,
+      );
+
+  Map<String, dynamic> toJson() => {
+        "Name": name,
+        "Password": password,
+        "Mobile_cert": mobileCert.toJson(),
+        "ESP_cert": espCert.toJson(),
+      };
 }

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/models/peripheral_model.dart';
 import 'package:flutter_app/providers/peripheral_controller.dart';
-import 'package:flutter_app/Controller/mqtt_controller.dart';
+import 'package:flutter_app/controllers/mqtt_controller.dart';
 import 'package:provider/provider.dart';
 
 class BasicCommands extends StatefulWidget {
@@ -21,7 +21,7 @@ class _BasicCommandsState extends State<BasicCommands> {
 
   void _publishActiveState() async {
     String payload = jsonEncode({"active": _isActive ? 1 : 0});
-    await mqttService.publishMessage('esp32/sub', payload);
+    await mqttService.publishMessage(payload);
   }
 
   @override
@@ -67,7 +67,7 @@ class _BasicCommandsState extends State<BasicCommands> {
 
               MqttController mqttService = MqttController();
 
-              await mqttService.publishMessage('esp32/sub', peripheralDataJson);
+              await mqttService.publishMessage(peripheralDataJson);
             },
             child: Text('Update Peripheral'),
           ),

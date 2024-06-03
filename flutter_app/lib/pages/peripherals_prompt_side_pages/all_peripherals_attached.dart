@@ -27,7 +27,7 @@ class NewPeripheral extends StatelessWidget {
                       color: const Color(0xff1F5460)),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 60,
               ),
               Padding(
@@ -37,7 +37,7 @@ class NewPeripheral extends StatelessWidget {
                   style: GoogleFonts.dmSans(
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
-                    color: Color.fromARGB(255, 42, 63, 80),
+                    color: const Color.fromARGB(255, 42, 63, 80),
                   ),
                 ),
               ),
@@ -52,10 +52,10 @@ class NewPeripheral extends StatelessWidget {
                     );
                   },
                   text: 'add peripheral',
-                  color: Color.fromARGB(255, 208, 221, 232),
+                  color: const Color.fromARGB(255, 208, 221, 232),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 60,
               ),
               Padding(
@@ -65,7 +65,7 @@ class NewPeripheral extends StatelessWidget {
                   style: GoogleFonts.dmSans(
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
-                    color: Color.fromARGB(255, 42, 63, 80),
+                    color: const Color.fromARGB(255, 42, 63, 80),
                   ),
                 ),
               ),
@@ -80,7 +80,7 @@ class NewPeripheral extends StatelessWidget {
                     );
                   },
                   text: 'edit peripheral',
-                  color: Color.fromARGB(255, 208, 221, 232),
+                  color: const Color.fromARGB(255, 208, 221, 232),
                 ),
               )
             ],

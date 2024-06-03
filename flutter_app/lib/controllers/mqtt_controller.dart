@@ -1,15 +1,20 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/services.dart';
+import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_app/models/user_data_model.dart';
+import 'package:flutter_app/providers/user_provider.dart';
 import 'package:get/get.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
+import 'package:provider/provider.dart';
 import 'package:typed_data/typed_buffers.dart';
 
 class MqttController extends GetxController {
   late MqttServerClient client;
   RxList<String> messages = <String>[].obs; // Use RxList for GetX
+  final userProvider = Provider.of<UserProvider>(context!);
+  static BuildContext? get context => null;
 
   @override
   void onInit() {
@@ -20,6 +25,8 @@ class MqttController extends GetxController {
   Future<void> _initializeClient() async {
     client = MqttServerClient(
         'a2a8tevfyn336a-ats.iot.eu-central-1.amazonaws.com', 'PhoneAWS_test1');
+    UserData? user = await userProvider.getUser();
+    String? subTopic = user?.espCert.subTopic;
     client.onSubscribed = (topic) {
       print("Subscribed Successfully");
       client.updates?.listen((List<MqttReceivedMessage<MqttMessage>> c) {
@@ -52,13 +59,15 @@ class MqttController extends GetxController {
     client.securityContext.useCertificateChainBytes(deviceCertificateBytes);
 
     await _connectClient();
-    client.subscribe("esp32/pub", MqttQos.atLeastOnce);
+    client.subscribe(subTopic!, MqttQos.atLeastOnce);
   }
 
-  Future<void> publishMessage(String topic, String payload) async {
+  Future<void> publishMessage(String payload) async {
     if (client.connectionStatus!.state != MqttConnectionState.connected) {
       await _connectClient();
     }
+    UserData? user = await userProvider.getUser();
+    String? pubTopic = user?.espCert.pubTopic;
 
     Uint8List payloadBuffer = Uint8List.fromList(utf8.encode(payload));
     Uint8Buffer payloadBufferAsUint8Buffer = Uint8Buffer();
@@ -66,15 +75,16 @@ class MqttController extends GetxController {
 
     print("Payload to be sent: $payload");
     client.publishMessage(
-        topic, MqttQos.atLeastOnce, payloadBufferAsUint8Buffer);
+        pubTopic!, MqttQos.atLeastOnce, payloadBufferAsUint8Buffer);
   }
 
-  Future<void> publishMessageOnSuccess(String topic, String payload) async {
+  Future<void> publishMessageOnSuccess(String payload) async {
     try {
       if (client.connectionStatus!.state != MqttConnectionState.connected) {
         await _connectClient();
       }
-
+      UserData? user = await userProvider.getUser();
+      String? pubTopic = user?.espCert.pubTopic;
       Uint8List payloadBuffer = Uint8List.fromList(
         utf8.encode(payload),
       );
@@ -83,7 +93,7 @@ class MqttController extends GetxController {
 
       print("Payload to be sent: $payload");
       client.publishMessage(
-        topic,
+        pubTopic!,
         MqttQos.atLeastOnce,
         payloadBufferAsUint8Buffer,
       );
@@ -98,7 +108,7 @@ class MqttController extends GetxController {
     try {
       await client.connect();
       while (client.connectionStatus!.state != MqttConnectionState.connected) {
-        await Future.delayed(Duration(milliseconds: 20));
+        await Future.delayed(const Duration(milliseconds: 20));
       }
       print("Client connected successfully.");
     } catch (e) {
@@ -111,7 +121,7 @@ class MqttController extends GetxController {
       return;
     }
     while (client.connectionStatus!.state != MqttConnectionState.connected) {
-      await Future.delayed(Duration(milliseconds: 100));
+      await Future.delayed(const Duration(milliseconds: 100));
     }
   }
 }

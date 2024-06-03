@@ -3,7 +3,7 @@ import 'package:flutter_app/models/peripheral_model.dart';
 
 class PeripheralProvider with ChangeNotifier {
   final List<Peripheral> _peripherals = [];
-  int ativeButton = 0;
+  int activeButton = 0;
 
   List<Peripheral> get peripherals => _peripherals;
 
@@ -13,7 +13,7 @@ class PeripheralProvider with ChangeNotifier {
   }
 
   void setActiveButton() {
-    ativeButton = ativeButton == 0 ? 1 : 0;
+    activeButton = activeButton == 0 ? 1 : 0;
     notifyListeners();
   }
 

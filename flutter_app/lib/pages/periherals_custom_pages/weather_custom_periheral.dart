@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_app/Controller/mqtt_controller.dart';
+import 'package:flutter_app/controllers/mqtt_controller.dart';
 import 'package:get/get.dart';
 
 class MyWeatherPage extends StatefulWidget {
@@ -57,8 +57,7 @@ class _MyWeatherPageState extends State<MyWeatherPage> {
             },
           ),
           ElevatedButton(
-              onPressed: () =>
-                  mqttService.publishMessage('esp32/sub', '{"active": 1}'),
+              onPressed: () => mqttService.publishMessage('{"active": 1}'),
               child: Text("active")),
           Obx(() => SizedBox(
                 height: 500,
@@ -80,21 +79,23 @@ class _MyWeatherPageState extends State<MyWeatherPage> {
 
   Future<void> publishUpdates() async {
     String payload = jsonEncode({"update": 1});
-    await mqttService.publishMessage('esp32/sub', payload);
+    await mqttService.publishMessage(payload);
     print('Published update: 1');
   }
 
   Future<void> publishFanValue(bool val) async {
     int realVal = val ? 1 : 0;
-    String payload = jsonEncode({"pin": 5, "value": realVal, "type":"FAN_PIN"});
-    await mqttService.publishMessage('esp32/sub', payload);
+    String payload =
+        jsonEncode({"pin": 5, "value": realVal, "type": "FAN_PIN"});
+    await mqttService.publishMessage(payload);
     print('Published Fan Update');
   }
 
   Future<void> publishLEDValue(bool val) async {
     int realVal = val ? 1 : 0;
-    String payload = jsonEncode({"pin": 19, "value": realVal, "type":"LED_PIN"});
-    await mqttService.publishMessage('esp32/sub', payload);
+    String payload =
+        jsonEncode({"pin": 19, "value": realVal, "type": "LED_PIN"});
+    await mqttService.publishMessage(payload);
     print('Published LED update');
   }
 }
