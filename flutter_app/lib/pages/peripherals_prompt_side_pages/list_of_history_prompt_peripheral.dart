@@ -77,72 +77,64 @@ class _HistoryPromptPageState extends State<HistoryPromptPage> {
                 onPressed: () async {
                   String? peripheralName;
                   int? value;
-
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
                         title: const Text('Add Command'),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            TextField(
-                              onChanged: (text) {
-                                peripheralName = text;
-                              },
-                              decoration: const InputDecoration(
-                                  labelText: 'command Name'),
-                            ),
-                            SizedBox(
-                              height: 150,
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount:
-                                    peripheralProvider.peripherals.length,
-                                itemBuilder: (context, index) {
-                                  final peripheral =
-                                      peripheralProvider.peripherals[index];
-
-                                  return CheckboxListTile(
-                                    title: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(peripheral.name!),
-                                        SizedBox(
-                                          height: 40,
-                                          width: 40,
-                                          child: TextField(
-                                            onChanged: (text) {
-                                              int value =
-                                                  int.tryParse(text) ?? 0;
-                                              peripheral.value = value;
-                                            },
-                                            decoration: const InputDecoration(
-                                              labelText: 'Value',
-                                            ),
-                                            keyboardType: TextInputType.number,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    value:
-                                        userChecked.contains(peripheral.name!),
-                                    onChanged: (value) {
-                                      if (value!) {
-                                        userChecked.add(peripheral
-                                            .name!); // Add to checked list
-                                      } else {
-                                        userChecked.remove(peripheral
-                                            .name!); // Remove from checked list
-                                      }
-                                      setState(() {}); // Rebuild the list
-                                    },
-                                  );
+                        content: SingleChildScrollView(
+                          // Add SingleChildScrollView to handle overflow
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Command Name:'),
+                              TextField(
+                                onChanged: (text) {
+                                  peripheralName = text;
                                 },
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 16),
+                              const Text('Select Peripherals and Values:'),
+                              ...peripheralProvider.peripherals
+                                  .map(
+                                    (peripheral) => CheckboxListTile(
+                                      title: Row(
+                                        children: [
+                                          Text(peripheral.name!),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            // Use Expanded for TextField
+                                            child: TextField(
+                                              onChanged: (text) {
+                                                int value =
+                                                    int.tryParse(text) ?? 0;
+                                                peripheral.value = value;
+                                              },
+                                              decoration: const InputDecoration(
+                                                labelText: 'Value',
+                                              ),
+                                              keyboardType:
+                                                  TextInputType.number,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      value: userChecked
+                                          .contains(peripheral.name!),
+                                      onChanged: (value) {
+                                        if (value!) {
+                                          userChecked.add(peripheral.name!);
+                                        } else {
+                                          userChecked.remove(peripheral.name!);
+                                        }
+                                        setState(() {});
+                                      },
+                                    ),
+                                  )
+                                  .toList(),
+                            ],
+                          ),
                         ),
                       );
                     },
