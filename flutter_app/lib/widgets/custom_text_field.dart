@@ -1,34 +1,42 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class CustomTextField extends StatefulWidget {
   final String hintText;
   final IconData? icon;
-  final TextEditingController? controller;
-  final bool obscureText; // Rename this to reflect its purpose
+  final bool obscureText;
+  final TextInputType? keyboardType;
+  final Function(dynamic value)? method; // Callback for text changes
+  final String? initialValue;
 
   const CustomTextField({
-    Key? key,
+    super.key,
     required this.hintText,
     this.icon,
-    this.controller,
-    required this.obscureText,
-    TextInputType? keyboardType,
-    Null Function(dynamic value)? method,
-    String? initialValue, // Use this to control obscureText
-  }) : super(key: key);
+    this.obscureText = false, // Default to not obscure
+    this.keyboardType,
+    this.method,
+    this.initialValue,
+  });
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
 }
 
 class _CustomTextFieldState extends State<CustomTextField> {
+  late TextEditingController _textController;
   final FocusNode _focusNode = FocusNode();
   bool _isFocused = false;
 
   @override
   void initState() {
     super.initState();
+    _textController = TextEditingController(text: widget.initialValue);
+
+    // Add listener if method is provided
+    if (widget.method != null) {
+      _textController.addListener(_onTextChanged);
+    }
+
     _focusNode.addListener(() {
       setState(() {
         _isFocused = _focusNode.hasFocus;
@@ -38,8 +46,14 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
   @override
   void dispose() {
+    _textController.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  void _onTextChanged() {
+    // Call the provided method with the current text value
+    widget.method?.call(_textController.text);
   }
 
   @override
@@ -48,9 +62,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: mq.size.width * 0.05),
       child: TextField(
-        obscureText: widget.obscureText, // Use widget.obscureText here
+        obscureText: widget.obscureText,
         focusNode: _focusNode,
-        controller: widget.controller,
+        controller: _textController, // Use the created controller
+        keyboardType: widget.keyboardType,
         decoration: InputDecoration(
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(

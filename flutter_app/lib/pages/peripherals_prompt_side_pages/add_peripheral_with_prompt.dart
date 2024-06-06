@@ -15,8 +15,7 @@ class AddPeripheralPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextEditingController requestController = TextEditingController();
     final TextEditingController resultController = TextEditingController();
-    final TextEditingController resultDataTypeController =
-        TextEditingController();
+    final TextEditingController resultDataTypeController = TextEditingController();
     final periheralProvider = Provider.of<PeripheralProvider>(context);
     final backendProvider = Provider.of<BackendService>(context);
     return Scaffold(
@@ -30,6 +29,7 @@ class AddPeripheralPage extends StatelessWidget {
               peripheral: peripheral,
               onRemove: () => periheralProvider.removePeripheral(index),
               index: index,
+              peripheralProvider: periheralProvider,
             );
           }),
           Padding(
@@ -47,24 +47,21 @@ class AddPeripheralPage extends StatelessWidget {
           const SizedBox(
             height: 20,
           ),
-          CustomTextField(
-            controller: requestController,
+          const CustomTextField(
             hintText: 'enter prompt',
             obscureText: false,
           ),
           const SizedBox(
             height: 5,
           ),
-          CustomTextField(
-            controller: resultController,
+          const CustomTextField(
             hintText: 'enter result',
             obscureText: false,
           ),
           const SizedBox(
             height: 5,
           ),
-          CustomTextField(
-            controller: resultDataTypeController,
+          const CustomTextField(
             hintText: 'enter result data type',
             obscureText: false,
           ),

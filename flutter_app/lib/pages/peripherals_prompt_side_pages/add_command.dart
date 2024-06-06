@@ -1,10 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_app/pages/peripherals_prompt_side_pages/basic_commands.dart';
 import 'package:flutter_app/providers/peripheral_controller.dart';
 import 'package:flutter_app/controllers/mqtt_controller.dart';
-import 'package:flutter_app/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 
 class AddCommandButton extends StatelessWidget {
@@ -90,6 +88,7 @@ class _AddCommandDialogState extends State<AddCommandDialog> {
                     value: selectedPeripherals.containsKey(peripheral.name),
                     onChanged: (value) {
                       setState(() {
+                        // print(selectedPeripherals.keys);
                         if (value!) {
                           // Initialize with an empty list or the current value
                           selectedPeripherals[peripheral.name!] =

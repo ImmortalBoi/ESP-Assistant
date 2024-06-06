@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_app/pages/peripherals_prompt_side_pages/add_command.dart';
@@ -29,7 +28,7 @@ class _HistoryPromptPageState extends State<HistoryPromptPage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            PeripheralList(),
+            const PeripheralList(),
             const Divider(),
             AddCommandButton(mqttService: mqttService),
           ],

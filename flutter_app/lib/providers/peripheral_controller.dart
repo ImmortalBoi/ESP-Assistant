@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/models/peripheral_model.dart';
 
-class PeripheralProvider with ChangeNotifier {
+class PeripheralProvider extends ChangeNotifier {
   final List<Peripheral> _peripherals = [];
   int activeButton = 0;
 
@@ -22,16 +22,17 @@ class PeripheralProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void updatePeripheralField(int index, String field, dynamic value) {
-    if (field == 'pin') {
-      _peripherals[index].pin = value;
-    } else if (field == 'name') {
-      _peripherals[index].name = value;
-    } else if (field == 'type') {
-      _peripherals[index].type = value;
-    } else if (field == 'value') {
-      _peripherals[index].value = value;
-    }
-    notifyListeners();
+void updatePeripheralField(int index, String field, dynamic value) {
+  print("updated");
+  if (field == 'pin') {
+    _peripherals[index].pin = int.tryParse(value) ?? _peripherals[index].pin; // Keep old value if parsing fails
+  } else if (field == 'name') {
+    _peripherals[index].name = value; // Directly assign string value
+  } else if (field == 'type') {
+    _peripherals[index].type = value; // Directly assign string value
+  } else if (field == 'value') {
+    _peripherals[index].value = int.tryParse(value) ?? _peripherals[index].value; // Keep old value if parsing fails
   }
+  notifyListeners();
+}
 }

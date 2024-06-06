@@ -69,19 +69,17 @@ class _SignUpState extends State<SignUp> {
               const SizedBox(
                 height: 50,
               ),
-              CustomTextField(
+              const CustomTextField(
                 hintText: 'enter your name or email',
                 icon: Icons.person,
-                controller: emailController,
                 obscureText: false,
               ),
               const SizedBox(
                 height: 25,
               ),
-              CustomTextField(
+              const CustomTextField(
                 hintText: 'enter your password',
                 icon: Icons.lock,
-                controller: passwordController,
                 obscureText: true,
               ),
               const SizedBox(
