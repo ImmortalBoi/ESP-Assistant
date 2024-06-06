@@ -21,10 +21,10 @@ class _BasicCommandsState extends State<BasicCommands> {
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
     MqttController mqttService = MqttController(userProvider);
-    bool _isActive = false;
+    bool isActive = false;
 
-    void _publishActiveState() async {
-      String payload = jsonEncode({"active": _isActive ? 1 : 0});
+    void publishActiveState() async {
+      String payload = jsonEncode({"active": isActive ? 1 : 0});
       await mqttService.publishMessage(payload);
     }
 
@@ -33,18 +33,18 @@ class _BasicCommandsState extends State<BasicCommands> {
         padding: const EdgeInsets.all(16.0),
         child: Column(children: [
           SwitchListTile(
-            title: Text('Active'),
-            value: _isActive,
+            title: const Text('Active'),
+            value: isActive,
             onChanged: (bool value) {
               setState(() {
-                _isActive = value;
+                isActive = value;
               });
-              _publishActiveState();
+              publishActiveState();
             },
           ),
           TextFormField(
             initialValue: widget.peripheral!.pin.toString(),
-            decoration: InputDecoration(labelText: 'Pin'),
+            decoration: const InputDecoration(labelText: 'Pin'),
             keyboardType: TextInputType.number,
             onChanged: (value) {
               Provider.of<PeripheralProvider>(context, listen: false)
@@ -54,7 +54,7 @@ class _BasicCommandsState extends State<BasicCommands> {
           ),
           TextFormField(
             initialValue: widget.peripheral!.value.toString(),
-            decoration: InputDecoration(labelText: 'Value'),
+            decoration: const InputDecoration(labelText: 'Value'),
             keyboardType: TextInputType.number,
             onChanged: (value) {
               Provider.of<PeripheralProvider>(context, listen: false)
@@ -69,7 +69,7 @@ class _BasicCommandsState extends State<BasicCommands> {
 
               await mqttService.publishMessage(peripheralDataJson);
             },
-            child: Text('Update Peripheral'),
+            child: const Text('Update Peripheral'),
           ),
         ]),
       ),

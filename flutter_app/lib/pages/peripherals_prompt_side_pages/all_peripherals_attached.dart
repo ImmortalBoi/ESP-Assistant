@@ -5,7 +5,7 @@ import 'package:flutter_app/pages/peripherals_prompt_side_pages/list_of_history_
 import 'package:flutter_app/widgets/custom_button.dart';
 
 class NewPeripheral extends StatelessWidget {
-  NewPeripheral({super.key});
+  const NewPeripheral({super.key});
 
   @override
   Widget build(BuildContext context) {

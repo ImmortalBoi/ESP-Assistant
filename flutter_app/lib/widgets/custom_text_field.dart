@@ -68,8 +68,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
         keyboardType: widget.keyboardType,
         decoration: InputDecoration(
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-                color: const Color.fromARGB(255, 149, 157, 163), width: 2.0),
+            borderSide: const BorderSide(
+                color: Color.fromARGB(255, 149, 157, 163), width: 2.0),
             borderRadius: BorderRadius.circular(20),
           ),
           enabledBorder: OutlineInputBorder(

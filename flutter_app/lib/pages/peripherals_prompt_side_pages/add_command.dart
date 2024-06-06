@@ -100,7 +100,7 @@ class _AddCommandDialogState extends State<AddCommandDialog> {
                     },
                   ),
                 )
-                .toList(),
+                ,
           ],
         ),
       ),

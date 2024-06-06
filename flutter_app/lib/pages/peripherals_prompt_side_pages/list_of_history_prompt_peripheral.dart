@@ -44,7 +44,7 @@ class PeripheralList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final peripheralProvider = Provider.of<PeripheralProvider>(context);
-    return Container(
+    return SizedBox(
       height: 200,
       child: peripheralProvider.peripherals.isEmpty
           ? const Center(child: Text("Add some peripherals to the list"))

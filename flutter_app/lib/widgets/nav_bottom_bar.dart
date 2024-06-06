@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class MyNavBar extends StatefulWidget {
   final GlobalKey<NavigatorState> navigatorKey;
 
-  const MyNavBar({Key? key, required this.navigatorKey}) : super(key: key);
+  const MyNavBar({super.key, required this.navigatorKey});
 
   @override
   State<MyNavBar> createState() => _MyNavBarState();
@@ -36,7 +36,7 @@ class _MyNavBarState extends State<MyNavBar> {
       height: 70,
       margin: const EdgeInsets.only(left: 32, right: 32, bottom: 20),
       decoration: BoxDecoration(
-        color: Color.fromARGB(255, 251, 251, 251),
+        color: const Color.fromARGB(255, 251, 251, 251),
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(

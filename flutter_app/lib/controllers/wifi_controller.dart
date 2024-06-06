@@ -65,7 +65,7 @@ class WifiController extends GetxController {
       WiFiForIoTPlugin.forceWifiUsage(true);
       ip.value = (await WiFiForIoTPlugin.getIP())!;
       ip.value = changeLastOctetToOne(ip.value);
-      uri.value = "http://${ip.value}/wifi/${name}/pass/${password}";
+      uri.value = "http://${ip.value}/wifi/$name/pass/$password";
       bool foundBool = true;
 
       http.Response? res;

@@ -36,7 +36,7 @@ Future<void> main() async {
           },
         )
       ],
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }
@@ -50,8 +50,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       routes: {
         '/splash': (context) => const SplashPage(),
-        '/home': (context) => HomePage(),
-        '/NewPeripheral': (context) => NewPeripheral(),
+        '/home': (context) => const HomePage(),
+        '/NewPeripheral': (context) => const NewPeripheral(),
         '/CustomPeripheral': (context) => const CustomPeripheral(),
         '/settings': (context) => const Settings(),
         '/myhomepage': (context) => const MyHomePage(),
