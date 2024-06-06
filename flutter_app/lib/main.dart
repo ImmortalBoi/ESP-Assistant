@@ -24,11 +24,19 @@ Future<void> main() async {
         ChangeNotifierProvider<PeripheralProvider>(
           create: (context) => PeripheralProvider(),
         ),
-        ChangeNotifierProvider<BackendService>(
-          create: (context) => BackendService(),
+        // Replace the BackendService provider with ChangeNotifierProxyProvider
+        ChangeNotifierProxyProvider<UserProvider, BackendService>(
+          create: (context) =>
+              BackendService(Provider.of<UserProvider>(context, listen: false)),
+          update: (context, UserProvider userProvider,
+              BackendService? backendService) {
+            // If backendService is null, it means it hasn't been created yet, so just return null to trigger creation.
+            if (backendService == null) return BackendService(Provider.of<UserProvider>(context, listen: false));
+            return backendService;
+          },
         )
       ],
-      child: (const MyApp()),
+      child: MyApp(),
     ),
   );
 }

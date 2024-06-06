@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_app/controllers/mqtt_controller.dart';
+import 'package:flutter_app/providers/user_provider.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 
 class MyTankPage extends StatefulWidget {
   const MyTankPage({super.key});
@@ -16,10 +18,33 @@ class _MyTankPageState extends State<MyTankPage> {
   bool _isActivePump = false;
   bool _isActiveLED = false;
 
-  final MqttController mqttService = Get.put(MqttController());
-
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+    final MqttController mqttService = Get.put(MqttController(userProvider));
+
+    Future<void> publishUpdates() async {
+      String payload = jsonEncode({"update": 2});
+      await mqttService.publishMessage(payload);
+      print('Published update: 1');
+    }
+
+    Future<void> publishPumpValue(bool val) async {
+      int realVal = val ? 1 : 0;
+      String payload =
+          jsonEncode({"pin": 14, "value": realVal, "type": "PUMP_PIN"});
+      await mqttService.publishMessage(payload);
+      print('Published Pump Update');
+    }
+
+    Future<void> publishLEDValue(bool val) async {
+      int realVal = val ? 1 : 0;
+      String payload =
+          jsonEncode({"pin": 19, "value": realVal, "type": "LED_PIN"});
+      await mqttService.publishMessage(payload);
+      print('Published LED update');
+    }
+
     return Scaffold(
       body: Column(
         children: [
@@ -76,27 +101,5 @@ class _MyTankPageState extends State<MyTankPage> {
         ],
       ),
     );
-  }
-
-  Future<void> publishUpdates() async {
-    String payload = jsonEncode({"update": 2});
-    await mqttService.publishMessage(payload);
-    print('Published update: 1');
-  }
-
-  Future<void> publishPumpValue(bool val) async {
-    int realVal = val ? 1 : 0;
-    String payload =
-        jsonEncode({"pin": 14, "value": realVal, "type": "PUMP_PIN"});
-    await mqttService.publishMessage(payload);
-    print('Published Pump Update');
-  }
-
-  Future<void> publishLEDValue(bool val) async {
-    int realVal = val ? 1 : 0;
-    String payload =
-        jsonEncode({"pin": 19, "value": realVal, "type": "LED_PIN"});
-    await mqttService.publishMessage(payload);
-    print('Published LED update');
   }
 }

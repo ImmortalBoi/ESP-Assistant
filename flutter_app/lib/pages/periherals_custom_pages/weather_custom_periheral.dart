@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_app/controllers/mqtt_controller.dart';
+import 'package:flutter_app/providers/user_provider.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 
 class MyWeatherPage extends StatefulWidget {
   const MyWeatherPage({super.key});
@@ -16,10 +18,33 @@ class _MyWeatherPageState extends State<MyWeatherPage> {
   bool _isActiveFan = false;
   bool _isActiveLED = false;
 
-  final MqttController mqttService = Get.put(MqttController());
-
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+    final MqttController mqttService = Get.put(MqttController(userProvider));
+
+    Future<void> publishUpdates() async {
+      String payload = jsonEncode({"update": 1});
+      await mqttService.publishMessage(payload);
+      print('Published update: 1');
+    }
+
+    Future<void> publishFanValue(bool val) async {
+      int realVal = val ? 1 : 0;
+      String payload =
+          jsonEncode({"pin": 5, "value": realVal, "type": "FAN_PIN"});
+      await mqttService.publishMessage(payload);
+      print('Published Fan Update');
+    }
+
+    Future<void> publishLEDValue(bool val) async {
+      int realVal = val ? 1 : 0;
+      String payload =
+          jsonEncode({"pin": 19, "value": realVal, "type": "LED_PIN"});
+      await mqttService.publishMessage(payload);
+      print('Published LED update');
+    }
+
     return Scaffold(
       body: Column(
         children: [
@@ -75,27 +100,5 @@ class _MyWeatherPageState extends State<MyWeatherPage> {
         ],
       ),
     );
-  }
-
-  Future<void> publishUpdates() async {
-    String payload = jsonEncode({"update": 1});
-    await mqttService.publishMessage(payload);
-    print('Published update: 1');
-  }
-
-  Future<void> publishFanValue(bool val) async {
-    int realVal = val ? 1 : 0;
-    String payload =
-        jsonEncode({"pin": 5, "value": realVal, "type": "FAN_PIN"});
-    await mqttService.publishMessage(payload);
-    print('Published Fan Update');
-  }
-
-  Future<void> publishLEDValue(bool val) async {
-    int realVal = val ? 1 : 0;
-    String payload =
-        jsonEncode({"pin": 19, "value": realVal, "type": "LED_PIN"});
-    await mqttService.publishMessage(payload);
-    print('Published LED update');
   }
 }

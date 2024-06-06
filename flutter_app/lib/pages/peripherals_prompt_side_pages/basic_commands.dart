@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/models/peripheral_model.dart';
 import 'package:flutter_app/providers/peripheral_controller.dart';
 import 'package:flutter_app/controllers/mqtt_controller.dart';
+import 'package:flutter_app/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 
 class BasicCommands extends StatefulWidget {
@@ -16,16 +17,17 @@ class BasicCommands extends StatefulWidget {
 }
 
 class _BasicCommandsState extends State<BasicCommands> {
-  MqttController mqttService = MqttController();
-  bool _isActive = false;
-
-  void _publishActiveState() async {
-    String payload = jsonEncode({"active": _isActive ? 1 : 0});
-    await mqttService.publishMessage(payload);
-  }
-
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+    MqttController mqttService = MqttController(userProvider);
+    bool _isActive = false;
+
+    void _publishActiveState() async {
+      String payload = jsonEncode({"active": _isActive ? 1 : 0});
+      await mqttService.publishMessage(payload);
+    }
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -64,8 +66,6 @@ class _BasicCommandsState extends State<BasicCommands> {
             onPressed: () async {
               String peripheralDataJson =
                   serializePeripheralDataToJson(widget.peripheral!);
-
-              MqttController mqttService = MqttController();
 
               await mqttService.publishMessage(peripheralDataJson);
             },

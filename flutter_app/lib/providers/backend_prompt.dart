@@ -3,12 +3,16 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/models/peripheral_model.dart';
 import 'package:flutter_app/controllers/mqtt_controller.dart';
+import 'package:flutter_app/providers/user_provider.dart';
 import 'package:http/http.dart' as http;
 
 class BackendService extends ChangeNotifier {
+  final UserProvider _userProvider;
+
+  BackendService(this._userProvider); // Constructor accepting UserProvider
   Future<dynamic> sendPeripheralData(List<Peripheral> peripherals,
       String request, String result, String resultDataType) async {
-    MqttController mqttService = MqttController();
+    MqttController mqttService = MqttController(_userProvider);
     const String url =
         'http://ec2-3-147-6-28.us-east-2.compute.amazonaws.com:8080/config';
     final Map<String, dynamic> data = {

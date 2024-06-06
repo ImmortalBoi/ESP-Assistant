@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_app/controllers/mqtt_controller.dart';
+import 'package:flutter_app/providers/user_provider.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 
 class MyCar extends StatefulWidget {
   const MyCar({super.key});
@@ -12,11 +14,24 @@ class MyCar extends StatefulWidget {
 }
 
 class _MyCarState extends State<MyCar> {
-  bool _isActive = false;
-  final MqttController mqttService = Get.put(MqttController());
-
   @override
   Widget build(BuildContext context) {
+    bool isActive = false;
+    final userProvider = Provider.of<UserProvider>(context);
+    final MqttController mqttService = Get.put(MqttController(userProvider));
+    Future<void> publishUpdates() async {
+      String payload = jsonEncode({"update": 0});
+      await mqttService.publishMessage(payload);
+      print('Published update: 0');
+
+      // const duration = Duration(seconds: 2);
+      // await Future.delayed(duration);
+
+      // payload = jsonEncode({"update": 1});
+      // await mqttService.publishMessage( payload);
+      // print('Published update: 1');
+    }
+
     return Scaffold(
       appBar: AppBar(),
       body: Column(
@@ -25,12 +40,12 @@ class _MyCarState extends State<MyCar> {
         children: [
           SwitchListTile(
             title: const Text('Switch Version '),
-            value: _isActive,
+            value: isActive,
             onChanged: (bool value) {
               setState(() {
-                _isActive = value;
+                isActive = value;
+                publishUpdates();
               });
-              publishUpdates();
             },
           ),
           arrowDirection(Icons.arrow_upward, () async {
@@ -48,13 +63,13 @@ class _MyCarState extends State<MyCar> {
             children: [
               arrowDirection(Icons.arrow_left, () {
                 mqttService
-                    .publishMessage('{"pin":27, "type":"IN_PIN", "value":1}');
+                    .publishMessage('{"pin":27, "type":"IN_PIN", "value":0}');
                 mqttService
-                    .publishMessage('{"pin":26, "type":"IN_PIN", "value":0}');
+                    .publishMessage('{"pin":26, "type":"IN_PIN", "value":1}');
                 mqttService
                     .publishMessage('{"pin":25, "type":"IN_PIN", "value":0}');
                 mqttService
-                    .publishMessage('{"pin":33, "type":"IN_PIN", "value":1}');
+                    .publishMessage('{"pin":33, "type":"IN_PIN", "value":0}');
               }),
               const SizedBox(
                 width: 50,
@@ -63,9 +78,9 @@ class _MyCarState extends State<MyCar> {
                 mqttService
                     .publishMessage('{"pin":27, "type":"IN_PIN", "value":0}');
                 mqttService
-                    .publishMessage('{"pin":26, "type":"IN_PIN", "value":1}');
+                    .publishMessage('{"pin":26, "type":"IN_PIN", "value":0}');
                 mqttService
-                    .publishMessage('{"pin":25, "type":"IN_PIN", "value":0}');
+                    .publishMessage('{"pin":25, "type":"IN_PIN", "value":1}');
                 mqttService
                     .publishMessage('{"pin":33, "type":"IN_PIN", "value":0}');
               }),
@@ -75,13 +90,13 @@ class _MyCarState extends State<MyCar> {
             Icons.arrow_downward,
             () {
               mqttService
-                  .publishMessage('{"pin":27, "type":"IN_PIN", "value":0}');
+                  .publishMessage('{"pin":27, "type":"IN_PIN", "value":1}');
               mqttService
                   .publishMessage('{"pin":26, "type":"IN_PIN", "value":0}');
               mqttService
-                  .publishMessage('{"pin":25, "type":"IN_PIN", "value":1}');
+                  .publishMessage('{"pin":25, "type":"IN_PIN", "value":0}');
               mqttService
-                  .publishMessage('{"pin":33, "type":"IN_PIN", "value":0}');
+                  .publishMessage('{"pin":33, "type":"IN_PIN", "value":1}');
             },
           ),
           const SizedBox(
@@ -119,18 +134,5 @@ class _MyCarState extends State<MyCar> {
         child: Center(child: Icon(icon)),
       ),
     );
-  }
-
-  Future<void> publishUpdates() async {
-    String payload = jsonEncode({"update": 0});
-    await mqttService.publishMessage(payload);
-    print('Published update: 0');
-
-    // const duration = Duration(seconds: 2);
-    // await Future.delayed(duration);
-
-    // payload = jsonEncode({"update": 1});
-    // await mqttService.publishMessage( payload);
-    // print('Published update: 1');
   }
 }
