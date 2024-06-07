@@ -1,6 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_app/models/advanced_control_model.dart';
+import 'package:flutter_app/models/peripheral_model.dart';
+import 'package:flutter_app/providers/advanced_control_provider.dart';
 import 'package:flutter_app/providers/peripheral_controller.dart';
 import 'package:flutter_app/controllers/mqtt_controller.dart';
 import 'package:provider/provider.dart';
@@ -37,11 +40,14 @@ class AddCommandDialog extends StatefulWidget {
 
 class _AddCommandDialogState extends State<AddCommandDialog> {
   String? commandName;
-  final Map<String, List<int>> selectedPeripherals = {};
+  final Map<String, int> selectedPeripherals = {};
 
   @override
   Widget build(BuildContext context) {
     final peripheralProvider = Provider.of<PeripheralProvider>(context);
+    final advancedControlProvider = Provider.of<AdvancedControlProvider>(
+        context,
+        listen: false); // Access the provider
 
     return AlertDialog(
       title: const Text('Add Command'),
@@ -58,49 +64,44 @@ class _AddCommandDialogState extends State<AddCommandDialog> {
             ),
             const SizedBox(height: 16),
             const Text('Select Peripherals and Values:'),
-            ...peripheralProvider.peripherals
-                .map(
-                  (peripheral) => CheckboxListTile(
-                    title: Row(
-                      children: [
-                        Text(peripheral.name!),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: TextField(
-                            onChanged: (text) {
-                              setState(() {
-                                // Split the input by comma and convert to integers
-                                final values = text
-                                    .split(',')
-                                    .map((v) => int.tryParse(v.trim()) ?? 0)
-                                    .toList();
-                                selectedPeripherals[peripheral.name!] = values;
-                              });
-                            },
-                            decoration: const InputDecoration(
-                              labelText: 'Values (comma-separated)',
-                            ),
-                            keyboardType: TextInputType.number,
-                          ),
+            ...peripheralProvider.peripherals.map(
+              (peripheral) => CheckboxListTile(
+                title: Row(
+                  children: [
+                    Text(peripheral.name!),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        onChanged: (text) {
+                          setState(() {
+                            // Split the input by comma and convert to integers
+                            selectedPeripherals[peripheral.name!] =
+                                int.parse(text);
+                          });
+                        },
+                        decoration: const InputDecoration(
+                          labelText: 'Values (comma-separated)',
                         ),
-                      ],
+                        keyboardType: TextInputType.number,
+                      ),
                     ),
-                    value: selectedPeripherals.containsKey(peripheral.name),
-                    onChanged: (value) {
-                      setState(() {
-                        // print(selectedPeripherals.keys);
-                        if (value!) {
-                          // Initialize with an empty list or the current value
-                          selectedPeripherals[peripheral.name!] =
-                              selectedPeripherals[peripheral.name!] ?? [];
-                        } else {
-                          selectedPeripherals.remove(peripheral.name!);
-                        }
-                      });
-                    },
-                  ),
-                )
-                ,
+                  ],
+                ),
+                value: selectedPeripherals.containsKey(peripheral.name),
+                onChanged: (value) {
+                  setState(() {
+                    // print(selectedPeripherals.keys);
+                    if (value!) {
+                      // Initialize with an empty list or the current value
+                      selectedPeripherals[peripheral.name!] =
+                          selectedPeripherals[peripheral.name!] ?? 0;
+                    } else {
+                      selectedPeripherals.remove(peripheral.name!);
+                    }
+                  });
+                },
+              ),
+            ),
           ],
         ),
       ),
@@ -115,25 +116,32 @@ class _AddCommandDialogState extends State<AddCommandDialog> {
           onPressed: () async {
             if (commandName != null && selectedPeripherals.isNotEmpty) {
               // Here, you can access the selected peripherals and their values:
-              for (var entry in selectedPeripherals.entries) {
-                String peripheralName = entry.key;
-                List<int> values = entry.value;
+              final newAdvancedControl = AdvancedControl(
+                name: commandName!,
+                selectedPeripherals: selectedPeripherals.entries
+                    .map((entry) => Peripheral(
+                          name: entry.key,
+                          value: entry.value,
+                          // Get other properties from the provider
+                          pin: peripheralProvider.peripherals
+                              .firstWhere((p) => p.name == entry.key)
+                              .pin,
+                          type: peripheralProvider.peripherals
+                              .firstWhere((p) => p.name == entry.key)
+                              .type,
+                        ))
+                    .toList(),
+              );
 
-                // Access the peripheral from the provider
-                final peripheral = peripheralProvider.peripherals
-                    .firstWhere((p) => p.name == peripheralName);
+              advancedControlProvider.addAdvancedControl(newAdvancedControl);
+            }
+            else{
+              print('Error: Command name cannot be empty and at least one peripheral must be selected.');
 
-                // Process the list of values (e.g., send each value as a separate MQTT message)
-                for (int value in values) {
-                  peripheral.value = value; // Update the peripheral's value
-                  String payload = jsonEncode({peripheral.type: value});
-                  await widget.mqttService.publishMessage(payload);
-                }
-              }
             }
             Navigator.pop(context);
           },
-          child: const Text('Execute'),
+          child: const Text('Create Command'),
         ),
       ],
     );

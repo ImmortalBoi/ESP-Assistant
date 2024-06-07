@@ -5,6 +5,7 @@ import 'package:flutter_app/pages/periherals_custom_pages/custom_peripherals.dar
 import 'package:flutter_app/pages/peripherals_prompt_side_pages/all_peripherals_attached.dart';
 import 'package:flutter_app/pages/settings_page.dart';
 import 'package:flutter_app/pages/splash_page.dart';
+import 'package:flutter_app/providers/advanced_control_provider.dart';
 import 'package:flutter_app/providers/user_provider.dart';
 import 'package:flutter_app/providers/backend_prompt.dart';
 import 'package:flutter_app/providers/peripheral_controller.dart';
@@ -24,6 +25,7 @@ Future<void> main() async {
         ChangeNotifierProvider<PeripheralProvider>(
           create: (context) => PeripheralProvider(),
         ),
+        ChangeNotifierProvider(create: (_) => AdvancedControlProvider()),
         // Replace the BackendService provider with ChangeNotifierProxyProvider
         ChangeNotifierProxyProvider<UserProvider, BackendService>(
           create: (context) =>
@@ -31,7 +33,10 @@ Future<void> main() async {
           update: (context, UserProvider userProvider,
               BackendService? backendService) {
             // If backendService is null, it means it hasn't been created yet, so just return null to trigger creation.
-            if (backendService == null) return BackendService(Provider.of<UserProvider>(context, listen: false));
+            if (backendService == null) {
+              return BackendService(
+                  Provider.of<UserProvider>(context, listen: false));
+            }
             return backendService;
           },
         )
