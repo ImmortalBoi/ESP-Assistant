@@ -1,7 +1,7 @@
 import 'package:flutter_app/models/peripheral_model.dart';
 import 'package:flutter_app/pages/peripherals_prompt_side_pages/list_of_history_prompt_peripheral.dart';
 import 'package:flutter_app/providers/backend_prompt.dart';
-import 'package:flutter_app/providers/peripheral_controller.dart';
+import 'package:flutter_app/providers/peripheral_provider.dart';
 import 'package:flutter_app/widgets/custom_button.dart';
 import 'package:flutter_app/widgets/custom_text_field.dart';
 import 'package:flutter_app/widgets/peripheral_widget.dart';
@@ -47,23 +47,26 @@ class AddPeripheralPage extends StatelessWidget {
           const SizedBox(
             height: 20,
           ),
-          const CustomTextField(
+          CustomTextField(
             hintText: 'enter prompt',
             obscureText: false,
+            controller: requestController,
           ),
           const SizedBox(
             height: 5,
           ),
-          const CustomTextField(
+          CustomTextField(
             hintText: 'enter result',
             obscureText: false,
+            controller: resultController,
           ),
           const SizedBox(
             height: 5,
           ),
-          const CustomTextField(
+          CustomTextField(
             hintText: 'enter result data type',
             obscureText: false,
+            controller: resultDataTypeController,
           ),
           Padding(
             padding: const EdgeInsets.all(28.0),

@@ -7,8 +7,9 @@ class CustomTextField extends StatefulWidget {
   final TextInputType? keyboardType;
   final Function(dynamic value)? method; // Callback for text changes
   final String? initialValue;
+  late TextEditingController? controller; // Externally provided controller
 
-  const CustomTextField({
+  CustomTextField({
     super.key,
     required this.hintText,
     this.icon,
@@ -16,6 +17,7 @@ class CustomTextField extends StatefulWidget {
     this.keyboardType,
     this.method,
     this.initialValue,
+    this.controller, // Add controller parameter
   });
 
   @override
@@ -30,7 +32,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   void initState() {
     super.initState();
-    _textController = TextEditingController(text: widget.initialValue);
+    _textController = widget.controller ?? TextEditingController(text: widget.initialValue);
 
     // Add listener if method is provided
     if (widget.method != null) {
@@ -46,7 +48,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
   @override
   void dispose() {
-    _textController.dispose();
+    // Only dispose the controller if it was created internally
+    if (widget.controller == null) {
+      _textController.dispose();
+    }
     _focusNode.dispose();
     super.dispose();
   }
@@ -64,7 +69,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       child: TextField(
         obscureText: widget.obscureText,
         focusNode: _focusNode,
-        controller: _textController, // Use the created controller
+        controller: _textController, // Use the provided or created controller
         keyboardType: widget.keyboardType,
         decoration: InputDecoration(
           focusedBorder: OutlineInputBorder(

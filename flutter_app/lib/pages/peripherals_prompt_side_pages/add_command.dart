@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/models/advanced_control_model.dart';
 import 'package:flutter_app/models/peripheral_model.dart';
 import 'package:flutter_app/providers/advanced_control_provider.dart';
-import 'package:flutter_app/providers/peripheral_controller.dart';
+import 'package:flutter_app/providers/peripheral_provider.dart';
 import 'package:flutter_app/controllers/mqtt_controller.dart';
 import 'package:provider/provider.dart';
 

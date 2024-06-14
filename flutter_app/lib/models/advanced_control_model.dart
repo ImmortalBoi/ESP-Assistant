@@ -19,7 +19,7 @@ class AdvancedControl {
 
   Future<void> executeCommand(MqttController mqttService) async {
     for (var peripheral in selectedPeripherals) {
-      String payload = jsonEncode({peripheral.type: peripheral.value});
+      String payload = jsonEncode(peripheral.toMap());
       await mqttService.publishMessage(payload);
     }
   }

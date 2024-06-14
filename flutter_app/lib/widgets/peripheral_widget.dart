@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/models/peripheral_model.dart';
-import 'package:flutter_app/providers/peripheral_controller.dart';
+import 'package:flutter_app/providers/peripheral_provider.dart';
 import 'package:flutter_app/widgets/custom_text_field.dart';
 
 class PeripheralWidget extends StatelessWidget {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/pages/peripherals_prompt_side_pages/add_command.dart';
 import 'package:flutter_app/pages/peripherals_prompt_side_pages/basic_commands.dart';
 import 'package:flutter_app/providers/advanced_control_provider.dart';
-import 'package:flutter_app/providers/peripheral_controller.dart';
+import 'package:flutter_app/providers/peripheral_provider.dart';
 import 'package:flutter_app/controllers/mqtt_controller.dart';
 import 'package:flutter_app/providers/user_provider.dart';
 import 'package:get/get.dart';

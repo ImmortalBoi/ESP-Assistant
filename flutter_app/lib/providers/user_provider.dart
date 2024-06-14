@@ -2,10 +2,16 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_app/models/user_data_model.dart';
+import 'package:flutter_app/providers/peripheral_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserProvider extends ChangeNotifier {
+
+   PeripheralProvider peripheralProvider; // Declare a private reference
+
+  // Constructor
+  UserProvider(this.peripheralProvider); // Inject PeripheralProvider
   late SharedPreferences prefs;
 
   Future<void> setUser(UserData user) async {
@@ -49,6 +55,7 @@ class UserProvider extends ChangeNotifier {
         responseData["isLoggedIn"] = true;
         UserData user = UserData.fromJson(responseData);
         await setUser(user);
+        peripheralProvider = responseData["Config_gen"].last()["Peripherals"]; 
         Navigator.pushReplacementNamed(context, '/home');
       }
     } catch (e) {
@@ -59,6 +66,7 @@ class UserProvider extends ChangeNotifier {
   Future<void> checkUserExists(BuildContext context, String email, String password) async {
     final String apiUrl =
         "http://ec2-3-147-6-28.us-east-2.compute.amazonaws.com:8080/v2/session/$email/$password";
+    print(apiUrl);
 
     final response = await http.get(
       Uri.parse(apiUrl),
@@ -73,6 +81,9 @@ class UserProvider extends ChangeNotifier {
         responseData["isLoggedIn"] = true;
         UserData user = UserData.fromJson(responseData);
         await setUser(user);
+        // Print all the keys in the responseData
+        peripheralProvider.setPeripherals(responseData["Config_gen"].last["Peripherals"]); 
+
         Navigator.pushReplacementNamed(context, '/myhomepage');
       } else {
         print('user not found');
