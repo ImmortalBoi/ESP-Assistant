@@ -31,12 +31,14 @@ Future<void> main() async {
           update: (context, UserProvider userProvider,
               BackendService? backendService) {
             // If backendService is null, it means it hasn't been created yet, so just return null to trigger creation.
-            if (backendService == null) return BackendService(Provider.of<UserProvider>(context, listen: false));
+            if (backendService == null)
+              return BackendService(
+                  Provider.of<UserProvider>(context, listen: false));
             return backendService;
           },
         )
       ],
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }
@@ -50,7 +52,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       routes: {
         '/splash': (context) => const SplashPage(),
-        '/home': (context) => HomePage(),
+        '/home': (context) => const HomePage(),
         '/NewPeripheral': (context) => NewPeripheral(),
         '/CustomPeripheral': (context) => const CustomPeripheral(),
         '/settings': (context) => const Settings(),
@@ -80,8 +82,8 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      bottomNavigationBar: NavigationMenu(),
+    return Scaffold(
+      bottomNavigationBar: const NavigationMenu(),
     );
   }
 }
