@@ -107,8 +107,6 @@ func PostConfigV1(c *gin.Context) {
 }
 
 func PostConfigV2(c *gin.Context) {
-	// This binds the received information to a specified type where it denies anything that doesn't look like it
-	// TODO replace this with the correct code
 	var req Payload
 	if err := c.BindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -120,7 +118,8 @@ func PostConfigV2(c *gin.Context) {
 		return
 	}
 
-	ctx := context.Background()
+	// Create the initial context
+	ctx := context.TODO()
 	godotenv.Load(".env")
 
 	req.Config.Bucket_link = `https://esp32-assistant-bucket.s3.eu-central-1.amazonaws.com/User-sketches/` + user.Name + `/` + strconv.Itoa(len(user.Config_gen)+1) + `/testing.ino.bin`
@@ -136,7 +135,9 @@ func PostConfigV2(c *gin.Context) {
 	model := client.GenerativeModel("gemini-1.5-pro")
 	model.SetTemperature(0.3)
 	resp, err := model.GenerateContent(ctx, genai.Text(createPrompt(req.Config)))
+
 	if err != nil {
+		fmt.Println(err.Error())
 		fmt.Println("API Limit reached, Waiting...")
 		time.Sleep(20 * time.Second)
 		resp, _ = model.GenerateContent(ctx, genai.Text(createPrompt(req.Config)))
@@ -172,13 +173,29 @@ func PostConfigV2(c *gin.Context) {
 
 	status, body := sendCompileRequestV2(code, libraries, upload_bucket_link)
 
+	// if status == 400 {
+	// 	c.JSON(status, gin.H{"compileRequestResp": body, "compilerRequestStatus": status, "reply": formatResponse(resp), "setup": setup, "libraries": libraries, "messageHandler": messageHandler, "publishMessage": publishMessage, "code": code, "globalDeclarations": globalDeclarations})
+	// }
 	for status == 400 {
+		fmt.Println("RETRYING")
+		// time.Sleep(20 * time.Second)
+		model := client.GenerativeModel("gemini-1.5-pro")
+		model.SetTemperature(0.3)
 		retrialPrompt := createRetrialPrompt(req.Config, code, body)
 		resp, err = model.GenerateContent(ctx, genai.Text(retrialPrompt))
+
+		if err != nil {
+			fmt.Println(err.Error())
+			fmt.Println("API Limit reached in retrial, Waiting...")
+			time.Sleep(20 * time.Second)
+			resp, err = model.GenerateContent(ctx, genai.Text(createPrompt(req.Config)))
+			// c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			// return
+		}
 		for err != nil {
 			fmt.Println(err.Error())
-			fmt.Println("API Limit reached, Waiting...")
-			time.Sleep(5 * time.Second)
+			fmt.Println("API Limit reached in retrial, Waiting...")
+			time.Sleep(20 * time.Second)
 			resp, _ = model.GenerateContent(ctx, genai.Text(retrialPrompt))
 			// c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			// return
@@ -187,6 +204,10 @@ func PostConfigV2(c *gin.Context) {
 
 		libraries, globalDeclarations, publishMessage, messageHandler, setup := extractSections(formatResponse(resp))
 
+		fmt.Println("-------------------------\nLogs:")
+		fmt.Println(body)
+		fmt.Println("-------------------------\nExtractions:")
+		fmt.Println(libraries)
 		code := createCodeV2(libraries, globalDeclarations, publishMessage, messageHandler, setup, user)
 
 		// fmt.Println(code)
@@ -200,7 +221,6 @@ func PostConfigV2(c *gin.Context) {
 		err = errors.New("no error")
 	}
 	c.JSON(status, gin.H{"updateDynamoDB": err.Error(), "compileRequestResp": body, "compilerRequestStatus": status, "reply": formatResponse(resp), "setup": setup, "libraries": libraries, "messageHandler": messageHandler, "publishMessage": publishMessage, "code": code, "globalDeclarations": globalDeclarations})
-
 }
 
 func sendCompileRequestV1(code string, libraries []string) (int, string) {
@@ -251,8 +271,8 @@ func sendCompileRequestV1(code string, libraries []string) (int, string) {
 
 func sendCompileRequestV2(code string, libraries []string, bucket_link string) (int, string) {
 	// Define the URL
-	// link := "http://ec2-3-147-6-28.us-east-2.compute.amazonaws.com:5000/compile"
-	link := "http://localhost:5000/compile"
+	link := "http://ec2-3-147-6-28.us-east-2.compute.amazonaws.com:5000/compile"
+	// link := "http://localhost:5000/compile"
 
 	// Create a compilePost object
 	data := compilePost{
@@ -431,11 +451,13 @@ Second, I want you to rewrite those parts of the code where it says semi-generat
 
 Third, I want you to adjust the custom function part of the publishMessage function such that it applies the following request tweaking as well the parts of the global declarations, publishMessage, setup functions such that they help with applying the request:
 `
-	basePrompt += data.Request + ", The result wanted is " + data.Result + ", therefore the return type is " + data.Result_Datatype + " \n"
+	basePrompt += data.Request + ", The result wanted is " + data.Result + ", this result is used usually in the receivedJSON active section of the code therefore the return type is " + data.Result_Datatype + " \n"
 	basePrompt += `
 Fourth, include the appropriate libraries needed to run all this code under generated libraries, select libraries that are needed to write and read to and from the peripherals the user gave, select it from this list of Arduino libraries that are made for the ESP32 architecture making sure that any library that gets chosen gets utilised, alongside that select libraries that are closely related to the peripherals:
 
-107-Arduino-BMP388, 107-Arduino-NMEA-Parser, 107-Arduino-Sensor, AstroMech, ATC_MiThermometer, BH1750, BMI270_Sensor, Bonezegei ILI9341, Bonezegei_XPT2046, BresserWeatherSensorReceiver, CROZONE-VEML6040, CS5490, CurrentTransformerWithCallbacks, dhtESP32-rmt, DIYables_IRcontroller, ds1302, ESPectro32, ESPiLight, ESP Rotary Encoder, ESP32 BLE ANCS Notifications, ESP32 BLE Arduino, ESP32-Chimera-Core, ESP32 Encoder, ESP32 ESP32S2 AnalogWrite, ESP32 MX1508, ESP32 RMT Peripheral VAN bus reader library, ESP32Servo, ESP32Servo360, ESP32_BleSerial, ESP32_Button, ESP32_C3_ISR_Servo, ESP32_C3_TimerInterrupt, ESP32_ENC28J60, ESP32_Encoder, ESP32_IO_Expander, ESP32_ISR_Servo, ESP32_Knob, ESP32_PWM, ESP32_RTC_EEPROM, ESP32_S2_ISR_Servo, ESP32_S2_TimerInterrupt, ESP32_SC_ENC_Manager, ESP32_SC_Ethernet_Manager, ESP32_SC_W5500_Manager, ESP32_SC_W6100_Manager, ESP32httpUpdate, FaBo 202 9Axis MPU9250, FaBo 203 Color S11059, FaBo 206 UV Si1132, FaBo 207 Temperature ADT7410, FaBo 217 Ambient Light ISL29034, FaBo 222 Environment BME680, FaBo 223 Gas CCS811, FaBo 230 Color BH1749NUC, FaBo Motor DRV8830, FaBo PWM PCA9685, Freenove WS2812 Lib for ESP32, HS_CAN_485_ESP32, HS_JOY_ESP32, IRremote
+DHT11, DHT12, esp32-ds18b20, ESP32-PTQS1005, ESP32Servo
+
+Fifthly, Avoid using types and libraries when possible unless it's the DHT and in case include the specified library in the Generated Libraries of the type such as DHT11 and use the digitalWrite and digitalRead as well as keep all the logic needed for the code to work such as extra functions inside the setup, publishMessage, messageHandler functions.
 
 Finally, reply only with all the static libraries already in the code and the selected libraries underneath a label called "##Generated Libraries" in a list of their names,the global declarations needed to run the code under a label called "##Global Variables", the publishMessage code under a label "Publish Message Function", and the messageHandler code under a label called "##Message Handler Function" and the setup function under a label called "##Setup Function" and remove all comments and implement them fully.`
 
@@ -461,10 +483,13 @@ Third, I want you to know that the custom function part of the publishMessage fu
 	basePrompt += `
 Fourth, seemingly the appropriate libraries needed to run all this code were added under generated libraries, select libraries that are needed to write and read to and from the peripherals the user gave, select it from this list of Arduino libraries that are made for the ESP32 architecture making sure that any library that gets chosen gets utilised, alongside that select libraries that are closely related to the peripherals:
 
-107-Arduino-BMP388, 107-Arduino-NMEA-Parser, 107-Arduino-Sensor, AstroMech, ATC_MiThermometer, BH1750, BMI270_Sensor, Bonezegei ILI9341, Bonezegei_XPT2046, BresserWeatherSensorReceiver, CROZONE-VEML6040, CS5490, CurrentTransformerWithCallbacks, dhtESP32-rmt, DIYables_IRcontroller, ds1302, ESPectro32, ESPiLight, ESP Rotary Encoder, ESP32 BLE ANCS Notifications, ESP32 BLE Arduino, ESP32-Chimera-Core, ESP32 Encoder, ESP32 ESP32S2 AnalogWrite, ESP32 MX1508, ESP32 RMT Peripheral VAN bus reader library, ESP32Servo, ESP32Servo360, ESP32_BleSerial, ESP32_Button, ESP32_C3_ISR_Servo, ESP32_C3_TimerInterrupt, ESP32_ENC28J60, ESP32_Encoder, ESP32_IO_Expander, ESP32_ISR_Servo, ESP32_Knob, ESP32_PWM, ESP32_RTC_EEPROM, ESP32_S2_ISR_Servo, ESP32_S2_TimerInterrupt, ESP32_SC_ENC_Manager, ESP32_SC_Ethernet_Manager, ESP32_SC_W5500_Manager, ESP32_SC_W6100_Manager, ESP32httpUpdate, FaBo 202 9Axis MPU9250, FaBo 203 Color S11059, FaBo 206 UV Si1132, FaBo 207 Temperature ADT7410, FaBo 217 Ambient Light ISL29034, FaBo 222 Environment BME680, FaBo 223 Gas CCS811, FaBo 230 Color BH1749NUC, FaBo Motor DRV8830, FaBo PWM PCA9685, Freenove WS2812 Lib for ESP32, HS_CAN_485_ESP32, HS_JOY_ESP32, IRremote
+DHT11, DHT12, esp32-ds18b20, ESP32-PTQS1005, ESP32Servo
 
-Fifthly, this was the log that was sent of the compilation that failed:
+Fifthly, Avoid using types and libraries when possible unless it's the DHT and in which case include DHT11 library in the Generated Libraries  and use the digitalWrite and digitalRead as well as keep all the logic needed for the code to work such as extra functions inside the setup, publishMessage, messageHandler functions.
+
+Sixthly, this was the log that was sent of the compilation that failed:
 ` + log + `
+Try to understand why the previous compilation failed and fix the error that caused it by changing the Generated Libraries, global declarations, publishMessage, messageHandler or setup function
 
 Finally, reply only with all the static libraries already in the code and the selected libraries underneath a label called "##Generated Libraries" in a list of their names where for example,the global declarations needed to run the code under a label called "##Global Variables", the publishMessage code under a label "Publish Message Function", and the messageHandler code under a label called "##Message Handler Function" and the setup function under a label called "##Setup Function" and remove all comments and implement them fully.`
 
@@ -518,6 +543,8 @@ func formatLibraries(libraries string) []string {
 		if len(match) > 0 {
 			// Extracting library name based on the match
 			if len(match) == 3 { // This means we're dealing with #include<...> syntax
+				fmt.Println("-----------Match:")
+				fmt.Println(match)
 				libraryName := match[2] // Match group 2 contains the library name after #include<
 				libraryArr = append(libraryArr, libraryName)
 			} else { // This is for the other patterns like -* or *library.h
@@ -990,7 +1017,7 @@ void connectAWS() {  //start of non-generated function
 void updatefunction(int index) {
   Serial.println("update called");
   String strindex = String(index);
-  String index1 = "http://esp32-assistant-bucket.s3.eu-central-1.amazonaws.com/User-sketches/test/" + strindex;
+  String index1 = "http://esp32-assistant-bucket.s3.eu-central-1.amazonaws.com/User-sketches/` + user.Name + `/" + strindex;
   Serial.println(index1);
   String index2 = index1 + "/testing.ino.bin";
   Serial.println(index2);
@@ -1040,7 +1067,7 @@ func formatResponse(resp *genai.GenerateContentResponse) string {
 
 func insertConvert(base []string, arr []string) []string {
 	for _, val := range arr {
-		if val == "WebServer" || val == "uri/UriBraces" || val == "Update" || val == "" || val == "WiFiClientSecure" || val == "WebServer server = WebServer(80);" {
+		if val == "WebServer" || val == "uri/UriBraces" || val == "Update" || val == "" || val == "WiFiClientSecure" || val == "WebServer server = WebServer(80);" || val == "WebServer server;" {
 			continue
 		}
 		if !slices.Contains(base, val) {
@@ -1048,4 +1075,49 @@ func insertConvert(base []string, arr []string) []string {
 		}
 	}
 	return base
+}
+
+func PostConfigNoLLM(config Config, user User, codeData []string) (User, error) {
+	godotenv.Load(".env")
+
+	config.Bucket_link = `https://esp32-assistant-bucket.s3.eu-central-1.amazonaws.com/User-sketches/` + user.Name + `/` + strconv.Itoa(len(user.Config_gen)+1) + `/testing.ino.bin`
+	upload_bucket_link := `User-sketches/` + user.Name + `/` + strconv.Itoa(len(user.Config_gen))
+	// Access your API key as an environment variable (see "Set up your API key" above)
+
+	libraries, globalDeclarations, publishMessage, messageHandler, setup := strings.Split(codeData[0], "\n"), codeData[1], codeData[2], codeData[3], codeData[4]
+	libraryBase := []string{
+		"WiFi",
+		"HTTPClient",
+		"Preferences",
+		"PubSubClient",
+		"ArduinoJson",
+	}
+	declarationBase := []string{
+		"Preferences preferences;",
+		"WebServer server(80);",
+		"WiFiClientSecure espClient = WiFiClientSecure();",
+		"HTTPClient http;",
+		"PubSubClient client(espClient);",
+		`String fileURL = "` + config.Bucket_link + `";`,
+		"long contentLength = 0;",
+		"bool isValidContentType = false;",
+		"StaticJsonDocument<200> receivedJson;",
+	}
+
+	libraries = insertConvert(libraryBase, libraries)
+	globalDeclarations = strings.Join(insertConvert(declarationBase, strings.Split(globalDeclarations, "\n")), "\n")
+
+	code := createCodeV2(libraries, globalDeclarations, publishMessage, messageHandler, setup, user)
+	// c.JSON(http.StatusCreated, gin.H{"reply": formatResponse(resp), "setup": setup, "customFunction": customFunction, "libraries": libraries, "messageHandler": messageHandler, "publishMessage": publishMessage, "code": code, "globalDeclarations": globalDeclarations})
+
+	status, body := sendCompileRequestV2(code, libraries, upload_bucket_link)
+
+	if status == 500 {
+		return user, errors.New(body)
+	}
+	user.Config_gen = append(user.Config_gen, config)
+
+	return user, nil
+	// c.JSON(status, gin.H{"updateDynamoDB": err.Error(), "compileRequestResp": body, "compilerRequestStatus": status, "reply": formatResponse(resp), "setup": setup, "libraries": libraries, "messageHandler": messageHandler, "publishMessage": publishMessage, "code": code, "globalDeclarations": globalDeclarations})
+
 }
