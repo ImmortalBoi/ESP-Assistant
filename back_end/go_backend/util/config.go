@@ -457,7 +457,7 @@ Fourth, include the appropriate libraries needed to run all this code under gene
 
 DHT11, DHT12, esp32-ds18b20, ESP32-PTQS1005, ESP32Servo
 
-Fifthly, Avoid using types and libraries when possible unless it's the DHT and in case include the specified library in the Generated Libraries of the type such as DHT11 and use the digitalWrite and digitalRead as well as keep all the logic needed for the code to work such as extra functions inside the setup, publishMessage, messageHandler functions.
+Fifthly, Avoid using types and libraries when possible unless it's the DHT and in case include the specified library in the Generated Libraries with the name of DHT11 and use the digitalWrite and digitalRead as well as keep all the logic needed for the code to work such as extra functions inside the setup, publishMessage, messageHandler functions.
 
 Finally, reply only with all the static libraries already in the code and the selected libraries underneath a label called "##Generated Libraries" in a list of their names,the global declarations needed to run the code under a label called "##Global Variables", the publishMessage code under a label "Publish Message Function", and the messageHandler code under a label called "##Message Handler Function" and the setup function under a label called "##Setup Function" and remove all comments and implement them fully.`
 
@@ -837,7 +837,7 @@ static const char AWS_CERT_PRIVATE[] PROGMEM = R"KEY(` + user.ESP_cert.AWS_CERT_
 
 
 // OTA Logic
-void execOTA() { //start of non-generated function
+void execOTA() {  //start of non-generated function
   Serial.println("Connecting to: " + String(fileURL));
 
   http.begin(fileURL);        // Specify the URL
@@ -886,7 +886,7 @@ void execOTA() { //start of non-generated function
   }
 
   http.end();  // End the connection
-} //end of non-generated function
+}  //end of non-generated function
 
 void printSuccess() { //start of non-generated function
   StaticJsonDocument<200> sentJson;
@@ -899,91 +899,91 @@ void printSuccess() { //start of non-generated function
 } //end of non-generated function
 
 
-void wifiSetup() { //start of non-generated function
-  String wifiIndex = "";
-  String pass = "";
-  unsigned long previousMillis = 0;
-  const long interval = 10000;
-  if (preferences.getString("wifiIndex", "") != "") {  //fetch wifi credis from flash mem
-    Serial.println("Fetching Wifi");
-
-    wifiIndex = preferences.getString("wifiIndex", "");
-    pass = preferences.getString("pass", "");
-
-    WiFi.begin(wifiIndex, pass, 6);
-
-    Serial.print("Connecting to WiFi");
-
-    while (WiFi.status() != WL_CONNECTED) {
-      unsigned long currentMillis = millis();
-      delay(1000);
-      Serial.print(".");
-      if (currentMillis - previousMillis >= interval) {
-        preferences.putString("wifiIndex", "");
-        preferences.putString("pass", "");
-        wifiSetup();
-      }
-    }
-    Serial.println("Connected!");
-    return;
-  }
-  String password_AP = "12345678";
-  String ssid_AP = "ESP32";
-  WiFi.softAP(ssid_AP, password_AP);
-  Serial.println("Created AP");
-  Serial.print("ESP AP IP: ");
-  Serial.println(WiFi.softAPIP());
-
-  server.on(UriBraces("/reply"), HTTP_GET, []() {
-    Serial.println("Request sent");
-    int n = WiFi.scanNetworks();
-    String json;
-    StaticJsonDocument<200> doc;
-    JsonArray wifiArray = doc.createNestedArray("wifi");
-    if (n == 0) {
-      Serial.println("no networks found");
-    } else {
-      for (int i = 0; i < n; ++i) {
-        wifiArray.add(WiFi.SSID(i));  // Add the copied string to the JSON array
-      }
-
-      serializeJson(doc, json);
-
-      server.send(200, "application/json", json);
-      WiFi.scanDelete();  // Delete the old scan results
-    }
-  }); 
-
-  server.on(UriBraces("/wifi/{}/pass/{}"), HTTP_GET, []() {
-    Serial.println("input Recieved");
-    String wifiIndex = server.pathArg(0);
-    String pass = server.pathArg(1);
-    wifiIndex.replace("%20", " ");
-    Serial.println(wifiIndex);
-    Serial.println(pass);
-
-    WiFi.begin(wifiIndex, pass, 6);
-    Serial.print("Connecting to WiFi");
-
-    while (WiFi.status() != WL_CONNECTED) {
-      delay(1000);
-      Serial.print(".");
-    }
-    Serial.println("Connected!");
-    preferences.putString("wifiIndex", wifiIndex);
-    preferences.putString("pass", pass);
-  });
-
-  server.begin();
-  Serial.println("HTTP server started");
-  while (WiFi.status() != WL_CONNECTED) {
-    if (WiFi.softAPgetStationNum() > 0) {
-      Serial.println("Client connected");
-    }
-    server.handleClient();
-    delay(3000);
-  }
-} //end of non-generated function
+void wifiSetup() {  //start of non-generated function
+	String wifiIndex = "";
+	String pass = "";
+	unsigned long previousMillis = 0;
+	const long interval = 10000;
+	if (preferences.getString("wifiIndex", "") != "") {  //fetch wifi credis from flash mem
+	  Serial.println("Fetching Wifi");
+  
+	  wifiIndex = preferences.getString("wifiIndex", "");
+	  pass = preferences.getString("pass", "");
+  
+	  WiFi.begin(wifiIndex, pass, 6);
+  
+	  Serial.print("Connecting to WiFi");
+  
+	  while (WiFi.status() != WL_CONNECTED) {
+		unsigned long currentMillis = millis();
+		delay(1000);
+		Serial.print(".");
+		if (currentMillis - previousMillis >= interval) {
+		  preferences.putString("wifiIndex", "");
+		  preferences.putString("pass", "");
+		  wifiSetup();
+		}
+	  }
+	  Serial.println("Connected!");
+	  return;
+	}
+	String password_AP = "123456789";
+	String ssid_AP = "ESP32";
+	WiFi.softAP(ssid_AP, password_AP);
+	Serial.println("Created AP");
+	Serial.print("ESP AP IP: ");
+	Serial.println(WiFi.softAPIP());
+  
+	server.on(UriBraces("/reply"), HTTP_GET, []() {
+	  Serial.println("Request sent");
+	  int n = WiFi.scanNetworks();
+	  String json;
+	  StaticJsonDocument<200> doc;
+	  JsonArray wifiArray = doc.createNestedArray("wifi");
+	  if (n == 0) {
+		Serial.println("no networks found");
+	  } else {
+		for (int i = 0; i < n; ++i) {
+		  wifiArray.add(WiFi.SSID(i));  // Add the copied string to the JSON array
+		}
+  
+		serializeJson(doc, json);
+  
+		server.send(200, "application/json", json);
+		WiFi.scanDelete();  // Delete the old scan results
+	  }
+	});
+  
+	server.on(UriBraces("/wifi/{}/pass/{}"), HTTP_GET, []() {
+	  Serial.println("input Recieved");
+	  String wifiIndex = server.pathArg(0);
+	  String pass = server.pathArg(1);
+	  wifiIndex.replace("%20", " ");
+	  Serial.println(wifiIndex);
+	  Serial.println(pass);
+  
+	  WiFi.begin(wifiIndex, pass, 6);
+	  Serial.print("Connecting to WiFi");
+  
+	  while (WiFi.status() != WL_CONNECTED) {
+		delay(1000);
+		Serial.print(".");
+	  }
+	  Serial.println("Connected!");
+	  preferences.putString("wifiIndex", wifiIndex);
+	  preferences.putString("pass", pass);
+	});
+  
+	server.begin();
+	Serial.println("HTTP server started");
+	while (WiFi.status() != WL_CONNECTED) {
+	  if (WiFi.softAPgetStationNum() > 0) {
+		Serial.println("Client connected");
+	  }
+	  server.handleClient();
+	}
+  }  //end of non-generated function
+  
 
 void connectAWS() {  //start of non-generated function
   // Configure WiFiClientSecure to use the AWS IoT device credentials
@@ -1031,10 +1031,9 @@ void updatefunction(int index) {
 
 ` + setup + `
 
-void loop() { //start of non-generated function
-  client.loop();
+void loop() {  //start of non-generated function
   if (1 == receivedJson["send_data"]) {
-    publishMessage() ;
+    publishMessage();
   }
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("Connecting to wifi...");
@@ -1045,7 +1044,8 @@ void loop() { //start of non-generated function
     }
     delay(1000);
   }
-} //end of non-generated function
+  client.loop();
+}  //end of non-generated function
 `
 	return codeTemplate
 }

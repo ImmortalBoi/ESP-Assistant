@@ -6,13 +6,13 @@
 #     -o data.json
 # echo
 
-# curl http://localhost:8080/v2/user \
-#     --include \
-#     --header "Content-Type: application/json" \
-#     --request "POST" \
-#     --data '{"Name":"test3","Password":"test"}'\
-#     -o data.json
-# echo
+curl http://localhost:8080/v2/user \
+    --include \
+    --header "Content-Type: application/json" \
+    --request "POST" \
+    --data '{"Name":"test6","Password":"test"}'\
+    -o data.json
+echo
 
 
 # curl http://localhost:8080/v2/session/test/test -o data2.json
@@ -34,10 +34,10 @@
 #     -o data.json
 # echo
 
-curl http://localhost:8080/v2/config \
-    --include \
-    --header "Content-Type: application/json" \
-    --request "POST" \
-    --data '{"Config":{"Peripherals":[{"Pin": 21, "Name": "FAN", "Type": "FAN_Pin", "Value": 0}, {"Pin": 32, "Name": "LDR", "Type": "LDR_PIN", "Value": 0}, {"Pin": 27, "Name": "DHT 11", "Type": "DHT11_PIN", "Value": 0}, {"Pin": 33, "Name": "LED", "Type": "LED_PIN", "Value": 0}],"Request":"My ESP32 is connected to a fan that turns on and off and a LED that also turns on and off, alongside them are sensors for light using LDR and sensors for temperature and humidity, generate code to control fan and LED","Result":"On the press of active I want to read the humidity and temperature and if the ight level is low turn on the led and if the temp or humidity is high turn on the fan","Result_Datatype":"void"},"Username":"test"}' \
-    -o data.json
-echo
+# curl http://localhost:8080/v2/config \
+#     --include \
+#     --header "Content-Type: application/json" \
+#     --request "POST" \
+#     --data '{"Config":{"Peripherals":[{"Pin": 21, "Name": "FAN", "Type": "FAN_Pin", "Value": 0}, {"Pin": 32, "Name": "LDR", "Type": "LDR_PIN", "Value": 0}, {"Pin": 27, "Name": "DHT 11", "Type": "DHT11_PIN", "Value": 0}, {"Pin": 33, "Name": "LED", "Type": "LED_PIN", "Value": 0}],"Request":"My ESP32 is connected to a fan that turns on and off and a LED that also turns on and off, alongside them are sensors for light using LDR and sensors for temperature and humidity, generate code to control fan and LED","Result":"On the press of active I want to read the humidity and temperature and if the ight level is low turn on the led and if the temp or humidity is high turn on the fan","Result_Datatype":"void"},"Username":"test"}' \
+#     -o data.json
+# echo

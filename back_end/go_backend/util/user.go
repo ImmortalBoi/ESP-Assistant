@@ -85,14 +85,7 @@ StaticJsonDocument<200> receivedJson;`, //global Declarations
 	}
 
 	codeDataCar := []string{
-		`WebServer
-uri/UriBraces
-Update
-WiFi
-HTTPClient
-Preferences
-PubSubClient
-ArduinoJson`, //libraries
+		`ArduinoJson`, //libraries
 		`Preferences preferences;
 WebServer server(80);
 WiFiClientSecure espClient = WiFiClientSecure();
@@ -107,17 +100,15 @@ StaticJsonDocument<200> receivedJson;
 #define IN3_PIN 25
 #define IN4_PIN 33
 #define ENB_PIN 32`, //global declarations
-		`
-void publishMessage() {
-	StaticJsonDocument<200> sentJson;
-	sentJson["hello"] = "hello";
-	char jsonBuffer[512];
-	serializeJson(sentJson, jsonBuffer);
-	Serial.println("Message published!");
-	client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
+		`void publishMessage() {
+  StaticJsonDocument<200> sentJson;
+  sentJson["hello"] = "hello";
+  char jsonBuffer[512];
+  serializeJson(sentJson, jsonBuffer);
+  Serial.println("Message published!");
+  client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
 }`, //publishMessage
-		`
-void messageHandler(char* topic, byte* payload, unsigned int length) {
+		`void messageHandler(char* topic, byte* payload, unsigned int length) {
   Serial.print("incoming: ");
   Serial.println(topic);
   String tpc(topic);
@@ -140,8 +131,7 @@ void messageHandler(char* topic, byte* payload, unsigned int length) {
   if (typ.equals("LED_PIN")) {
     digitalWrite(pin, value);
   }
-}
-		`, //messageHandler
+}`, //messageHandler
 		`void setup() {
   Serial.begin(115200);
   WiFi.mode(WIFI_AP_STA);
@@ -162,8 +152,9 @@ void messageHandler(char* topic, byte* payload, unsigned int length) {
   digitalWrite(ENA_PIN, HIGH);
 }`, //setup
 	}
+
 	codeDataWaterTank := []string{
-		`DHT11`, //libraries
+		`ArduinoJson`, //libraries
 		`Preferences preferences;
 WebServer server(80);
 WiFiClientSecure espClient = WiFiClientSecure();
@@ -172,88 +163,68 @@ PubSubClient client(espClient);
 long contentLength = 0;
 bool isValidContentType = false;
 StaticJsonDocument<200> receivedJson;
-StaticJsonDocument<200> sentJson;
-#define TRIG_PIN 5
-#define ECHO_PIN 18
-#define SOUND_SPEED 0.034
-#define TANK_HEIGHT_CM 100
-#define relay 14`, //global declarations
-		`void publishMessage(String message, float temp, float humidity) {
-  sentJson["temp"] = temp;
-  sentJson["humidity"] = humidity;
-  sentJson["message"] = message;
-  char jsonBuffer[512];
-  serializeJson(sentJson, jsonBuffer);  // print to client
+const int trigPin = 5;
+const int echoPin = 18;
+const int pumpPin = 14;
+long duration;
+int distance;
+int avg;`, //global declarations
+		`void publishMessage() {
+  StaticJsonDocument<200> sentJson;
+  int sum = 0;
+  for (int i = 0; i <= 10; i++) {
+    digitalWrite(trigPin, LOW);
+    delayMicroseconds(2);
+    digitalWrite(trigPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPin, LOW);
+    duration = pulseIn(echoPin, HIGH);
+    distance = duration * 0.034 / 2;
+    sum += distance;
+  }
 
+  avg = sum / 10;
+
+  sentJson["distance"] = avg;
+  char jsonBuffer[512];
+  serializeJson(sentJson, jsonBuffer);
   Serial.println("Message published!");
   client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
 } `, //publishMessage
-		`void messageHandler(char* topic, byte* payload, unsigned int length) { 
+		`void messageHandler(char* topic, byte* payload, unsigned int length) {
   Serial.print("incoming: ");
   Serial.println(topic);
   String tpc(topic);
   deserializeJson(receivedJson, payload);
   Serial.println(tpc);
-  const char* type = receivedJson["type"];
-  String typ(type);
-  const uint8_t value = receivedJson["value"];
-  const uint8_t pin = receivedJson["pin"];
-  uint8_t active = receivedJson["active"];
-  const uint8_t event = receivedJson["event"];
-  const int index = receivedJson["update"];
 
-  if (receivedJson["update"] > -1) {
+  if (receivedJson["update"]) {
     updatefunction(receivedJson["update"]);
   }
 
-  while (1 == active) {
-    // Clear the TRIG_PIN by setting it LOW:
-    digitalWrite(TRIG_PIN, LOW);
-    delayMicroseconds(5);
-
-    // Trigger the sensor by setting the TRIG_PIN high for 10 microseconds:
-    digitalWrite(TRIG_PIN, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(TRIG_PIN, LOW);
-
-    // Read the time it takes for the pulse to return:
-    long duration = pulseIn(ECHO_PIN, HIGH);
-
-    // Calculate the distance:
-    float distance = (duration * SOUND_SPEED) / 2;
-
-    // Calculate the water level:
-    float waterLevel = TANK_HEIGHT_CM - distance;
-
-    // Print the distance and water level to the Serial Monitor:
-    Serial.print("Distance to water surface: ");
-    Serial.print(distance);
-    Serial.println(" cm");
-
-    Serial.print("Water Level: ");
-    Serial.print(waterLevel);
-    Serial.println(" cm");
-    if (waterLevel > event) {
-      digitalWrite(relay, LOW);
-    } else {
-      digitalWrite(relay, HIGH);
+  while (1 == receivedJson["active"]) {
+    delay(3000);
+    publishMessage();
+    if (avg > 20) {
+      digitalWrite(pumpPin, HIGH);
+    } else if (avg <= 80) {
+      digitalWrite(pumpPin, LOW);
     }
 
-    // Delay a bit before the next measurement:
+    if (WiFi.status() != WL_CONNECTED) {
+      Serial.println("Connecting to wifi...");
+      delay(5000);
+      if (WiFi.status() == WL_CONNECTED) {
+        Serial.println("Connected...");
+        connectAWS();
+      }
+      delay(1000);
+    }
+
     client.loop();
-    active = receivedJson["active"];
-    delay(1000);
-  }
-
-  if (typ.equals("PUMP_PIN")) {
-    digitalWrite(pin, value);
-  }
-
-  if (typ.equals("LED_PIN")) {
-    digitalWrite(pin, value);
   }
 }`, //messageHandler
-		`void setup() { 
+		`void setup() {
   Serial.begin(115200);
   WiFi.mode(WIFI_AP_STA);
   WiFi.disconnect();
@@ -263,10 +234,9 @@ StaticJsonDocument<200> sentJson;
   printSuccess();
   pinMode(2, OUTPUT);
   digitalWrite(2, HIGH);
-  pinMode(TRIG_PIN, OUTPUT);
-  pinMode(ECHO_PIN, INPUT);
-  pinMode(relay, OUTPUT);
-
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  pinMode(pumpPin, OUTPUT);
 }`, //setup
 	}
 	codeDataThermo := []string{
@@ -281,16 +251,14 @@ bool isValidContentType = false;
 StaticJsonDocument<200> receivedJson;
 StaticJsonDocument<200> sentJson;
 #define DHTPIN 27
-#define DHTTYPE DHT11
 #define LED_PIN 21
 #define LDR_PIN 32
-#define ENA_PIN 21
-#define IN1_PIN 23
-#define IN2_PIN 22
-DHT dht(DHTPIN, DHTTYPE);
+#define Fan_PIN 17
+DHT11 dht(DHTPIN);
 float humidity = 0.0;
-float temp = 0.0;`, //global declarations
-		`void publishMessage(String message, float temp, float humidity) {
+float temp = 0.0;
+String message = "";`, //global declarations
+		`void publishMessage() {  //start of fully-generated function,this function sends data to AWS IoT core based on the need to returned values in the prompt
   sentJson["temp"] = temp;
   sentJson["humidity"] = humidity;
   sentJson["message"] = message;
@@ -299,9 +267,8 @@ float temp = 0.0;`, //global declarations
 
   Serial.println("Message published!");
   client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
-}  //end of fully-generated function
-`, //publishMessage
-		`void messageHandler(char* topic, byte* payload, unsigned int length) { 
+}  //end of fully-generated function`, //publishMessage
+		`void messageHandler(char* topic, byte* payload, unsigned int length) {  //start of semi-generated function , this function is used to hand incoming messages from AWS IoT core
   Serial.print("incoming: ");
   Serial.println(topic);
   String tpc(topic);
@@ -312,60 +279,49 @@ float temp = 0.0;`, //global declarations
   const uint8_t value = receivedJson["value"];
   const uint8_t pin = receivedJson["pin"];
   uint8_t active = receivedJson["active"];
-  const uint8_t event = receivedJson["event"];
   const int index = receivedJson["update"];
 
-  if (index) {
-    updatefunction(index);
-  }
-  if(value == 1){
-    digitalWrite(4, LOW);
+  if (!isnan(receivedJson["update"])) {
+    updatefunction(receivedJson["update"]);
   }
   while (1 == active) {
     humidity = dht.readHumidity();
     temp = dht.readTemperature();
-    float f = dht.readTemperature(true);
     int LDRState = digitalRead(LDR_PIN);
-    Serial.println(LDRState);
-    Serial.println(humidity);
-    Serial.println(temp);
-    if (isnan(humidity) || isnan(temp) || isnan(f)) {
-      publishMessage("Sensor read failed", -1.0, -1.0);
+    if (isnan(humidity) || isnan(temp)) {
+      message = "Sensor read failed";
+      temp = -1.0;
+      humidity = -1.0;
+      publishMessage();
       return;
     }
-    if (event > temp) {
-      Serial.println("Fan is ON");
-      digitalWrite(IN1_PIN, LOW);
-      digitalWrite(IN2_PIN, HIGH);
-    } else {
-      Serial.println("Fan is OFF");
-      digitalWrite(IN1_PIN, LOW);
-      digitalWrite(IN2_PIN, LOW);
+    else{
+      if (LDRState == HIGH) {
+        // turn LED on:
+        digitalWrite(LED_PIN, HIGH);
+      } else {
+        // turn LED off:
+        digitalWrite(LED_PIN, LOW);
+      }
+      client.loop();
+      message = "Data Sent successfully";
+      publishMessage();
+      active = receivedJson["active"];
+      delay(2500);
     }
-    if (LDRState == HIGH) {
-      // turn LED on:
-      digitalWrite(LED_PIN, HIGH);
-    } else {
-      // turn LED off:
-      digitalWrite(LED_PIN, LOW);
+  }
+
+    //if type = fan ---> basic control fan ON/OFF
+    if (typ.equals("FAN_PIN")) {
+      digitalWrite(pin, value);
     }
 
-    client.loop();
-    publishMessage("Data Sent successfully", temp, humidity);
-    active = receivedJson["active"];
-    delay(2500);
-  }
-
-  if (typ.equals("FAN_PIN")) {
-    digitalWrite(pin, value);
-  }
-
-  if (typ.equals("LED_PIN")) {
-    digitalWrite(pin, value);
-  }
-
-}`, //messageHandler
-		`void setup() { 
+    //if type = led ---> basic control led ON/OFF
+    if (typ.equals("LED_PIN")) {
+      digitalWrite(pin, value);
+    }
+  }//end of semi-generated function`, //messageHandler
+		`void setup() {  //start of semi-generated function
   Serial.begin(115200);
   WiFi.mode(WIFI_AP_STA);
   WiFi.disconnect();
@@ -378,12 +334,8 @@ float temp = 0.0;`, //global declarations
   pinMode(LED_PIN, OUTPUT);
   pinMode(LDR_PIN, INPUT);
   pinMode(DHTPIN, INPUT);
-  pinMode(ENA_PIN, OUTPUT);
-  pinMode(IN1_PIN, OUTPUT);
-  pinMode(IN2_PIN, OUTPUT);
-  digitalWrite(ENA_PIN, HIGH);
-  dht.begin();
-}`, //setup
+  pinMode(Fan_PIN, OUTPUT);
+}  //end of semi-generated function`, //setup
 	}
 	godotenv.Load(".env")
 	// req.User = uuid.New().String()
@@ -425,12 +377,10 @@ float temp = 0.0;`, //global declarations
 	}
 	// Add thermo
 	user, err = PostConfigNoLLM(Config{Peripherals: []Peripheral{
-		{Pin: 21, Name: "FAN", Type: "FAN_PIN", Value: 0},
+		{Pin: 17, Name: "FAN", Type: "FAN_PIN", Value: 0},
 		{Pin: 32, Name: "LDR", Type: "LDR_PIN", Value: 0},
 		{Pin: 27, Name: "DHT", Type: "DHTPIN", Value: 0},
-		{Pin: 21, Name: "ENA_PIN", Type: "IN_PIN", Value: 1},
-		{Pin: 23, Name: "IN1_PIN", Type: "IN_PIN", Value: 0},
-		{Pin: 22, Name: "IN2_PIN", Type: "IN_PIN", Value: 0},
+		{Pin: 21, Name: "LED", Type: "LED_PIN", Value: 1},
 	}, Request: "My ESP32 is connected to an LDR Module and Temprature sensor, generate code that will control them",
 		Result:          "None",
 		Result_Datatype: "Void"}, user, codeDataThermo)
