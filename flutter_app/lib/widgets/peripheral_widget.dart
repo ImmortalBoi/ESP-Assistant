@@ -43,7 +43,7 @@ class PeripheralWidget extends StatelessWidget {
             CustomTextField(
               hintText: 'Peripheral Name',
               obscureText: false,
-              keyboardType: TextInputType.number,
+              keyboardType: TextInputType.text,
               method: (value) {
                 peripheralProvider
                     .updatePeripheralField(index, 'name', value);
@@ -55,7 +55,7 @@ class PeripheralWidget extends StatelessWidget {
             CustomTextField(
               hintText: 'Perihpheral Type',
               obscureText: false,
-              keyboardType: TextInputType.number,
+              keyboardType: TextInputType.text,
               method: (value) {
                 peripheralProvider
                     .updatePeripheralField(index, 'type', value);
