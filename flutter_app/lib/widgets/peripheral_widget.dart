@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/models/peripheral_model.dart';
-import 'package:flutter_app/providers/peripheral_controller.dart';
+import 'package:flutter_app/providers/peripheral_provider.dart';
 import 'package:flutter_app/widgets/custom_text_field.dart';
-import 'package:provider/provider.dart';
 
 class PeripheralWidget extends StatelessWidget {
+  final PeripheralProvider peripheralProvider;
   final Peripheral peripheral;
   final VoidCallback onRemove;
   final int index;
@@ -14,6 +14,7 @@ class PeripheralWidget extends StatelessWidget {
     required this.peripheral,
     required this.onRemove,
     required this.index,
+    required this.peripheralProvider
   });
 
   @override
@@ -32,8 +33,8 @@ class PeripheralWidget extends StatelessWidget {
               obscureText: false,
               keyboardType: TextInputType.number,
               method: (value) {
-                Provider.of<PeripheralProvider>(context, listen: false)
-                    .updatePeripheralField(index, 'pin', int.tryParse(value));
+                peripheralProvider
+                    .updatePeripheralField(index, 'pin', value);
               },
             ),
             const SizedBox(
@@ -44,8 +45,8 @@ class PeripheralWidget extends StatelessWidget {
               obscureText: false,
               keyboardType: TextInputType.number,
               method: (value) {
-                Provider.of<PeripheralProvider>(context, listen: false)
-                    .updatePeripheralField(index, 'name', int.tryParse(value));
+                peripheralProvider
+                    .updatePeripheralField(index, 'name', value);
               },
             ),
             const SizedBox(
@@ -56,8 +57,8 @@ class PeripheralWidget extends StatelessWidget {
               obscureText: false,
               keyboardType: TextInputType.number,
               method: (value) {
-                Provider.of<PeripheralProvider>(context, listen: false)
-                    .updatePeripheralField(index, 'type', int.tryParse(value));
+                peripheralProvider
+                    .updatePeripheralField(index, 'type', value);
               },
             ),
             const SizedBox(
@@ -69,8 +70,8 @@ class PeripheralWidget extends StatelessWidget {
               obscureText: false,
               keyboardType: TextInputType.number,
               method: (value) {
-                Provider.of<PeripheralProvider>(context, listen: false)
-                    .updatePeripheralField(index, 'value', int.tryParse(value));
+                peripheralProvider
+                    .updatePeripheralField(index, 'value', value);
               },
             ),
             const SizedBox(

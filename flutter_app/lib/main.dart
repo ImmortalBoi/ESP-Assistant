@@ -5,9 +5,10 @@ import 'package:flutter_app/pages/periherals_custom_pages/custom_peripherals.dar
 import 'package:flutter_app/pages/peripherals_prompt_side_pages/all_peripherals_attached.dart';
 import 'package:flutter_app/pages/settings_page.dart';
 import 'package:flutter_app/pages/splash_page.dart';
+import 'package:flutter_app/providers/advanced_control_provider.dart';
 import 'package:flutter_app/providers/user_provider.dart';
 import 'package:flutter_app/providers/backend_prompt.dart';
-import 'package:flutter_app/providers/peripheral_controller.dart';
+import 'package:flutter_app/providers/peripheral_provider.dart';
 import 'package:provider/provider.dart';
 
 Future<void> main() async {
@@ -15,28 +16,35 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider<NavigationController>(
+        ChangeNotifierProvider(
           create: (context) => NavigationController(),
         ),
-        ChangeNotifierProvider<UserProvider>(
-          create: (context) => UserProvider(),
-        ),
-        ChangeNotifierProvider<PeripheralProvider>(
+        ChangeNotifierProvider(
           create: (context) => PeripheralProvider(),
         ),
-        // Replace the BackendService provider with ChangeNotifierProxyProvider
+        ChangeNotifierProxyProvider<PeripheralProvider, UserProvider>(
+          create: (context) => UserProvider(
+              Provider.of<PeripheralProvider>(context, listen: false)),
+          update: (context, peripheralProvider, userProvider) {
+            if (userProvider == null) {
+              return UserProvider(peripheralProvider);
+            }
+            userProvider.peripheralProvider = peripheralProvider;
+            return userProvider;
+          },
+        ),
         ChangeNotifierProxyProvider<UserProvider, BackendService>(
           create: (context) =>
               BackendService(Provider.of<UserProvider>(context, listen: false)),
-          update: (context, UserProvider userProvider,
-              BackendService? backendService) {
-            // If backendService is null, it means it hasn't been created yet, so just return null to trigger creation.
-            if (backendService == null)
-              return BackendService(
-                  Provider.of<UserProvider>(context, listen: false));
+          update: (context, userProvider, backendService) {
+            if (backendService == null) {
+              return BackendService(userProvider);
+            }
+            backendService.userProvider = userProvider;
             return backendService;
           },
-        )
+        ),
+        ChangeNotifierProvider(create: (_) => AdvancedControlProvider()),
       ],
       child: const MyApp(),
     ),

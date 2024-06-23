@@ -15,7 +15,6 @@ class MqttController extends GetxController {
 
   UserProvider provider;
 
-
   MqttController(this.provider){
     provider.getUser().then((val) => user = val!);
   }

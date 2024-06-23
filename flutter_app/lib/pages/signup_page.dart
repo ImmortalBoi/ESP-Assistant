@@ -72,8 +72,8 @@ class _SignUpState extends State<SignUp> {
               CustomTextField(
                 hintText: 'enter your name or email',
                 icon: Icons.person,
-                controller: emailController,
                 obscureText: false,
+                controller: emailController,
               ),
               const SizedBox(
                 height: 25,
@@ -81,8 +81,8 @@ class _SignUpState extends State<SignUp> {
               CustomTextField(
                 hintText: 'enter your password',
                 icon: Icons.lock,
-                controller: passwordController,
                 obscureText: true,
+                controller: passwordController,
               ),
               const SizedBox(
                 height: 80,

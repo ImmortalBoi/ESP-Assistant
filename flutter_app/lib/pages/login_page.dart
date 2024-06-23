@@ -14,16 +14,18 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController emailController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
   bool _isSubmitting = false;
 
-  final TextEditingController passwordController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     final api = Provider.of<UserProvider>(context);
     void validateForm() {
       if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+        print(emailController.text);
+        print(passwordController.text);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
@@ -74,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
                 obscureText: false,
                 hintText: 'enter your name or email',
                 icon: Icons.person,
-                controller: emailController,
+                controller: emailController
               ),
               const SizedBox(
                 height: 25,
@@ -82,8 +84,8 @@ class _LoginPageState extends State<LoginPage> {
               CustomTextField(
                 hintText: 'enter your password',
                 icon: Icons.lock,
-                controller: passwordController,
                 obscureText: true,
+                controller: passwordController,
               ),
               const SizedBox(
                 height: 80,

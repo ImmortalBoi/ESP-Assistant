@@ -1,7 +1,7 @@
 import 'package:flutter_app/models/peripheral_model.dart';
 import 'package:flutter_app/pages/peripherals_prompt_side_pages/list_of_history_prompt_peripheral.dart';
 import 'package:flutter_app/providers/backend_prompt.dart';
-import 'package:flutter_app/providers/peripheral_controller.dart';
+import 'package:flutter_app/providers/peripheral_provider.dart';
 import 'package:flutter_app/widgets/custom_button.dart';
 import 'package:flutter_app/widgets/custom_text_field.dart';
 import 'package:flutter_app/widgets/peripheral_widget.dart';
@@ -15,8 +15,7 @@ class AddPeripheralPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextEditingController requestController = TextEditingController();
     final TextEditingController resultController = TextEditingController();
-    final TextEditingController resultDataTypeController =
-        TextEditingController();
+    final TextEditingController resultDataTypeController = TextEditingController();
     final periheralProvider = Provider.of<PeripheralProvider>(context);
     final backendProvider = Provider.of<BackendService>(context);
     return Scaffold(
@@ -30,6 +29,7 @@ class AddPeripheralPage extends StatelessWidget {
               peripheral: peripheral,
               onRemove: () => periheralProvider.removePeripheral(index),
               index: index,
+              peripheralProvider: periheralProvider,
             );
           }),
           Padding(
@@ -48,25 +48,25 @@ class AddPeripheralPage extends StatelessWidget {
             height: 20,
           ),
           CustomTextField(
-            controller: requestController,
             hintText: 'enter prompt',
             obscureText: false,
+            controller: requestController,
           ),
           const SizedBox(
             height: 5,
           ),
           CustomTextField(
-            controller: resultController,
             hintText: 'enter result',
             obscureText: false,
+            controller: resultController,
           ),
           const SizedBox(
             height: 5,
           ),
           CustomTextField(
-            controller: resultDataTypeController,
             hintText: 'enter result data type',
             obscureText: false,
+            controller: resultDataTypeController,
           ),
           Padding(
             padding: const EdgeInsets.all(28.0),

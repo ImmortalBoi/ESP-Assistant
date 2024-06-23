@@ -7,14 +7,14 @@ import 'package:flutter_app/providers/user_provider.dart';
 import 'package:http/http.dart' as http;
 
 class BackendService extends ChangeNotifier {
-  final UserProvider _userProvider;
+  UserProvider userProvider;
 
-  BackendService(this._userProvider); // Constructor accepting UserProvider
+  BackendService(this.userProvider); // Constructor accepting UserProvider
   Future<dynamic> sendPeripheralData(List<Peripheral> peripherals,
       String request, String result, String resultDataType) async {
-    MqttController mqttService = MqttController(_userProvider);
+    MqttController mqttService = MqttController(userProvider);
     const String url =
-        'http://ec2-3-147-6-28.us-east-2.compute.amazonaws.com:8080/config';
+        'http://ec2-3-147-6-28.us-east-2.compute.amazonaws.com:8080/v2/config';
     final Map<String, dynamic> data = {
       'Peripherals':
           peripherals.map((peripheral) => peripheral.toMap()).toList(),

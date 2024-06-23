@@ -1,11 +1,11 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_app/pages/peripherals_prompt_side_pages/add_command.dart';
 import 'package:flutter_app/pages/peripherals_prompt_side_pages/basic_commands.dart';
-import 'package:flutter_app/providers/peripheral_controller.dart';
+import 'package:flutter_app/providers/advanced_control_provider.dart';
+import 'package:flutter_app/providers/peripheral_provider.dart';
 import 'package:flutter_app/controllers/mqtt_controller.dart';
 import 'package:flutter_app/providers/user_provider.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 class HistoryPromptPage extends StatefulWidget {
@@ -19,7 +19,9 @@ class _HistoryPromptPageState extends State<HistoryPromptPage> {
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
-    MqttController mqttService = MqttController(userProvider);
+    final MqttController mqttService = Get.put(MqttController(userProvider));
+    final advancedControlProvider =
+        Provider.of<AdvancedControlProvider>(context);
 
     Provider.of<PeripheralProvider>(context);
     return Scaffold(
@@ -29,9 +31,16 @@ class _HistoryPromptPageState extends State<HistoryPromptPage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            PeripheralList(),
+            const PeripheralList(),
             const Divider(),
             AddCommandButton(mqttService: mqttService),
+            for (var control in advancedControlProvider.advancedControls)
+              ElevatedButton(
+                onPressed: () async {
+                  await control.executeCommand(mqttService);
+                },
+                child: Text(control.name),
+              ),
           ],
         ),
       ),
@@ -45,7 +54,7 @@ class PeripheralList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final peripheralProvider = Provider.of<PeripheralProvider>(context);
-    return Container(
+    return SizedBox(
       height: 200,
       child: peripheralProvider.peripherals.isEmpty
           ? const Center(child: Text("Add some peripherals to the list"))

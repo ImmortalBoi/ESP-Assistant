@@ -29,7 +29,7 @@ class CustomPeripheral extends StatelessWidget {
                   },
                   text: 'Custom car\nperipheral',
                   imagePath: 'assets/car.png')),
-          SizedBox(
+          const SizedBox(
             height: 30,
           ),
           Padding(

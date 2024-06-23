@@ -48,11 +48,11 @@ class _MyTankPageState extends State<MyTankPage> {
     return Scaffold(
       body: Column(
         children: [
-          SizedBox(
+          const SizedBox(
             height: 70,
           ),
           SwitchListTile(
-            title: Text('Update '),
+            title: const Text('Update '),
             value: _isActiveUpdate,
             onChanged: (bool value) {
               setState(() {
@@ -83,7 +83,7 @@ class _MyTankPageState extends State<MyTankPage> {
           ),
           ElevatedButton(
               onPressed: () => mqttService.publishMessage('{"active": 1}'),
-              child: Text("active")),
+              child: const Text("active")),
           Obx(() => SizedBox(
                 height: 100,
                 child: ListView.builder(

@@ -45,7 +45,7 @@ class MyButton extends StatelessWidget {
                   style: GoogleFonts.sora(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xff10405A),
+                    color: const Color(0xff10405A),
                   ),
                 )),
           ),
