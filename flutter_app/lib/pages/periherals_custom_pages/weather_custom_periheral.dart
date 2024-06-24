@@ -46,60 +46,6 @@ class _MyWeatherPageState extends State<MyWeatherPage> {
     }
 
     return Scaffold(
-<<<<<<< Updated upstream
-      body: Column(
-        children: [
-          const SizedBox(
-            height: 70,
-          ),
-          SwitchListTile(
-            title: const Text('Update '),
-            value: _isActiveUpdate,
-            onChanged: (bool value) {
-              setState(() {
-                _isActiveUpdate = value;
-              });
-              publishUpdates();
-            },
-          ),
-          SwitchListTile(
-            title: const Text('Switch Fan Value '),
-            value: _isActiveFan,
-            onChanged: (bool value) {
-              setState(() {
-                _isActiveFan = value;
-              });
-              publishFanValue(_isActiveFan);
-            },
-          ),
-          SwitchListTile(
-            title: const Text('Switch LED Value'),
-            value: _isActiveLED,
-            onChanged: (bool value) {
-              setState(() {
-                _isActiveLED = value;
-              });
-              publishLEDValue(_isActiveLED);
-            },
-          ),
-          ElevatedButton(
-              onPressed: () => mqttService.publishMessage('{"active": 1}'),
-              child: const Text("active")),
-          Obx(() => SizedBox(
-                height: 500,
-                child: ListView.builder(
-                  itemCount:
-                      mqttService.messages.length.clamp(0, 5), // Limit to 5
-                  itemBuilder: (context, index) {
-                    return Text(mqttService.messages[index]);
-                  },
-                ),
-              )),
-          // Center(
-          //   child: Text(mqttService.messages.last),
-          // ),
-        ],
-=======
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -154,7 +100,6 @@ class _MyWeatherPageState extends State<MyWeatherPage> {
             // ),
           ],
         ),
->>>>>>> Stashed changes
       ),
     );
   }
