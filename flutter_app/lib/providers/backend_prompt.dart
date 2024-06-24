@@ -12,19 +12,24 @@ class BackendService extends ChangeNotifier {
   BackendService(this.userProvider); // Constructor accepting UserProvider
   Future<dynamic> sendPeripheralData(List<Peripheral> peripherals,
       String request, String result, String resultDataType) async {
+    final username = (await userProvider.getUser())!.name;
     MqttController mqttService = MqttController(userProvider);
     const String url =
         'http://ec2-3-147-6-28.us-east-2.compute.amazonaws.com:8080/v2/config';
+    print("Here 1");
     final Map<String, dynamic> data = {
-      'Peripherals':
-          peripherals.map((peripheral) => peripheral.toMap()).toList(),
-      'Request': request,
-      'Result': result,
-      'Result_Datatype': resultDataType,
+      "Config": {
+        'Peripherals':
+            peripherals.map((peripheral) => peripheral.toMap()).toList(),
+        'Request': request,
+        'Result': result,
+        'Result_Datatype': resultDataType,
+      },
+      "Username": username
     };
-
+    print("Here 2");
     final String json = jsonEncode(data);
-    print('JSON Payload: $json');
+    print("Here 3");
 
     try {
       final response = await http.post(
@@ -37,7 +42,8 @@ class BackendService extends ChangeNotifier {
         await mqttService.waitForConnection();
 
         try {
-          await mqttService.publishMessageOnSuccess('{"type":"update"}');
+          await mqttService.publishMessageOnSuccess(
+              '{"update":${userProvider.configLength}}');
           print("MQTT message sent successfully.");
           return true;
         } catch (e) {
@@ -46,6 +52,7 @@ class BackendService extends ChangeNotifier {
         }
       } else {
         print('Failed to send data');
+        print(response.body);
         return false;
       }
     } catch (e) {

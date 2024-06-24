@@ -32,7 +32,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   void initState() {
     super.initState();
-    _textController = widget.controller ?? TextEditingController(text: widget.initialValue);
+    _textController =
+        widget.controller ?? TextEditingController(text: widget.initialValue);
 
     // Add listener if method is provided
     if (widget.method != null) {

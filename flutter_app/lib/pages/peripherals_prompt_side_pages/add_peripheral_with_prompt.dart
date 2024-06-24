@@ -8,14 +8,20 @@ import 'package:flutter_app/widgets/peripheral_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class AddPeripheralPage extends StatelessWidget {
+class AddPeripheralPage extends StatefulWidget {
   const AddPeripheralPage({super.key});
 
+  @override
+  State<AddPeripheralPage> createState() => _AddPeripheralPageState();
+}
+
+class _AddPeripheralPageState extends State<AddPeripheralPage> {
   @override
   Widget build(BuildContext context) {
     final TextEditingController requestController = TextEditingController();
     final TextEditingController resultController = TextEditingController();
-    final TextEditingController resultDataTypeController = TextEditingController();
+    final TextEditingController resultDataTypeController =
+        TextEditingController();
     final periheralProvider = Provider.of<PeripheralProvider>(context);
     final backendProvider = Provider.of<BackendService>(context);
     return Scaffold(
@@ -49,6 +55,7 @@ class AddPeripheralPage extends StatelessWidget {
           ),
           CustomTextField(
             hintText: 'enter prompt',
+            method: (value) => {requestController.text = value},
             obscureText: false,
             controller: requestController,
           ),
@@ -58,6 +65,7 @@ class AddPeripheralPage extends StatelessWidget {
           CustomTextField(
             hintText: 'enter result',
             obscureText: false,
+            method: (value) => {resultController.text = value},
             controller: resultController,
           ),
           const SizedBox(
@@ -66,6 +74,7 @@ class AddPeripheralPage extends StatelessWidget {
           CustomTextField(
             hintText: 'enter result data type',
             obscureText: false,
+            method: (value) => {resultDataTypeController.text = value},
             controller: resultDataTypeController,
           ),
           Padding(
@@ -75,6 +84,7 @@ class AddPeripheralPage extends StatelessWidget {
                 String request = requestController.text;
                 String result = resultController.text;
                 String resultDataType = resultDataTypeController.text;
+                print(result);
 
                 await backendProvider.sendPeripheralData(
                     periheralProvider.peripherals,

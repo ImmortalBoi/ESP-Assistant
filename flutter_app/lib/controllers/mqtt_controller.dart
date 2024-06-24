@@ -11,11 +11,28 @@ import 'package:typed_data/typed_buffers.dart';
 class MqttController extends GetxController {
   late MqttServerClient client;
   RxList<String> messages = <String>[].obs; // Use RxList for GetX
-  var user = UserData(name: "", password: "", mobileCert: Cert(thingName: "", pubTopic: "", subTopic: "", id: "", awsCertCrt: "", awsCertPrivate: ""), espCert: Cert(thingName: "", pubTopic: "", subTopic: "", id: "", awsCertCrt: "", awsCertPrivate: ""), isLoggedIn: true);
+  var user = UserData(
+      name: "",
+      password: "",
+      mobileCert: Cert(
+          thingName: "",
+          pubTopic: "",
+          subTopic: "",
+          id: "",
+          awsCertCrt: "",
+          awsCertPrivate: ""),
+      espCert: Cert(
+          thingName: "",
+          pubTopic: "",
+          subTopic: "",
+          id: "",
+          awsCertCrt: "",
+          awsCertPrivate: ""),
+      isLoggedIn: true);
 
   UserProvider provider;
 
-  MqttController(this.provider){
+  MqttController(this.provider) {
     provider.getUser().then((val) => user = val!);
   }
 
@@ -28,7 +45,9 @@ class MqttController extends GetxController {
   Future<void> _initializeClient() async {
     client = MqttServerClient(
         'a2a8tevfyn336a-ats.iot.eu-central-1.amazonaws.com', 'PhoneAWS_test1');
-    String subTopic = user.mobileCert.subTopic;
+    String? subTopic = user.mobileCert.subTopic;
+    print(user.mobileCert.pubTopic);
+
     client.onSubscribed = (topic) {
       print("Subscribed Successfully");
       client.updates?.listen((List<MqttReceivedMessage<MqttMessage>> c) {
@@ -61,6 +80,7 @@ class MqttController extends GetxController {
     client.securityContext.useCertificateChainBytes(deviceCertificateBytes);
 
     await _connectClient();
+    print("Subtopic: $subTopic");
     client.subscribe(subTopic, MqttQos.atLeastOnce);
   }
 

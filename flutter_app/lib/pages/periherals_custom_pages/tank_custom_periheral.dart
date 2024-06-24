@@ -16,7 +16,7 @@ class MyTankPage extends StatefulWidget {
 class _MyTankPageState extends State<MyTankPage> {
   bool _isActiveUpdate = false;
   bool _isActivePump = false;
-  bool _isActiveLED = false;
+  int _isActive = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -35,14 +35,6 @@ class _MyTankPageState extends State<MyTankPage> {
           jsonEncode({"pin": 14, "value": realVal, "type": "PUMP_PIN"});
       await mqttService.publishMessage(payload);
       print('Published Pump Update');
-    }
-
-    Future<void> publishLEDValue(bool val) async {
-      int realVal = val ? 1 : 0;
-      String payload =
-          jsonEncode({"pin": 19, "value": realVal, "type": "LED_PIN"});
-      await mqttService.publishMessage(payload);
-      print('Published LED update');
     }
 
     return Scaffold(
@@ -71,18 +63,15 @@ class _MyTankPageState extends State<MyTankPage> {
               publishPumpValue(_isActivePump);
             },
           ),
-          SwitchListTile(
-            title: const Text('Switch LED Value'),
-            value: _isActiveLED,
-            onChanged: (bool value) {
-              setState(() {
-                _isActiveLED = value;
-              });
-              publishLEDValue(_isActiveLED);
-            },
-          ),
           ElevatedButton(
-              onPressed: () => mqttService.publishMessage('{"active": 1}'),
+              onPressed: () {
+                mqttService.publishMessage('{"active": $_isActive}');
+                if (_isActive == 0) {
+                  _isActive = 1;
+                } else {
+                  _isActive = 0;
+                }
+              },
               child: const Text("active")),
           Obx(() => SizedBox(
                 height: 100,

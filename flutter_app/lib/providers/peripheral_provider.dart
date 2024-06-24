@@ -7,11 +7,10 @@ class PeripheralProvider extends ChangeNotifier {
 
   List<Peripheral> get peripherals => _peripherals;
 
-
-  void setPeripherals(List<dynamic> peripheralData) {
+  void setPeripherals(List<dynamic>? peripheralData) {
     print(peripheralData);
     // Convert the dynamic data to Peripheral objects
-    List<Peripheral> peripheralsList = peripheralData.map((peripheral) {
+    List<Peripheral>? peripheralsList = peripheralData?.map((peripheral) {
       return Peripheral(
         pin: peripheral["Pin"],
         name: peripheral["Name"],
@@ -20,7 +19,7 @@ class PeripheralProvider extends ChangeNotifier {
       );
     }).toList();
 
-    _peripherals = peripheralsList;
+    _peripherals = peripheralsList!;
     notifyListeners();
   }
 

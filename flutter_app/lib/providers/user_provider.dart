@@ -7,8 +7,8 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserProvider extends ChangeNotifier {
-
-   PeripheralProvider peripheralProvider; // Declare a private reference
+  PeripheralProvider peripheralProvider; // Declare a private reference
+  dynamic configLength; //
 
   // Constructor
   UserProvider(this.peripheralProvider); // Inject PeripheralProvider
@@ -35,7 +35,8 @@ class UserProvider extends ChangeNotifier {
     prefs.remove("user");
   }
 
-  Future<void> createNewUser(BuildContext context, String email, String password) async {
+  Future<void> createNewUser(
+      BuildContext context, String email, String password) async {
     const String apiUrl =
         'http://ec2-3-147-6-28.us-east-2.compute.amazonaws.com:8080/v2/user';
     final Map<String, String> body = {"Name": email, "Password": password};
@@ -55,7 +56,7 @@ class UserProvider extends ChangeNotifier {
         responseData["isLoggedIn"] = true;
         UserData user = UserData.fromJson(responseData);
         await setUser(user);
-        peripheralProvider = responseData["Config_gen"].last()["Peripherals"]; 
+        peripheralProvider = responseData["Config_gen"].last()["Peripherals"];
         Navigator.pushReplacementNamed(context, '/home');
       }
     } catch (e) {
@@ -63,7 +64,8 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> checkUserExists(BuildContext context, String email, String password) async {
+  Future<void> checkUserExists(
+      BuildContext context, String email, String password) async {
     final String apiUrl =
         "http://ec2-3-147-6-28.us-east-2.compute.amazonaws.com:8080/v2/session/$email/$password";
     print(apiUrl);
@@ -74,6 +76,7 @@ class UserProvider extends ChangeNotifier {
         'Content-Type': 'application/json; charset=UTF-8',
       },
     );
+
     try {
       if (response.statusCode == 200) {
         print("user exists");
@@ -81,8 +84,17 @@ class UserProvider extends ChangeNotifier {
         responseData["isLoggedIn"] = true;
         UserData user = UserData.fromJson(responseData);
         await setUser(user);
-        // Print all the keys in the responseData
-        peripheralProvider.setPeripherals(responseData["Config_gen"].last["Peripherals"]); 
+        print("user exists");
+
+        if (responseData["Config_gen"] != null &&
+            responseData["Config_gen"].isNotEmpty) {
+          var lastConfig = responseData["Config_gen"].last;
+          if (lastConfig != null && lastConfig["Peripherals"] != null) {
+            var peripherals = lastConfig["Peripherals"] as List<dynamic>?;
+            peripheralProvider.setPeripherals(peripherals);
+          }
+        }
+        configLength = responseData["Config_gen"].length;
 
         Navigator.pushReplacementNamed(context, '/myhomepage');
       } else {
@@ -92,7 +104,8 @@ class UserProvider extends ChangeNotifier {
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text('Account Not Found'),
-              content: const Text('The account does not exist. Please sign up first.'),
+              content: const Text(
+                  'The account does not exist. Please sign up first.'),
               actions: <Widget>[
                 TextButton(
                   child: const Text('OK'),
@@ -106,7 +119,7 @@ class UserProvider extends ChangeNotifier {
         );
       }
     } catch (e) {
-      print("$e");
+      print("Error: $e");
     }
   }
 

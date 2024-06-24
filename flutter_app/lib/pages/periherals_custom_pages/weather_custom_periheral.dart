@@ -17,6 +17,7 @@ class _MyWeatherPageState extends State<MyWeatherPage> {
   bool _isActiveUpdate = false;
   bool _isActiveFan = false;
   bool _isActiveLED = false;
+  int _isActive = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +33,7 @@ class _MyWeatherPageState extends State<MyWeatherPage> {
     Future<void> publishFanValue(bool val) async {
       int realVal = val ? 1 : 0;
       String payload =
-          jsonEncode({"pin": 5, "value": realVal, "type": "FAN_PIN"});
+          jsonEncode({"pin": 17, "value": realVal, "type": "FAN_PIN"});
       await mqttService.publishMessage(payload);
       print('Published Fan Update');
     }
@@ -40,7 +41,7 @@ class _MyWeatherPageState extends State<MyWeatherPage> {
     Future<void> publishLEDValue(bool val) async {
       int realVal = val ? 1 : 0;
       String payload =
-          jsonEncode({"pin": 19, "value": realVal, "type": "LED_PIN"});
+          jsonEncode({"pin": 21, "value": realVal, "type": "LED_PIN"});
       await mqttService.publishMessage(payload);
       print('Published LED update');
     }
@@ -83,8 +84,15 @@ class _MyWeatherPageState extends State<MyWeatherPage> {
               },
             ),
             ElevatedButton(
-                onPressed: () => mqttService.publishMessage('{"active": 1}'),
-                child: Text("active")),
+                onPressed: () {
+                  mqttService.publishMessage('{"active": $_isActive}');
+                  if (_isActive == 0) {
+                    _isActive = 1;
+                  } else {
+                    _isActive = 0;
+                  }
+                },
+                child: const Text("active")),
             Obx(() => SizedBox(
                   height: 600,
                   child: ListView.builder(
