@@ -689,7 +689,7 @@ void wifiSetup() {  //start of non-generated function
     Serial.println("Connected!");
     return;
   }
-  String password_AP = "12345678";
+  String password_AP = "123456789";
   String ssid_AP = "ESP32";
   WiFi.softAP(ssid_AP, password_AP);
   Serial.println("Created AP");

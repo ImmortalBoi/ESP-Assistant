@@ -120,8 +120,8 @@ StaticJsonDocument<200> receivedJson;
   const uint8_t pin = receivedJson["pin"];
   const int index = receivedJson["update"];
 
-  if (index) {
-    updatefunction(index);
+  if (receivedJson.containsKey("update")) {
+    updatefunction(receivedJson["update"]);
   }
 
   if (typ.equals("IN_PIN")) {
@@ -198,7 +198,7 @@ int avg;`, //global declarations
   deserializeJson(receivedJson, payload);
   Serial.println(tpc);
 
-  if (receivedJson["update"]) {
+  if (receivedJson.containsKey("update")) {
     updatefunction(receivedJson["update"]);
   }
 
@@ -281,7 +281,7 @@ String message = "";`, //global declarations
   uint8_t active = receivedJson["active"];
   const int index = receivedJson["update"];
 
-  if (!isnan(receivedJson["update"])) {
+  if (receivedJson.containsKey("update")) {
     updatefunction(receivedJson["update"]);
   }
   while (1 == active) {
@@ -294,33 +294,38 @@ String message = "";`, //global declarations
       humidity = -1.0;
       publishMessage();
       return;
-    }
-    else{
-      if (LDRState == HIGH) {
-        // turn LED on:
-        digitalWrite(LED_PIN, HIGH);
+    } else {
+      if (temp > 34) {
+        digitalWrite(Fan_PIN, HIGH);
       } else {
-        // turn LED off:
-        digitalWrite(LED_PIN, LOW);
+        digitalWrite(Fan_PIN, LOW);
       }
-      client.loop();
-      message = "Data Sent successfully";
-      publishMessage();
-      active = receivedJson["active"];
-      delay(2500);
     }
+
+    if (LDRState == HIGH) {
+      // turn LED on:
+      digitalWrite(LED_PIN, HIGH);
+    } else {
+      // turn LED off:
+      digitalWrite(LED_PIN, LOW);
+    }
+    message = "Data Sent successfully";
+    publishMessage();
+    client.loop();
+    active = receivedJson["active"];
+    delay(2500);
   }
 
-    //if type = fan ---> basic control fan ON/OFF
-    if (typ.equals("FAN_PIN")) {
-      digitalWrite(pin, value);
-    }
+  //if type = fan ---> basic control fan ON/OFF
+  if (typ.equals("FAN_PIN")) {
+    digitalWrite(pin, value);
+  }
 
-    //if type = led ---> basic control led ON/OFF
-    if (typ.equals("LED_PIN")) {
-      digitalWrite(pin, value);
-    }
-  }//end of semi-generated function`, //messageHandler
+  //if type = led ---> basic control led ON/OFF
+  if (typ.equals("LED_PIN")) {
+    digitalWrite(pin, value);
+  }
+}  //end of semi-generated function`, //messageHandler
 		`void setup() {  //start of semi-generated function
   Serial.begin(115200);
   WiFi.mode(WIFI_AP_STA);

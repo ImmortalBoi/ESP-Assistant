@@ -10,7 +10,7 @@ curl http://localhost:8080/v2/user \
     --include \
     --header "Content-Type: application/json" \
     --request "POST" \
-    --data '{"Name":"test6","Password":"test"}'\
+    --data '{"Name":"test8","Password":"test"}'\
     -o data.json
 echo
 
