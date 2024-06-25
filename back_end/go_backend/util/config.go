@@ -271,8 +271,8 @@ func sendCompileRequestV1(code string, libraries []string) (int, string) {
 
 func sendCompileRequestV2(code string, libraries []string, bucket_link string) (int, string) {
 	// Define the URL
-	link := "http://ec2-3-147-6-28.us-east-2.compute.amazonaws.com:5000/compile"
-	// link := "http://localhost:5000/compile"
+	// link := "http://ec2-3-147-6-28.us-east-2.compute.amazonaws.com:5000/compile"
+	link := "http://localhost:5000/compile"
 
 	// Create a compilePost object
 	data := compilePost{
