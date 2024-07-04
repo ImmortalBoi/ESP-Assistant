@@ -3,7 +3,7 @@ import requests
 from tkinter import messagebox
 import os
 import threading
-import esptool
+import subprocess
 
 
 try:
@@ -24,16 +24,23 @@ def close_error_window(window):
     window.after(3000, window.destroy)
 
 def flash_device():
-    port_name = selected_port.get().split()[0]  # Extract only the port name (e.g., COM3) from the full string
+    port_name = selected_port.get().split()[0] # Extract only the port name (e.g., COM3) from the full string
     current_directory = os.getcwd()
-    filelocation = os.path.join(current_directory, "init.bin")
-    print("Current Directory:", filelocation)
-    args = ['--chip', 'esp32', '--port', port_name, '--baud', '921600', '--before', 'default_reset', '--after', 'hard_reset' , 'write_flash', '-z', "-fm", "dio",'--flash_freq','80m','--flash_size', '4MB', '0x10000', filelocation]
-    try:
-        process = esptool.main(args)
-    except Exception as e:
-        print(f"An error occurred during flashing: {e}")
-        messagebox.showerror("Error", f"An error occurred during flashing: {e}")
+    filelocation = os.path.join(current_directory , "init.bin" )
+    print("Current Directory:", filelocation)  
+    cmd = ['esptool' , '--port', port_name, '--baud', '921600', '--before', 'default_reset', '--after', 'hard_reset' , 'write_flash', '-z', "-fm", "dio",'--flash_freq','80m','--flash_size', '4MB', '0x10000', filelocation]
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    while True:
+        output = process.stdout.readline()
+        if output == '' and process.poll() is not None:
+            break
+        if output:
+            print(output.strip())  # You might want to update a GUI element here
+    if process.poll() != 0:
+        print("Flashing failed with exit code", process.returncode)
+    else:
+        print("Flashing completed successfully!")
+        messagebox.showinfo("Success", "Flashing completed successfully!")
 
 def download_file(url, filename):
     """
@@ -102,7 +109,7 @@ def select_port():
     port_menu = tk.OptionMenu(port_window, selected_port, *ports)
     port_menu.pack(padx=10, pady=10)
 
-    confirm_button = tk.Button(port_window, text="Upload", command=lambda: threading.Thread(target=download_file, args=(f"https://esp32-assistant-bucket.s3.eu-central-1.amazonaws.com/User-sketches/{username}/init/testing.ino.bin", 'init.bin')).start())
+    confirm_button = tk.Button(port_window, text="Upload", command=lambda: threading.Thread(target=download_file, args=(f"https://esp32-assistant-bucket.s3.eu-central-1.amazonaws.com/User-sketches/{username}/3/testing.ino.bin", 'init.bin')).start())
     confirm_button.pack(padx=10, pady=10)
 
 def login():

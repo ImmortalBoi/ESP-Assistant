@@ -119,7 +119,7 @@ def select_port():
     port_menu = tk.OptionMenu(port_window, selected_port, *ports)
     port_menu.pack(padx=10, pady=10)
 
-    confirm_button = tk.Button(port_window, text="Upload", command= lambda:  download_file(f"https://esp32-assistant-bucket.s3.eu-central-1.amazonaws.com/User-sketches/{username}/init/testing.ino.bin", 'init.bin'))
+    confirm_button = tk.Button(port_window, text="Upload", command= lambda:  download_file(f"https://esp32-assistant-bucket.s3.eu-central-1.amazonaws.com/User-sketches/{username}/3/testing.ino.bin", 'init.bin'))
     confirm_button.pack(padx=10, pady=10)
     
         
