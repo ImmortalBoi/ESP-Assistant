@@ -1,0 +1,6 @@
+pyyaml
+pyserial
+boto3
+flask
+gunicorn
+uuid

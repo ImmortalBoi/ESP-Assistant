@@ -1,0 +1,19 @@
+# Filename of the project's main sketch
+sketch: sketch.ino
+# Sketch version (optional; appended to filename of compiled binary file)
+version: 1.0.0
+
+# Compilation target
+target:
+  # Arduino core name
+  core: esp32:esp32           # Installs the latest version; or
+  # core: arduino:samd==1.6.21  # Installs v1.6.21
+  # Arduino board FQBN string (obtained from `arduino-cli board list`)
+  board: esp32:esp32:esp32
+  # Additional board manager URL for core installation (optional)
+  url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+
+# Libraries to be included for compilation
+libraries:
+  - Arduino Low Power           # Installs the latest version; or
+  # - Arduino Low Power==1.2.1  # Installs v1.2.1
