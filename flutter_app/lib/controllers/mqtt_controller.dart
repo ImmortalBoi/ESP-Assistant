@@ -11,7 +11,7 @@ import 'package:typed_data/typed_buffers.dart';
 class MqttController extends GetxController {
   late MqttServerClient client;
   RxList<String> messages = <String>[].obs; // Use RxList for GetX
-  var user = UserData(
+  late UserData user = UserData(
       name: "",
       password: "",
       mobileCert: Cert(
@@ -32,7 +32,7 @@ class MqttController extends GetxController {
 
   UserProvider provider;
 
-  MqttController(this.provider) {
+  MqttController(this.provider){
     provider.getUser().then((val) => user = val!);
   }
 
@@ -45,7 +45,7 @@ class MqttController extends GetxController {
   Future<void> _initializeClient() async {
     client = MqttServerClient(
         'a2a8tevfyn336a-ats.iot.eu-central-1.amazonaws.com', 'PhoneAWS_test1');
-    String? subTopic = user.mobileCert.subTopic;
+    String subTopic = user.mobileCert.subTopic;
     print(user.mobileCert.pubTopic);
 
     client.onSubscribed = (topic) {

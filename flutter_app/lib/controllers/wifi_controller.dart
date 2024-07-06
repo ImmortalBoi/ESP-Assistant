@@ -25,7 +25,7 @@ class WifiController extends GetxController {
   }
 
   void requestESPWifiList() async {
-    await WiFiForIoTPlugin.findAndConnect("ESP32", password: "12345678")
+    await WiFiForIoTPlugin.findAndConnect("ESP32", password: "123456789")
         .then((value) async {
       WiFiForIoTPlugin.forceWifiUsage(true);
       ip.value = (await WiFiForIoTPlugin.getIP())!;
